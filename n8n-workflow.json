@@ -1,0 +1,440 @@
+{
+  "name": "Weekly Blog Post Generator for Next.js",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [6]
+            }
+          ]
+        }
+      },
+      "id": "schedule-trigger",
+      "name": "Schedule Trigger - Weekly",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://techcrunch.com/tag/artificial-intelligence/feed/",
+        "options": {}
+      },
+      "id": "techcrunch-rss",
+      "name": "Read TechCrunch RSS",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [460, 200]
+    },
+    {
+      "parameters": {
+        "url": "https://lastweekin.ai/feed",
+        "options": {}
+      },
+      "id": "lastweekin-rss",
+      "name": "Read LastWeekIn.AI RSS",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://research.google/blog/rss/",
+        "options": {}
+      },
+      "id": "google-research-rss",
+      "name": "Read Google Research RSS",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [460, 400]
+    },
+    {
+      "parameters": {
+        "maxItems": 3
+      },
+      "id": "limit-techcrunch",
+      "name": "Limit TechCrunch to 3",
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [680, 200]
+    },
+    {
+      "parameters": {
+        "maxItems": 3
+      },
+      "id": "limit-lastweekin",
+      "name": "Limit LastWeekIn.AI to 3",
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "maxItems": 3
+      },
+      "id": "limit-google-research",
+      "name": "Limit Google Research to 3",
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [680, 400]
+    },
+    {
+      "parameters": {
+        "numberInputs": 3
+      },
+      "id": "merge-feeds",
+      "name": "Merge All Feeds",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "contentSnippet",
+              "renameField": true,
+              "outputFieldName": "allArticles"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "combine-articles",
+      "name": "Combine All Articles",
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [1120, 300]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.allArticles }}",
+        "options": {
+          "systemMessage": "You are an AI content writer for a technical blog focused on AI & Cloud Transformation. Your task is to take multiple RSS feed article summaries and create ONE comprehensive, engaging blog post in Markdown format.\n\nGuidelines:\n- Read through all the provided article summaries\n- Identify the key themes and important developments in AI, cloud computing, and enterprise technology\n- Create a cohesive blog post that covers the main points from all articles\n- Write in a clear, professional, and engaging tone suitable for enterprise technology leaders\n- Use Markdown formatting: ## for section headings, **bold** for emphasis\n- Structure with clear sections and paragraphs\n- Make it informative and valuable for readers\n- Aim for 500-800 words total\n- Focus on actionable insights and implications for enterprise transformation\n- The post should feel like a unified roundup, not separate summaries\n- Write in a way that demonstrates thought leadership in AI and cloud transformation"
+        }
+      },
+      "id": "ai-agent",
+      "name": "AI Agent - Generate Blog Post",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [1340, 300]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "gemini-model",
+      "name": "Google Gemini Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [1340, 500],
+      "credentials": {
+        "googlePalmApi": {
+          "id": "FYxCSN0McHRTSBBm",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract AI-generated content and format for Next.js markdown blog\nconst items = $input.all();\nconst processedItems = [];\n\nfor (const item of items) {\n  const aiOutput = item.json.output || item.json.text || '';\n  \n  // Extract title (first line or marked with Title:)\n  let title = '';\n  let content = aiOutput;\n  \n  // Try to extract title from various formats\n  const titleMatch = aiOutput.match(/^(?:Title:|#)\\s*(.+?)(?:\\n|$)/i);\n  if (titleMatch) {\n    title = titleMatch[1].trim();\n    content = aiOutput.replace(/^(?:Title:|#)\\s*.+?(?:\\n|$)/i, '').trim();\n  } else {\n    // Use first line as title if no marker\n    const lines = aiOutput.split('\\n');\n    title = lines[0].trim().replace(/^#+\\s*/, '');\n    content = lines.slice(1).join('\\n').trim();\n  }\n  \n  // Clean the title\n  const cleanTitle = title.replace(/[^a-zA-Z0-9\\s-]/g, '').replace(/\\s+/g, ' ').trim();\n  \n  // Generate slug from title (for filename)\n  const slug = cleanTitle\n    .toLowerCase()\n    .replace(/[^a-z0-9\\s-]/g, '')\n    .replace(/\\s+/g, '-')\n    .replace(/-+/g, '-')\n    .replace(/^-|-$/g, '');\n  \n  // Get current date in YYYY-MM-DD format\n  const today = new Date();\n  const dateStr = today.toISOString().split('T')[0];\n  \n  // Ensure content is proper markdown (clean up any HTML)\n  let markdownContent = content\n    .replace(/<p>/g, '')\n    .replace(/<\\/p>/g, '\\n\\n')\n    .replace(/<strong>(.+?)<\\/strong>/g, '**$1**')\n    .replace(/<em>(.+?)<\\/em>/g, '*$1*')\n    .replace(/<h2>(.+?)<\\/h2>/g, '## $1')\n    .replace(/<h3>(.+?)<\\/h3>/g, '### $1')\n    .replace(/<ul>/g, '')\n    .replace(/<\\/ul>/g, '\\n')\n    .replace(/<li>(.+?)<\\/li>/g, '- $1\\n')\n    .replace(/<a href=\"(.+?)\">(.+?)<\\/a>/g, '[$2]($1)')\n    .trim();\n  \n  // Create frontmatter\n  const frontmatter = `---\\ntitle: \"${cleanTitle}\"\\ndate: \"${dateStr}\"\\nslug: \"${slug}\"\\n---\\n\\n`;\n  \n  // Combine frontmatter and content\n  const fullMarkdown = frontmatter + markdownContent;\n  \n  // Base64 encode for GitHub API\n  const base64Content = Buffer.from(fullMarkdown, 'utf8').toString('base64');\n  \n  processedItems.push({\n    json: {\n      ...item.json,\n      title: cleanTitle,\n      slug: slug,\n      date: dateStr,\n      filename: `${slug}.md`,\n      content: markdownContent,\n      fullMarkdown: fullMarkdown,\n      base64Content: base64Content,\n      filePath: `content/blog/${slug}.md`\n    }\n  });\n}\n\nreturn processedItems;"
+      },
+      "id": "format-markdown",
+      "name": "Format Markdown & Generate Frontmatter",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1560, 300]
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "=https://api.github.com/repos/premcool/prem-website/contents/content/blog/{{ $json.filename }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/vnd.github.v3+json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "message",
+              "value": "={{ `Add weekly blog post: ${$json.title}` }}"
+            },
+            {
+              "name": "content",
+              "value": "={{ $json.base64Content }}"
+            },
+            {
+              "name": "branch",
+              "value": "main"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "create-github-file",
+      "name": "Create File in GitHub",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [1780, 300],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "github-token",
+          "name": "GitHub Personal Access Token"
+        }
+      },
+      "notes": "Requires GitHub token with repo permissions. Token should be in Authorization header as 'token YOUR_TOKEN'"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.github.com/repos/premcool/prem-website/dispatches",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/vnd.github.v3+json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "event_type",
+              "value": "rebuild"
+            },
+            {
+              "name": "client_payload",
+              "value": "={{ JSON.stringify({ blog_post: $json.filename }) }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "trigger-rebuild",
+      "name": "Trigger Site Rebuild (Optional)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [2000, 300],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "github-token",
+          "name": "GitHub Personal Access Token"
+        }
+      },
+      "notes": "Optional: Triggers GitHub Actions workflow to rebuild site. Requires repository_dispatch event in GitHub Actions."
+    },
+    {
+      "parameters": {
+        "fromEmail": "prem@prems.in",
+        "toEmail": "prem@prems.in",
+        "subject": "={{ `Weekly Blog Post Created: ${$('Format Markdown & Generate Frontmatter').item.json.title}` }}",
+        "html": "=<h2>Weekly Blog Post Created Successfully</h2>\n<p><strong>Post Title:</strong> {{ $('Format Markdown & Generate Frontmatter').item.json.title }}</p>\n<p><strong>Filename:</strong> {{ $('Format Markdown & Generate Frontmatter').item.json.filename }}</p>\n<p><strong>Date:</strong> {{ $('Format Markdown & Generate Frontmatter').item.json.date }}</p>\n<p><strong>GitHub URL:</strong> <a href=\"https://github.com/premcool/prem-website/blob/main/content/blog/{{ $('Format Markdown & Generate Frontmatter').item.json.filename }}\">View on GitHub</a></p>\n<p>The blog post has been created and committed to the repository. The site will rebuild automatically if configured with Vercel/Netlify webhooks.</p>",
+        "options": {}
+      },
+      "id": "send-success-email",
+      "name": "Send Success Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [2220, 300]
+    }
+  ],
+  "connections": {
+    "Schedule Trigger - Weekly": {
+      "main": [
+        [
+          {
+            "node": "Read TechCrunch RSS",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Read LastWeekIn.AI RSS",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Read Google Research RSS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read TechCrunch RSS": {
+      "main": [
+        [
+          {
+            "node": "Limit TechCrunch to 3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read LastWeekIn.AI RSS": {
+      "main": [
+        [
+          {
+            "node": "Limit LastWeekIn.AI to 3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Google Research RSS": {
+      "main": [
+        [
+          {
+            "node": "Limit Google Research to 3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit TechCrunch to 3": {
+      "main": [
+        [
+          {
+            "node": "Merge All Feeds",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit LastWeekIn.AI to 3": {
+      "main": [
+        [
+          {
+            "node": "Merge All Feeds",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Limit Google Research to 3": {
+      "main": [
+        [
+          {
+            "node": "Merge All Feeds",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Merge All Feeds": {
+      "main": [
+        [
+          {
+            "node": "Combine All Articles",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Combine All Articles": {
+      "main": [
+        [
+          {
+            "node": "AI Agent - Generate Blog Post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent - Generate Blog Post": {
+      "main": [
+        [
+          {
+            "node": "Format Markdown & Generate Frontmatter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent - Generate Blog Post",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Markdown & Generate Frontmatter": {
+      "main": [
+        [
+          {
+            "node": "Create File in GitHub",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create File in GitHub": {
+      "main": [
+        [
+          {
+            "node": "Trigger Site Rebuild (Optional)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send Success Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Trigger Site Rebuild (Optional)": {
+      "main": [
+        [
+          {
+            "node": "Send Success Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2024-01-01T00:00:00.000Z",
+  "versionId": "1"
+}
