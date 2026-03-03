@@ -2,7 +2,7 @@ import Script from 'next/script';
 import { getAllPosts } from '@/lib/posts';
 
 export default function StructuredData() {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://premsaktheesh.com';
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://prems.in';
   const posts = getAllPosts();
   
   const personSchema = {

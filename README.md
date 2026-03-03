@@ -50,7 +50,7 @@ cp .env.local.example .env.local
 Edit `.env.local` and configure:
 ```
 # Required: Your site URL (for sitemap, RSS feed, and social sharing)
-NEXT_PUBLIC_SITE_URL=https://premsaktheesh.com
+NEXT_PUBLIC_SITE_URL=https://prems.in
 
 # Optional: GitHub token (recommended to avoid rate limiting)
 GITHUB_TOKEN=your_github_token_here

@@ -4,7 +4,7 @@ import SocialShare from '@/components/SocialShare';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 
-const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://premsaktheesh.com';
+const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://prems.in';
 
 export const revalidate = 3600;
 

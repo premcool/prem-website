@@ -12,7 +12,7 @@ export default function SocialShare({ url, title, description }: SocialShareProp
   const encodedDescription = description ? encodeURIComponent(description) : '';
 
   const shareLinks = {
-    twitter: `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}${encodedDescription ? `&via=premsaktheesh` : ''}`,
+    twitter: `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}${encodedDescription ? `&via=prems` : ''}`,
     linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`,
     facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`,
   };

@@ -2,7 +2,7 @@ import { MetadataRoute } from 'next';
 import { getAllPostSlugs } from '@/lib/posts';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://premsaktheesh.com';
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://prems.in';
   
   // Get all blog post slugs
   const blogSlugs = getAllPostSlugs();

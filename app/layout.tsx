@@ -8,7 +8,7 @@ import StructuredData from '@/components/StructuredData';
 
 const inter = Inter({ subsets: ['latin'] });
 
-const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://premsaktheesh.com';
+const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://prems.in';
 
 export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),
@@ -57,7 +57,7 @@ export const metadata: Metadata = {
     title: 'Prem Saktheesh - AI & Cloud Transformation Leader',
     description: '26+ years leading $35M portfolios, 300+ global teams, and $100M+ modernization programs.',
     images: [`${baseUrl}/og-image.jpg`],
-    creator: '@premsaktheesh',
+    creator: '@prems',
   },
   robots: {
     index: true,

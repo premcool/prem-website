@@ -1,7 +1,7 @@
 import { getAllPosts } from '@/lib/posts';
 
 export async function GET() {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://premsaktheesh.com';
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://prems.in';
   const posts = getAllPosts();
 
   const rss = `<?xml version="1.0" encoding="UTF-8" ?>
