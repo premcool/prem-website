@@ -1,28 +1,83 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getPostBySlug } from '@/lib/posts';
-import { kv } from '@vercel/kv';
+import { Redis } from '@upstash/redis';
+import nodemailer from 'nodemailer';
 
 const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://prems.in';
 const SUBSCRIBERS_KEY = 'newsletter:subscribers';
 
-// Get subscribers from Vercel KV
+// Initialize Redis client
+function getRedisClient() {
+  // Support both naming conventions for flexibility
+  const url = process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL;
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN;
+
+  if (!url || !token) {
+    throw new Error('UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN (or KV_REST_API_URL and KV_REST_API_TOKEN) must be set');
+  }
+
+  return new Redis({
+    url,
+    token,
+  });
+}
+
+// Get subscribers from Upstash Redis
 async function getSubscribers(): Promise<string[]> {
   try {
-    const subscribers = await kv.smembers(SUBSCRIBERS_KEY);
-    return subscribers || [];
+    const redis = getRedisClient();
+    const subscribers = await redis.smembers(SUBSCRIBERS_KEY);
+    return (subscribers || []).map((s: any) => String(s));
   } catch (error) {
-    console.error('Error reading subscribers from KV:', error);
+    console.error('Error reading subscribers from Redis:', error);
     return [];
   }
 }
 
-// Send email using Resend API
+// Send email using SMTP or Resend API
 async function sendEmail(to: string, subject: string, html: string) {
-  const resendApiKey = process.env.RESEND_API_KEY;
+  // Check if SMTP is configured (for mailinabox or other SMTP servers)
+  const smtpHost = process.env.SMTP_HOST;
+  const smtpPort = process.env.SMTP_PORT;
+  const smtpUser = process.env.SMTP_USER;
+  const smtpPassword = process.env.SMTP_PASSWORD;
+  const smtpFrom = process.env.SMTP_FROM_EMAIL || process.env.RESEND_FROM_EMAIL || 'Prem Saktheesh <prem@prems.in>';
 
+  // Use SMTP if configured
+  if (smtpHost && smtpPort && smtpUser && smtpPassword) {
+    try {
+      const transporter = nodemailer.createTransport({
+        host: smtpHost,
+        port: parseInt(smtpPort, 10),
+        secure: smtpPort === '465', // true for 465, false for other ports
+        auth: {
+          user: smtpUser,
+          pass: smtpPassword,
+        },
+        // For mailinabox and self-hosted servers, might need to allow self-signed certs
+        tls: {
+          rejectUnauthorized: process.env.SMTP_SECURE !== 'false',
+        },
+      });
+
+      const info = await transporter.sendMail({
+        from: smtpFrom,
+        to,
+        subject,
+        html,
+      });
+
+      return { id: info.messageId, success: true };
+    } catch (error: any) {
+      console.error('SMTP error:', error);
+      throw new Error(`SMTP error: ${error.message}`);
+    }
+  }
+
+  // Fallback to Resend API if SMTP not configured
+  const resendApiKey = process.env.RESEND_API_KEY;
   if (!resendApiKey) {
-    console.error('RESEND_API_KEY is not configured');
-    throw new Error('Email service not configured');
+    throw new Error('Email service not configured. Please set SMTP settings or RESEND_API_KEY');
   }
 
   const response = await fetch('https://api.resend.com/emails', {
@@ -32,7 +87,7 @@ async function sendEmail(to: string, subject: string, html: string) {
       Authorization: `Bearer ${resendApiKey}`,
     },
     body: JSON.stringify({
-      from: process.env.RESEND_FROM_EMAIL || 'Prem Saktheesh <prem@prems.in>',
+      from: smtpFrom,
       to,
       subject,
       html,

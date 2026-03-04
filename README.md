@@ -192,11 +192,19 @@ This ensures content stays fresh while maintaining excellent performance.
 | `NEXT_PUBLIC_SITE_URL` | Your website URL (for sitemap, RSS, social sharing) | Yes |
 | `GITHUB_TOKEN` | GitHub personal access token for API requests | No (recommended) |
 | `NEXT_PUBLIC_GA_MEASUREMENT_ID` | Google Analytics 4 Measurement ID (format: G-XXXXXXXXXX) | No |
-| `RESEND_API_KEY` | Resend API key for sending newsletter emails | No (required for newsletter) |
+| `SMTP_HOST` | SMTP server hostname (e.g., box.prolysi.com) | No (required for SMTP, or use Resend) |
+| `SMTP_PORT` | SMTP server port (usually 587 for TLS, 465 for SSL, 25 for plain) | No (required for SMTP) |
+| `SMTP_USER` | SMTP username/email address | No (required for SMTP) |
+| `SMTP_PASSWORD` | SMTP password | No (required for SMTP) |
+| `SMTP_FROM_EMAIL` | Email address to send newsletters from (default: prem@prems.in) | No |
+| `SMTP_SECURE` | Set to 'false' to allow self-signed certificates (default: true) | No |
+| `RESEND_API_KEY` | Resend API key for sending newsletter emails (alternative to SMTP) | No (use SMTP or Resend) |
 | `RESEND_FROM_EMAIL` | Email address to send newsletters from (default: prem@prems.in) | No |
 | `NEWSLETTER_WEBHOOK_SECRET` | Secret key for newsletter webhook security | No (recommended) |
-| `KV_REST_API_URL` | Vercel KV REST API URL (for newsletter subscribers) | Yes (required for newsletter) |
-| `KV_REST_API_TOKEN` | Vercel KV REST API token (for newsletter subscribers) | Yes (required for newsletter) |
+| `UPSTASH_REDIS_REST_URL` | Upstash Redis REST API URL (for newsletter subscribers) | Yes (required for newsletter) |
+| `UPSTASH_REDIS_REST_TOKEN` | Upstash Redis REST API token (for newsletter subscribers) | Yes (required for newsletter) |
+| `KV_REST_API_URL` | Alternative name for UPSTASH_REDIS_REST_URL (backward compatibility) | No (use UPSTASH_REDIS_REST_URL instead) |
+| `KV_REST_API_TOKEN` | Alternative name for UPSTASH_REDIS_REST_TOKEN (backward compatibility) | No (use UPSTASH_REDIS_REST_TOKEN instead) |
 
 ## Deployment
 
@@ -272,8 +280,8 @@ The newsletter uses Redis to store subscribers. For VPS deployment, we recommend
 Add to your `.env.premwebsite` or docker-compose environment:
 
 ```
-KV_REST_API_URL=https://your-db-name.upstash.io
-KV_REST_API_TOKEN=your-upstash-token
+UPSTASH_REDIS_REST_URL=https://your-db-name.upstash.io
+UPSTASH_REDIS_REST_TOKEN=your-upstash-token
 RESEND_API_KEY=re_xxxxxxxxxxxxx
 RESEND_FROM_EMAIL=Prem Saktheesh <prem@prems.in>
 NEWSLETTER_WEBHOOK_SECRET=your-secret-key-here
@@ -283,12 +291,14 @@ NEWSLETTER_WEBHOOK_SECRET=your-secret-key-here
 Add to your `.env.local`:
 
 ```
-KV_REST_API_URL=https://your-db-name.upstash.io
-KV_REST_API_TOKEN=your-upstash-token
+UPSTASH_REDIS_REST_URL=https://your-db-name.upstash.io
+UPSTASH_REDIS_REST_TOKEN=your-upstash-token
 RESEND_API_KEY=re_xxxxxxxxxxxxx
 RESEND_FROM_EMAIL=Prem Saktheesh <prem@prems.in>
 NEWSLETTER_WEBHOOK_SECRET=your-secret-key-here
 ```
+
+**Note**: This uses `@upstash/redis` package, which works on **any platform** (VPS, Vercel, AWS, etc.). It's not tied to Vercel - Upstash is an independent Redis service provider.
 
 ### 4. Integrate with n8n Workflow
 

@@ -15,12 +15,14 @@
     "gray-matter": "^4.0.3",
     "remark": "^15.0.1",
     "remark-html": "^16.0.1",
-    "@vercel/kv": "^0.2.1"
+    "@upstash/redis": "^1.24.3",
+    "nodemailer": "^6.9.8"
   },
   "devDependencies": {
     "@types/node": "^20.11.0",
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
+    "@types/nodemailer": "^6.4.14",
     "autoprefixer": "^10.4.17",
     "eslint": "^8.57.0",
     "eslint-config-next": "^14.2.0",
