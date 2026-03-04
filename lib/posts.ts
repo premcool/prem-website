@@ -6,10 +6,14 @@ import html from 'remark-html';
 
 const postsDirectory = path.join(process.cwd(), 'content/blog');
 
+export type BlogCategory = 'AI Roundup' | 'Crypto Roundup' | 'Industry Updates';
+
 export interface Post {
   slug: string;
   title: string;
   date: string;
+  category?: BlogCategory;
+  image?: string;
   content: string;
   contentHtml: string;
 }
@@ -18,6 +22,8 @@ interface PostFrontmatter {
   title?: string;
   date?: string;
   slug?: string;
+  category?: BlogCategory;
+  image?: string;
 }
 
 export function getAllPosts(): Post[] {
@@ -56,6 +62,8 @@ export function getAllPosts(): Post[] {
             slug,
             title: data.title,
             date: data.date,
+            category: data.category,
+            image: data.image,
             content: matterResult.content,
             contentHtml: '', // Will be populated when needed
           };
@@ -109,6 +117,8 @@ export async function getPostBySlug(slug: string): Promise<Post | null> {
       slug,
       title: data.title,
       date: data.date,
+      category: data.category,
+      image: data.image,
       content: matterResult.content,
       contentHtml,
     };
@@ -133,4 +143,21 @@ export function getAllPostSlugs(): string[] {
     console.error('Error reading posts directory:', error);
     return [];
   }
+}
+
+export function getPostsByCategory(category: BlogCategory): Post[] {
+  return getAllPosts().filter((post) => post.category === category);
+}
+
+export function getAllCategories(): BlogCategory[] {
+  const categories = new Set<BlogCategory>();
+  getAllPosts().forEach((post) => {
+    if (post.category) {
+      categories.add(post.category);
+    }
+  });
+  // Return all available categories, even if no posts have them yet
+  // This ensures the filter UI is always visible
+  const allAvailableCategories: BlogCategory[] = ['AI Roundup', 'Crypto Roundup', 'Industry Updates'];
+  return allAvailableCategories;
 }

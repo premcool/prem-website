@@ -178,6 +178,13 @@ This ensures content stays fresh while maintaining excellent performance.
 - Event tracking utilities available in `lib/analytics.ts`
 - Configure with `NEXT_PUBLIC_GA_MEASUREMENT_ID` environment variable
 
+### Newsletter
+- Email subscription form in footer
+- Subscribers stored locally in `data/newsletter-subscribers.json`
+- Automatic email sending when new blog posts are published
+- Uses Resend API for email delivery
+- Unsubscribe functionality included
+
 ## Environment Variables
 
 | Variable | Description | Required |
@@ -185,6 +192,9 @@ This ensures content stays fresh while maintaining excellent performance.
 | `NEXT_PUBLIC_SITE_URL` | Your website URL (for sitemap, RSS, social sharing) | Yes |
 | `GITHUB_TOKEN` | GitHub personal access token for API requests | No (recommended) |
 | `NEXT_PUBLIC_GA_MEASUREMENT_ID` | Google Analytics 4 Measurement ID (format: G-XXXXXXXXXX) | No |
+| `RESEND_API_KEY` | Resend API key for sending newsletter emails | No (required for newsletter) |
+| `RESEND_FROM_EMAIL` | Email address to send newsletters from (default: prem@prems.in) | No |
+| `NEWSLETTER_WEBHOOK_SECRET` | Secret key for newsletter webhook security | No (recommended) |
 
 ## Deployment
 
@@ -207,9 +217,51 @@ The application can be deployed to any platform that supports Next.js:
 - DigitalOcean App Platform
 
 Make sure to:
-1. Set required environment variables (`NEXT_PUBLIC_SITE_URL` and optionally `GITHUB_TOKEN`, `NEXT_PUBLIC_GA_MEASUREMENT_ID`)
+1. Set required environment variables (`NEXT_PUBLIC_SITE_URL` and optionally `GITHUB_TOKEN`, `NEXT_PUBLIC_GA_MEASUREMENT_ID`, `RESEND_API_KEY`)
 2. Run `npm run build` during build process
 3. Use `npm start` for production server
+
+## Newsletter Setup
+
+### 1. Get Resend API Key
+
+1. Sign up at [Resend](https://resend.com)
+2. Create an API key in the dashboard
+3. Add your domain and verify it (for production)
+
+### 2. Configure Environment Variables
+
+Add to your `.env.local` or deployment platform:
+
+```
+RESEND_API_KEY=re_xxxxxxxxxxxxx
+RESEND_FROM_EMAIL=Prem Saktheesh <prem@prems.in>
+NEWSLETTER_WEBHOOK_SECRET=your-secret-key-here
+```
+
+### 3. Integrate with n8n Workflow
+
+Add an HTTP Request node to your n8n workflow after creating a blog post:
+
+- **Method**: POST
+- **URL**: `https://your-domain.com/api/newsletter/send`
+- **Headers**:
+  - `Content-Type`: `application/json`
+  - `x-webhook-secret`: `your-secret-key-here` (if using `NEWSLETTER_WEBHOOK_SECRET`)
+- **Body**:
+```json
+{
+  "slug": "{{ $json.slug }}"
+}
+```
+
+This will automatically send the new blog post to all subscribers.
+
+### 4. Subscriber Management
+
+- Subscribers are stored in `data/newsletter-subscribers.json`
+- This file is gitignored for privacy
+- For production, consider using a database or email service with built-in subscriber management
 
 ## Customization
 

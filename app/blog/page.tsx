@@ -1,38 +1,29 @@
-import { getAllPosts } from '@/lib/posts';
+import { getAllPosts, getAllCategories } from '@/lib/posts';
 import Section from '@/components/Section';
-import BlogCard from '@/components/BlogCard';
+import BlogFilter from '@/components/BlogFilter';
 import type { Metadata } from 'next';
 
-export const revalidate = 3600;
+// Force dynamic rendering in development, use ISR in production
+export const dynamic = process.env.NODE_ENV === 'development' ? 'force-dynamic' : 'auto';
+export const revalidate = process.env.NODE_ENV === 'development' ? 0 : 3600;
 
 export const metadata: Metadata = {
   title: 'Blog',
 };
 
 export default function Blog() {
-  const posts = getAllPosts();
+  const allPosts = getAllPosts();
+  const categories = getAllCategories();
 
   return (
     <div className="py-12">
       <Section>
-        <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">Blog</h1>
-        <p className="text-xl text-slate-300 mb-12">
+        <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">Blog</h1>
+        <p className="text-lg sm:text-xl text-slate-300 mb-8">
           Insights on AI, cloud transformation, enterprise architecture, and technology leadership.
         </p>
 
-        {posts.length > 0 ? (
-          <div className="grid md:grid-cols-2 gap-6">
-            {posts.map((post) => (
-              <BlogCard key={post.slug} post={post} />
-            ))}
-          </div>
-        ) : (
-          <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-12 text-center">
-            <p className="text-slate-300">
-              No blog posts yet. Check back soon for updates.
-            </p>
-          </div>
-        )}
+        <BlogFilter posts={allPosts} categories={categories} />
       </Section>
     </div>
   );
