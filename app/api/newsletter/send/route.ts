@@ -1,21 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
 import { getPostBySlug } from '@/lib/posts';
+import { kv } from '@vercel/kv';
 
-const subscribersFile = path.join(process.cwd(), 'data', 'newsletter-subscribers.json');
 const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://prems.in';
+const SUBSCRIBERS_KEY = 'newsletter:subscribers';
 
-// Read subscribers from file
-function getSubscribers(): string[] {
-  if (!fs.existsSync(subscribersFile)) {
-    return [];
-  }
+// Get subscribers from Vercel KV
+async function getSubscribers(): Promise<string[]> {
   try {
-    const data = fs.readFileSync(subscribersFile, 'utf8');
-    return JSON.parse(data);
+    const subscribers = await kv.smembers(SUBSCRIBERS_KEY);
+    return subscribers || [];
   } catch (error) {
-    console.error('Error reading subscribers file:', error);
+    console.error('Error reading subscribers from KV:', error);
     return [];
   }
 }
@@ -84,7 +80,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Get subscribers
-    const subscribers = getSubscribers();
+    const subscribers = await getSubscribers();
 
     if (subscribers.length === 0) {
       return NextResponse.json(

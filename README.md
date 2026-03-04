@@ -180,7 +180,7 @@ This ensures content stays fresh while maintaining excellent performance.
 
 ### Newsletter
 - Email subscription form in footer
-- Subscribers stored locally in `data/newsletter-subscribers.json`
+- Subscribers stored in Vercel KV (Redis) for production compatibility
 - Automatic email sending when new blog posts are published
 - Uses Resend API for email delivery
 - Unsubscribe functionality included
@@ -195,6 +195,8 @@ This ensures content stays fresh while maintaining excellent performance.
 | `RESEND_API_KEY` | Resend API key for sending newsletter emails | No (required for newsletter) |
 | `RESEND_FROM_EMAIL` | Email address to send newsletters from (default: prem@prems.in) | No |
 | `NEWSLETTER_WEBHOOK_SECRET` | Secret key for newsletter webhook security | No (recommended) |
+| `KV_REST_API_URL` | Vercel KV REST API URL (for newsletter subscribers) | Yes (required for newsletter) |
+| `KV_REST_API_TOKEN` | Vercel KV REST API token (for newsletter subscribers) | Yes (required for newsletter) |
 
 ## Deployment
 
@@ -223,23 +225,72 @@ Make sure to:
 
 ## Newsletter Setup
 
-### 1. Get Resend API Key
+### 1. Set Up Redis Storage (Required for Newsletter)
+
+The newsletter uses Redis to store subscribers. For VPS deployment, we recommend **Upstash Redis** (free tier available, works via REST API).
+
+**Option A: Upstash Redis (Recommended for VPS)**
+1. Sign up at [Upstash](https://upstash.com) (free tier available)
+2. Create a new Redis database
+3. Copy the REST API URL and Token from the dashboard
+4. Add to your environment variables:
+   ```
+   KV_REST_API_URL=https://your-db-name.upstash.io
+   KV_REST_API_TOKEN=your-token-here
+   ```
+
+**Option B: Local Redis (If you prefer self-hosted)**
+1. Add Redis to your docker-compose.yml:
+   ```yaml
+   redis:
+     image: redis:7-alpine
+     volumes:
+       - redis-data:/data
+     restart: always
+   
+   volumes:
+     redis-data:
+   ```
+2. Install Redis client and update code to use `redis` package instead of `@vercel/kv`
+3. Set environment variable: `REDIS_URL=redis://redis:6379`
+
+**Option C: Vercel KV (If deploying on Vercel)**
+1. Go to your Vercel project dashboard
+2. Navigate to Storage → Create Database → KV
+3. Create a new KV database
+4. Environment variables will be automatically added
+
+### 2. Get Resend API Key
 
 1. Sign up at [Resend](https://resend.com)
 2. Create an API key in the dashboard
 3. Add your domain and verify it (for production)
 
-### 2. Configure Environment Variables
+### 3. Configure Environment Variables
 
-Add to your `.env.local` or deployment platform:
+**For VPS with Docker:**
+Add to your `.env.premwebsite` or docker-compose environment:
 
 ```
+KV_REST_API_URL=https://your-db-name.upstash.io
+KV_REST_API_TOKEN=your-upstash-token
 RESEND_API_KEY=re_xxxxxxxxxxxxx
 RESEND_FROM_EMAIL=Prem Saktheesh <prem@prems.in>
 NEWSLETTER_WEBHOOK_SECRET=your-secret-key-here
 ```
 
-### 3. Integrate with n8n Workflow
+**For local development:**
+Add to your `.env.local`:
+
+```
+KV_REST_API_URL=https://your-db-name.upstash.io
+KV_REST_API_TOKEN=your-upstash-token
+RESEND_API_KEY=re_xxxxxxxxxxxxx
+RESEND_FROM_EMAIL=Prem Saktheesh <prem@prems.in>
+NEWSLETTER_WEBHOOK_SECRET=your-secret-key-here
+```
+
+### 4. Integrate with n8n Workflow
 
 Add an HTTP Request node to your n8n workflow after creating a blog post:
 
@@ -257,11 +308,11 @@ Add an HTTP Request node to your n8n workflow after creating a blog post:
 
 This will automatically send the new blog post to all subscribers.
 
-### 4. Subscriber Management
+### 5. Subscriber Management
 
-- Subscribers are stored in `data/newsletter-subscribers.json`
-- This file is gitignored for privacy
-- For production, consider using a database or email service with built-in subscriber management
+- Subscribers are stored in Vercel KV (Redis)
+- Works seamlessly in serverless/production environments
+- No file system dependencies
 
 ## Customization
 

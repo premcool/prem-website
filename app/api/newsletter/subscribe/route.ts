@@ -1,39 +1,33 @@
 import { NextRequest, NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
+import { kv } from '@vercel/kv';
 
-const subscribersFile = path.join(process.cwd(), 'data', 'newsletter-subscribers.json');
+const SUBSCRIBERS_KEY = 'newsletter:subscribers';
 
-// Ensure data directory exists
-function ensureDataDirectory() {
-  const dataDir = path.join(process.cwd(), 'data');
-  if (!fs.existsSync(dataDir)) {
-    fs.mkdirSync(dataDir, { recursive: true });
-  }
-}
-
-// Read subscribers from file
-function getSubscribers(): string[] {
-  ensureDataDirectory();
-  if (!fs.existsSync(subscribersFile)) {
-    return [];
-  }
+// Get subscribers from Vercel KV
+async function getSubscribers(): Promise<string[]> {
   try {
-    const data = fs.readFileSync(subscribersFile, 'utf8');
-    return JSON.parse(data);
+    const subscribers = await kv.smembers(SUBSCRIBERS_KEY);
+    return subscribers || [];
   } catch (error) {
-    console.error('Error reading subscribers file:', error);
+    console.error('Error reading subscribers from KV:', error);
     return [];
   }
 }
 
-// Save subscribers to file
-function saveSubscribers(subscribers: string[]) {
-  ensureDataDirectory();
+// Add subscriber to Vercel KV
+async function addSubscriber(email: string): Promise<boolean> {
   try {
-    fs.writeFileSync(subscribersFile, JSON.stringify(subscribers, null, 2));
+    // Check if already exists
+    const exists = await kv.sismember(SUBSCRIBERS_KEY, email);
+    if (exists) {
+      return false; // Already exists
+    }
+
+    // Add to set
+    await kv.sadd(SUBSCRIBERS_KEY, email);
+    return true;
   } catch (error) {
-    console.error('Error saving subscribers file:', error);
+    console.error('Error adding subscriber to KV:', error);
     throw error;
   }
 }
@@ -50,26 +44,40 @@ export async function POST(request: NextRequest) {
     }
 
     const normalizedEmail = email.toLowerCase().trim();
-    const subscribers = getSubscribers();
 
-    // Check if already subscribed
-    if (subscribers.includes(normalizedEmail)) {
+    try {
+      const added = await addSubscriber(normalizedEmail);
+      
+      if (!added) {
+        return NextResponse.json(
+          { message: 'You are already subscribed!' },
+          { status: 200 }
+        );
+      }
+
       return NextResponse.json(
-        { message: 'You are already subscribed!' },
+        { message: 'Successfully subscribed to newsletter!' },
         { status: 200 }
       );
+    } catch (error: any) {
+      console.error('Error subscribing to newsletter:', error);
+      
+      // Check if KV is configured
+      if (error.message?.includes('KV') || !process.env.KV_REST_API_URL) {
+        console.error('Vercel KV is not configured. Please set KV_REST_API_URL and KV_REST_API_TOKEN environment variables.');
+        return NextResponse.json(
+          { error: 'Newsletter service is not configured. Please contact the administrator.' },
+          { status: 500 }
+        );
+      }
+      
+      return NextResponse.json(
+        { error: 'Failed to subscribe. Please try again later.' },
+        { status: 500 }
+      );
     }
-
-    // Add new subscriber
-    subscribers.push(normalizedEmail);
-    saveSubscribers(subscribers);
-
-    return NextResponse.json(
-      { message: 'Successfully subscribed to newsletter!' },
-      { status: 200 }
-    );
   } catch (error) {
-    console.error('Error subscribing to newsletter:', error);
+    console.error('Error processing subscription request:', error);
     return NextResponse.json(
       { error: 'Failed to subscribe. Please try again later.' },
       { status: 500 }

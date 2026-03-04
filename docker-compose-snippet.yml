@@ -25,9 +25,11 @@
     volumes:
       - prem-website-data:/app/.next
       - prem-website-content:/app/content
+      - prem-website-data-storage:/app/data
     networks:
       - web
 
 # Add these volumes to your volumes section:
 #   prem-website-data:
 #   prem-website-content:
+#   prem-website-data-storage:
