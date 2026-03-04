@@ -58,7 +58,7 @@ export function getAllPosts(): Post[] {
           }
 
           // Combine the data with the slug
-          return {
+          const post: Post = {
             slug,
             title: data.title,
             date: data.date,
@@ -67,6 +67,7 @@ export function getAllPosts(): Post[] {
             content: matterResult.content,
             contentHtml: '', // Will be populated when needed
           };
+          return post;
         } catch (error) {
           console.error(`Error reading post file ${fileName}:`, error);
           return null;
