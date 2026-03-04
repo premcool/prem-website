@@ -1,0 +1,19 @@
+name: Rebuild Site on Blog Post
+
+on:
+  push:
+    paths:
+      - 'content/blog/**'
+    branches:
+      - main
+
+jobs:
+  notify-rebuild:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Docker Rebuild
+        run: |
+          curl -X POST ${{ secrets.WEBHOOK_URL }} \
+            -H "Authorization: Bearer ${{ secrets.WEBHOOK_SECRET }}" \
+            -H "Content-Type: application/json" \
+            -d '{"event": "blog_post_created", "ref": "${{ github.ref }}"}'
