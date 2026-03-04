@@ -13,7 +13,7 @@ export default function Footer() {
               </a>
             </p>
           </div>
-          <div className="flex space-x-6">
+          <div className="flex flex-wrap justify-center gap-4 sm:gap-6">
             <Link
               href="/"
               className="text-slate-400 hover:text-white text-sm transition-colors"

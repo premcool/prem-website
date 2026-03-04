@@ -11,6 +11,7 @@ A production-ready personal executive website built with Next.js 14 (App Router)
 - **Sitemap & Robots.txt**: Automatically generated sitemap.xml and robots.txt for search engines
 - **RSS Feed**: Blog RSS feed at `/feed.xml` for subscribers
 - **Social Sharing**: Built-in social share buttons for blog posts (Twitter, LinkedIn, Facebook)
+- **Google Analytics**: Integrated Google Analytics 4 (GA4) for tracking page views and events
 - **Performance**: Server components, ISR (Incremental Static Regeneration) with 1-hour revalidation
 - **TypeScript**: Full type safety throughout the application
 
@@ -54,11 +55,15 @@ NEXT_PUBLIC_SITE_URL=https://prems.in
 
 # Optional: GitHub token (recommended to avoid rate limiting)
 GITHUB_TOKEN=your_github_token_here
+
+# Optional: Google Analytics Measurement ID (for tracking)
+NEXT_PUBLIC_GA_MEASUREMENT_ID=G-XXXXXXXXXX
 ```
 
 **Notes**:
 - `NEXT_PUBLIC_SITE_URL`: Update this with your actual domain when deploying. Used for sitemap, RSS feed, and social sharing metadata.
 - `GITHUB_TOKEN`: Optional but recommended. Create a personal access token at https://github.com/settings/tokens
+- `NEXT_PUBLIC_GA_MEASUREMENT_ID`: Optional. Your Google Analytics 4 Measurement ID (format: G-XXXXXXXXXX). Get it from [Google Analytics](https://analytics.google.com/)
 
 ### Development
 
@@ -101,7 +106,8 @@ prem-website/
 │   └── BlogCard.tsx
 ├── lib/                   # Utility functions
 │   ├── posts.ts          # Blog post utilities
-│   └── github.ts         # GitHub API client
+│   ├── github.ts         # GitHub API client
+│   └── analytics.ts       # Google Analytics utilities
 ├── content/               # Content files
 │   └── blog/             # Markdown blog posts
 └── public/               # Static assets
@@ -166,12 +172,19 @@ This ensures content stays fresh while maintaining excellent performance.
 - Social share buttons on blog posts
 - Customizable social media profiles in structured data
 
+### Google Analytics
+- Google Analytics 4 (GA4) integration
+- Automatic page view tracking on route changes
+- Event tracking utilities available in `lib/analytics.ts`
+- Configure with `NEXT_PUBLIC_GA_MEASUREMENT_ID` environment variable
+
 ## Environment Variables
 
 | Variable | Description | Required |
 |----------|-------------|----------|
 | `NEXT_PUBLIC_SITE_URL` | Your website URL (for sitemap, RSS, social sharing) | Yes |
 | `GITHUB_TOKEN` | GitHub personal access token for API requests | No (recommended) |
+| `NEXT_PUBLIC_GA_MEASUREMENT_ID` | Google Analytics 4 Measurement ID (format: G-XXXXXXXXXX) | No |
 
 ## Deployment
 
@@ -179,7 +192,10 @@ This ensures content stays fresh while maintaining excellent performance.
 
 1. Push your code to GitHub
 2. Import your repository in Vercel
-3. Add `GITHUB_TOKEN` to environment variables
+3. Add environment variables:
+   - `NEXT_PUBLIC_SITE_URL` (your domain)
+   - `GITHUB_TOKEN` (optional but recommended)
+   - `NEXT_PUBLIC_GA_MEASUREMENT_ID` (optional)
 4. Deploy
 
 ### Other Platforms
@@ -191,7 +207,7 @@ The application can be deployed to any platform that supports Next.js:
 - DigitalOcean App Platform
 
 Make sure to:
-1. Set `GITHUB_TOKEN` environment variable
+1. Set required environment variables (`NEXT_PUBLIC_SITE_URL` and optionally `GITHUB_TOKEN`, `NEXT_PUBLIC_GA_MEASUREMENT_ID`)
 2. Run `npm run build` during build process
 3. Use `npm start` for production server
 

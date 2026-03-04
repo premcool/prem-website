@@ -76,12 +76,12 @@ export default function FeaturedProject({ repo }: FeaturedProjectProps) {
         </span>
       </div>
       
-      <div className="flex items-start justify-between mb-3">
-        <h3 className="text-2xl font-semibold text-white">
+      <div className="flex items-start justify-between mb-3 gap-2">
+        <h3 className="text-xl sm:text-2xl font-semibold text-white break-words flex-1">
           {repo.name}
         </h3>
         {repo.stargazers_count > 0 && (
-          <div className="flex items-center text-slate-400 text-sm">
+          <div className="flex items-center text-slate-400 text-sm flex-shrink-0">
             <svg
               className="w-4 h-4 mr-1"
               fill="currentColor"
@@ -101,21 +101,21 @@ export default function FeaturedProject({ repo }: FeaturedProjectProps) {
       {/* Architecture Diagram - only show for ai-coder-buddy */}
       {repo.name === 'ai-coder-buddy' && architectureDiagram}
       
-      <div className="flex items-center justify-between text-sm text-slate-400 mt-6 pt-4 border-t border-slate-700">
-        <div className="flex items-center space-x-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-sm text-slate-400 mt-6 pt-4 border-t border-slate-700">
+        <div className="flex flex-wrap items-center gap-3 sm:gap-4">
           {repo.language && (
             <span className="flex items-center">
               <span className="w-2 h-2 bg-blue-400 rounded-full mr-2"></span>
               {repo.language}
             </span>
           )}
-          <span>Updated {formatDate(repo.updated_at)}</span>
+          <span className="whitespace-nowrap">Updated {formatDate(repo.updated_at)}</span>
         </div>
         <Link
           href={repo.html_url}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-blue-400 hover:text-blue-300 transition-colors font-medium"
+          className="text-blue-400 hover:text-blue-300 transition-colors font-medium whitespace-nowrap"
         >
           View on GitHub →
         </Link>
