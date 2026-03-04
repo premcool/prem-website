@@ -27,7 +27,7 @@ export default function Home() {
           {/* Personal Introduction */}
           <div className="bg-slate-800/30 border-l-4 border-blue-500 rounded-r-lg p-6 mb-8 text-left max-w-2xl mx-auto">
             <p className="text-slate-300 leading-relaxed italic">
-              "I bridge the gap between visionary strategy and technical execution, transforming complex challenges into scalable solutions that drive business value. With a passion for innovation and a track record of delivering results at enterprise scale."
+              &ldquo;I bridge the gap between visionary strategy and technical execution, transforming complex challenges into scalable solutions that drive business value. With a passion for innovation and a track record of delivering results at enterprise scale.&rdquo;
             </p>
           </div>
           

@@ -13,7 +13,7 @@
             ]
           }
         },
-        "id": "d9be3eb4-159d-4fb1-90c1-294534ceb1e0",
+        "id": "industry-trigger-001-159d-4fb1-90c1-294534ceb1e0",
         "name": "Schedule Trigger - Weekly",
         "type": "n8n-nodes-base.scheduleTrigger",
         "typeVersion": 1.3,
@@ -24,11 +24,11 @@
       },
       {
         "parameters": {
-          "url": "https://techcrunch.com/tag/artificial-intelligence/feed/",
+          "url": "https://www.infoq.com/feed",
           "options": {}
         },
-        "id": "49af420a-d9fe-4510-8c30-d51fb0b1ce20",
-        "name": "Read TechCrunch RSS",
+        "id": "industry-feed-001-d9fe-4510-8c30-d51fb0b1ce20",
+        "name": "Read InfoQ RSS",
         "type": "n8n-nodes-base.rssFeedRead",
         "typeVersion": 1.2,
         "position": [
@@ -38,11 +38,11 @@
       },
       {
         "parameters": {
-          "url": "https://lastweekin.ai/feed",
+          "url": "https://dev.to/feed",
           "options": {}
         },
-        "id": "f52d8189-0ccc-429e-bed8-51beb18f5c83",
-        "name": "Read LastWeekIn.AI RSS",
+        "id": "industry-feed-002-0ccc-429e-bed8-51beb18f5c83",
+        "name": "Read Dev.to RSS",
         "type": "n8n-nodes-base.rssFeedRead",
         "typeVersion": 1.2,
         "position": [
@@ -52,11 +52,11 @@
       },
       {
         "parameters": {
-          "url": "https://research.google/blog/rss/",
+          "url": "https://www.infosys.com/newsroom/rss.xml",
           "options": {}
         },
-        "id": "1a76244f-aa49-4e2b-95b3-08eb4a3eaf38",
-        "name": "Read Google Research RSS",
+        "id": "industry-feed-003-aa49-4e2b-95b3-08eb4a3eaf38",
+        "name": "Read Infosys RSS",
         "type": "n8n-nodes-base.rssFeedRead",
         "typeVersion": 1.2,
         "position": [
@@ -68,8 +68,8 @@
         "parameters": {
           "maxItems": 3
         },
-        "id": "40bd3e89-6652-494b-a4a6-64f46a955ce9",
-        "name": "Limit TechCrunch to 3",
+        "id": "industry-limit-001-6652-494b-a4a6-64f46a955ce9",
+        "name": "Limit InfoQ to 3",
         "type": "n8n-nodes-base.limit",
         "typeVersion": 1,
         "position": [
@@ -81,8 +81,8 @@
         "parameters": {
           "maxItems": 3
         },
-        "id": "88126bf6-b13f-4329-a27e-0d6e52cd47bd",
-        "name": "Limit LastWeekIn.AI to 3",
+        "id": "industry-limit-002-b13f-4329-a27e-0d6e52cd47bd",
+        "name": "Limit Dev.to to 3",
         "type": "n8n-nodes-base.limit",
         "typeVersion": 1,
         "position": [
@@ -94,8 +94,8 @@
         "parameters": {
           "maxItems": 3
         },
-        "id": "53fc2ac3-48d1-4570-a7a2-06bacd38b80e",
-        "name": "Limit Google Research to 3",
+        "id": "industry-limit-003-48d1-4570-a7a2-06bacd38b80e",
+        "name": "Limit Infosys to 3",
         "type": "n8n-nodes-base.limit",
         "typeVersion": 1,
         "position": [
@@ -107,7 +107,7 @@
         "parameters": {
           "numberInputs": 3
         },
-        "id": "06a5f361-50bc-4f5c-8af4-14be316be79e",
+        "id": "industry-merge-001-50bc-4f5c-8af4-14be316be79e",
         "name": "Merge All Feeds",
         "type": "n8n-nodes-base.merge",
         "typeVersion": 3.2,
@@ -129,7 +129,7 @@
           },
           "options": {}
         },
-        "id": "c1b96f15-d853-4e6c-9f39-0d32ca50d38e",
+        "id": "industry-aggregate-001-d853-4e6c-9f39-0d32ca50d38e",
         "name": "Combine All Articles",
         "type": "n8n-nodes-base.aggregate",
         "typeVersion": 1,
@@ -143,11 +143,11 @@
           "promptType": "define",
           "text": "={{ $json.allArticles }}",
           "options": {
-            "systemMessage": "You are writing a friendly, human blog post about AI & Cloud Transformation. Your task is to take multiple RSS feed article summaries and create ONE natural, engaging blog post in Markdown format that sounds like it was written by a real person.\n\nWriting Style:\n- Write in simple, clear English - avoid jargon and technical complexity unless necessary\n- Use a friendly, conversational tone - like you're talking to a colleague over coffee\n- Write naturally, as if you're sharing your thoughts and insights, not lecturing\n- Use \"I\" and \"we\" occasionally to make it personal\n- Keep sentences relatively short and easy to read\n- Explain technical concepts in plain language when needed\n\nContent Guidelines:\n- Read through all the provided article summaries\n- Identify the key themes and important developments in AI, cloud computing, and enterprise technology\n- Create a cohesive blog post that covers the main points from all articles\n- Use Markdown formatting: ## for section headings, **bold** for emphasis\n- Structure with clear sections and paragraphs\n- Make it informative and valuable for readers\n- Aim for 500-800 words total\n- Focus on actionable insights and what they mean for businesses\n- The post should feel like a unified roundup, not separate summaries\n- Write as if you're genuinely interested and excited about these developments\n- Avoid sounding robotic or overly formal - be warm and approachable"
+            "systemMessage": "You are writing a friendly, human blog post about software industry trends and updates. Your task is to take multiple RSS feed article summaries and create ONE natural, engaging blog post in Markdown format that sounds like it was written by a real person.\n\nWriting Style:\n- Write in simple, clear English - avoid unnecessary technical jargon\n- Use a friendly, conversational tone - like you're sharing industry news with colleagues\n- Write naturally, as if you're discussing what's happening in the software world\n- Use \"I\" and \"we\" occasionally to make it personal\n- Keep sentences relatively short and easy to read\n- Explain technical concepts in plain language when needed\n- Be approachable and relatable, not corporate or stuffy\n\nContent Guidelines:\n- Read through all the provided article summaries\n- Identify the key themes and important developments in software development, enterprise technology, IT services, and software industry trends\n- Pay special attention to updates from Infosys and other major software companies\n- Create a cohesive blog post that covers the main points from all articles\n- Use Markdown formatting: ## for section headings, **bold** for emphasis\n- Structure with clear sections and paragraphs\n- Make it informative and valuable for readers\n- Aim for 500-800 words total\n- Focus on actionable insights and what they mean for the software industry\n- The post should feel like a unified roundup, not separate summaries\n- Write as if you're genuinely interested in these industry developments\n- Avoid sounding robotic or overly formal - be warm, friendly, and engaging"
           }
         },
-        "id": "7bb4d4bb-61d3-41d3-a434-492cb3701f1d",
-        "name": "AI Agent - Generate Blog Post",
+        "id": "industry-ai-001-61d3-41d3-a434-492cb3701f1d",
+        "name": "AI Agent - Generate Industry Blog Post",
         "type": "@n8n/n8n-nodes-langchain.agent",
         "typeVersion": 3,
         "position": [
@@ -159,7 +159,7 @@
         "parameters": {
           "options": {}
         },
-        "id": "aa648fac-1d20-40a0-a11c-a03cbb9b7bd4",
+        "id": "industry-model-001-1d20-40a0-a11c-a03cbb9b7bd4",
         "name": "Google Gemini Chat Model",
         "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
         "typeVersion": 1,
@@ -176,9 +176,9 @@
       },
       {
         "parameters": {
-          "jsCode": "// Extract AI-generated content and format for Next.js markdown blog\nconst items = $input.all();\nconst processedItems = [];\n\nfor (const item of items) {\n  const aiOutput = item.json.output || item.json.text || '';\n  \n  // Extract title (first line or marked with Title:)\n  let title = '';\n  let content = aiOutput;\n  \n  // Try to extract title from various formats\n  const titleMatch = aiOutput.match(/^(?:Title:|#)\\s*(.+?)(?:\\n|$)/i);\n  if (titleMatch) {\n    title = titleMatch[1].trim();\n    content = aiOutput.replace(/^(?:Title:|#)\\s*.+?(?:\\n|$)/i, '').trim();\n  } else {\n    // Use first line as title if no marker\n    const lines = aiOutput.split('\\n');\n    title = lines[0].trim().replace(/^#+\\s*/, '');\n    content = lines.slice(1).join('\\n').trim();\n  }\n  \n  // Clean the title\n  const cleanTitle = title.replace(/[^a-zA-Z0-9\\s-]/g, '').replace(/\\s+/g, ' ').trim();\n  \n  // Generate slug from title (for filename)\n  const slug = cleanTitle\n    .toLowerCase()\n    .replace(/[^a-z0-9\\s-]/g, '')\n    .replace(/\\s+/g, '-')\n    .replace(/-+/g, '-')\n    .replace(/^-|-$/g, '');\n  \n  // Get current date in YYYY-MM-DD format\n  const today = new Date();\n  const dateStr = today.toISOString().split('T')[0];\n  \n  // Ensure content is proper markdown (clean up any HTML)\n  let markdownContent = content\n    .replace(/<p>/g, '')\n    .replace(/<\\/p>/g, '\\n\\n')\n    .replace(/<strong>(.+?)<\\/strong>/g, '**$1**')\n    .replace(/<em>(.+?)<\\/em>/g, '*$1*')\n    .replace(/<h2>(.+?)<\\/h2>/g, '## $1')\n    .replace(/<h3>(.+?)<\\/h3>/g, '### $1')\n    .replace(/<ul>/g, '')\n    .replace(/<\\/ul>/g, '\\n')\n    .replace(/<li>(.+?)<\\/li>/g, '- $1\\n')\n    .replace(/<a href=\"(.+?)\">(.+?)<\\/a>/g, '[$2]($1)')\n    .trim();\n  \n  // Create frontmatter (image will be added later)\n  const frontmatter = `---\\ntitle: \"${cleanTitle}\"\\ndate: \"${dateStr}\"\\nslug: \"${slug}\"\\n---\\n\\n`;\n  \n  // Combine frontmatter and content\n  const fullMarkdown = frontmatter + markdownContent;\n  \n  // Base64 encode for GitHub API\n  const base64Content = Buffer.from(fullMarkdown, 'utf8').toString('base64');\n  \n  processedItems.push({\n    json: {\n      ...item.json,\n      title: cleanTitle,\n      slug: slug,\n      date: dateStr,\n      filename: `${slug}.md`,\n      content: markdownContent,\n      fullMarkdown: fullMarkdown,\n      base64Content: base64Content,\n      filePath: `content/blog/${slug}.md`\n    }\n  });\n}\n\nreturn processedItems;"
+          "jsCode": "// Extract AI-generated content and format for Next.js markdown blog\nconst items = $input.all();\nconst processedItems = [];\n\nfor (const item of items) {\n  const aiOutput = item.json.output || item.json.text || '';\n  \n  // Extract title (first line or marked with Title:)\n  let title = '';\n  let content = aiOutput;\n  \n  // Try to extract title from various formats\n  const titleMatch = aiOutput.match(/^(?:Title:|#)\\s*(.+?)(?:\\n|$)/i);\n  if (titleMatch) {\n    title = titleMatch[1].trim();\n    content = aiOutput.replace(/^(?:Title:|#)\\s*.+?(?:\\n|$)/i, '').trim();\n  } else {\n    // Use first line as title if no marker\n    const lines = aiOutput.split('\\n');\n    title = lines[0].trim().replace(/^#+\\s*/, '');\n    content = lines.slice(1).join('\\n').trim();\n  }\n  \n  // Clean the title\n  const cleanTitle = title.replace(/[^a-zA-Z0-9\\s-]/g, '').replace(/\\s+/g, ' ').trim();\n  \n  // Generate slug from title (for filename)\n  const slug = cleanTitle\n    .toLowerCase()\n    .replace(/[^a-z0-9\\s-]/g, '')\n    .replace(/\\s+/g, '-')\n    .replace(/-+/g, '-')\n    .replace(/^-|-$/g, '');\n  \n  // Get current date in YYYY-MM-DD format\n  const today = new Date();\n  const dateStr = today.toISOString().split('T')[0];\n  \n  // Ensure content is proper markdown (clean up any HTML)\n  let markdownContent = content\n    .replace(/<p>/g, '')\n    .replace(/<\\/p>/g, '\\n\\n')\n    .replace(/<strong>(.+?)<\\/strong>/g, '**$1**')\n    .replace(/<em>(.+?)<\\/em>/g, '*$1*')\n    .replace(/<h2>(.+?)<\\/h2>/g, '## $1')\n    .replace(/<h3>(.+?)<\\/h3>/g, '### $1')\n    .replace(/<ul>/g, '')\n    .replace(/<\\/ul>/g, '\\n')\n    .replace(/<li>(.+?)<\\/li>/g, '- $1\\n')\n    .replace(/<a href=\"(.+?)\">(.+?)<\\/a>/g, '[$2]($1)')\n    .trim();\n  \n  // Create frontmatter (image will be added later)\n  const frontmatter = `---\\ntitle: \"${cleanTitle}\"\\ndate: \"${dateStr}\"\\nslug: \"${slug}\"\\ncategory: \"Industry Updates\"\\n---\\n\\n`;\n  \n  // Combine frontmatter and content\n  const fullMarkdown = frontmatter + markdownContent;\n  \n  // Base64 encode for GitHub API\n  const base64Content = Buffer.from(fullMarkdown, 'utf8').toString('base64');\n  \n  processedItems.push({\n    json: {\n      ...item.json,\n      title: cleanTitle,\n      slug: slug,\n      date: dateStr,\n      filename: `${slug}.md`,\n      content: markdownContent,\n      fullMarkdown: fullMarkdown,\n      base64Content: base64Content,\n      filePath: `content/blog/${slug}.md`\n    }\n  });\n}\n\nreturn processedItems;"
         },
-        "id": "2c63cd08-aacb-4a0d-957f-3c6d9580b86e",
+        "id": "industry-format-001-aacb-4a0d-957f-3c6d9580b86e",
         "name": "Format Markdown & Generate Frontmatter",
         "type": "n8n-nodes-base.code",
         "typeVersion": 2,
@@ -189,9 +189,9 @@
       },
       {
         "parameters": {
-          "jsCode": "// Generate image prompt from blog post title\nconst items = $input.all();\nconst processedItems = [];\n\nfor (const item of items) {\n  const title = item.json.title || '';\n  const content = item.json.content || '';\n  \n  // Extract key themes from content (first 200 chars)\n  const contentPreview = content.substring(0, 200).toLowerCase();\n  \n  // Create a descriptive image prompt\n  let imagePrompt = `A professional, modern illustration representing: ${title}. `;\n  \n  // Add context based on common AI/Cloud themes\n  if (contentPreview.includes('ai') || contentPreview.includes('artificial intelligence')) {\n    imagePrompt += 'Style: futuristic, tech-forward, with AI and machine learning visual elements. ';\n  }\n  if (contentPreview.includes('cloud') || contentPreview.includes('migration')) {\n    imagePrompt += 'Include cloud computing and digital transformation themes. ';\n  }\n  if (contentPreview.includes('enterprise') || contentPreview.includes('business')) {\n    imagePrompt += 'Professional business context, suitable for enterprise technology leaders. ';\n  }\n  \n  imagePrompt += 'Color scheme: modern tech colors (blues, purples, gradients). Clean, minimalist design suitable for a blog header image. 16:9 aspect ratio, high quality.';\n  \n  processedItems.push({\n    json: {\n      ...item.json,\n      imagePrompt: imagePrompt,\n      imageFilename: `${item.json.slug}-header.jpg`\n    }\n  });\n}\n\nreturn processedItems;"
+          "jsCode": "// Generate image prompt from blog post title\nconst items = $input.all();\nconst processedItems = [];\n\nfor (const item of items) {\n  const title = item.json.title || '';\n  const content = item.json.content || '';\n  \n  // Extract key themes from content (first 200 chars)\n  const contentPreview = content.substring(0, 200).toLowerCase();\n  \n  // Create a descriptive image prompt\n  let imagePrompt = `A professional, modern illustration representing: ${title}. `;\n  \n  // Add context based on common industry/tech themes\n  if (contentPreview.includes('startup') || contentPreview.includes('business')) {\n    imagePrompt += 'Style: business and innovation, with startup and entrepreneurship visual elements. ';\n  }\n  if (contentPreview.includes('enterprise') || contentPreview.includes('corporate')) {\n    imagePrompt += 'Include enterprise and corporate technology themes. ';\n  }\n  if (contentPreview.includes('innovation') || contentPreview.includes('technology')) {\n    imagePrompt += 'Technology innovation and digital transformation themes. ';\n  }\n  if (contentPreview.includes('market') || contentPreview.includes('trend')) {\n    imagePrompt += 'Industry trends and market analysis visual elements. ';\n  }\n  \n  imagePrompt += 'Color scheme: professional business colors (blues, grays, modern gradients). Clean, corporate design suitable for a blog header image. 16:9 aspect ratio, high quality.';\n  \n  processedItems.push({\n    json: {\n      ...item.json,\n      imagePrompt: imagePrompt,\n      imageFilename: `${item.json.slug}-header.jpg`\n    }\n  });\n}\n\nreturn processedItems;"
         },
-        "id": "3d83493e-5dcc-4bd6-9cd5-092414c4bcce",
+        "id": "industry-image-001-5dcc-4bd6-9cd5-092414c4bcce",
         "name": "Generate Image Prompt",
         "type": "n8n-nodes-base.code",
         "typeVersion": 2,
@@ -228,7 +228,7 @@
           "jsonBody": "={{ JSON.stringify({\n  model: 'google/gemini-2.5-flash-image',\n  modalities: ['image', 'text'],\n  messages: [\n    {\n      role: 'user',\n      content: $json.imagePrompt\n    }\n  ]\n}) }}",
           "options": {}
         },
-        "id": "865f7fd8-d62e-4aa9-97a8-c06b4838d4c2",
+        "id": "industry-openrouter-001-d62e-4aa9-97a8-c06b4838d4c2",
         "name": "Generate Image with OpenRouter",
         "type": "n8n-nodes-base.httpRequest",
         "typeVersion": 4.3,
@@ -248,7 +248,7 @@
         "parameters": {
           "jsCode": "// Extract base64 image data from OpenRouter response\nconst items = $input.all();\nconst processedItems = [];\n\nfor (const item of items) {\n  try {\n    const response = item.json;\n    \n    // Extract image from response\n    let base64Image = '';\n    \n    if (response.choices && \n        response.choices[0] && \n        response.choices[0].message && \n        response.choices[0].message.images && \n        response.choices[0].message.images[0] && \n        response.choices[0].message.images[0].image_url && \n        response.choices[0].message.images[0].image_url.url) {\n      \n      const imageUrl = response.choices[0].message.images[0].image_url.url;\n      \n      // Remove data:image/...;base64, prefix\n      base64Image = imageUrl.replace(/^data:image\\/[^;]+;base64,/, '');\n    } else {\n      throw new Error('Image not found in response. Response structure: ' + JSON.stringify(response, null, 2));\n    }\n    \n    // Get image filename from previous node\n    const imagePromptNode = $('Generate Image Prompt').first();\n    const imageFilename = imagePromptNode ? imagePromptNode.json.imageFilename : 'image.jpg';\n    \n    processedItems.push({\n      json: {\n        ...item.json,\n        base64Image: base64Image,\n        imageFilename: imageFilename\n      }\n    });\n  } catch (error) {\n    // Pass through error for debugging\n    processedItems.push({\n      json: {\n        ...item.json,\n        error: error.message,\n        base64Image: ''\n      }\n    });\n  }\n}\n\nreturn processedItems;"
         },
-        "id": "b5bfa490-2aa1-4d46-9b69-a5de178413f7",
+        "id": "industry-extract-001-2aa1-4d46-9b69-a5de178413f7",
         "name": "Extract Image Base64",
         "type": "n8n-nodes-base.code",
         "typeVersion": 2,
@@ -277,7 +277,7 @@
             "parameters": [
               {
                 "name": "message",
-                "value": "={{ `Add blog post image: ${$json.imageFilename}` }}"
+                "value": "={{ `Add industry blog post image: ${$json.imageFilename}` }}"
               },
               {
                 "name": "content",
@@ -291,7 +291,7 @@
           },
           "options": {}
         },
-        "id": "cdcaf671-14bf-4181-a6fe-a4e9b19fadaf",
+        "id": "industry-upload-001-14bf-4181-a6fe-a4e9b19fadaf",
         "name": "Upload Image to GitHub",
         "type": "n8n-nodes-base.httpRequest",
         "typeVersion": 4.3,
@@ -345,7 +345,7 @@
           },
           "options": {}
         },
-        "id": "3b1a061a-9e1f-4dd3-8b25-d36f88adba55",
+        "id": "industry-merge-data-001-9e1f-4dd3-8b25-d36f88adba55",
         "name": "Merge Blog Post Data",
         "type": "n8n-nodes-base.set",
         "typeVersion": 3.4,
@@ -356,9 +356,9 @@
       },
       {
         "parameters": {
-          "jsCode": "// Update markdown frontmatter with image URL\nconst items = $input.all();\nconst processedItems = [];\n\nfor (const item of items) {\n  const title = item.json.title;\n  const slug = item.json.slug;\n  const date = item.json.date;\n  const content = item.json.content;\n  const imageFilename = item.json.imageFilename;\n  \n  // Create image URL (assuming your site is hosted and images are accessible)\n  // Update this URL to match your actual domain\n  const imageUrl = `/images/blog/${imageFilename}`;\n  \n  // Create frontmatter with image\n  const frontmatter = `---\\ntitle: \"${title}\"\\ndate: \"${date}\"\\nslug: \"${slug}\"\\nimage: \"${imageUrl}\"\\n---\\n\\n`;\n  \n  // Combine frontmatter and content\n  const fullMarkdown = frontmatter + content;\n  \n  // Base64 encode for GitHub API\n  const base64Content = Buffer.from(fullMarkdown, 'utf8').toString('base64');\n  \n  processedItems.push({\n    json: {\n      title: title,\n      slug: slug,\n      date: date,\n      filename: `${slug}.md`,\n      content: content,\n      imageUrl: imageUrl,\n      imageFilename: imageFilename,\n      fullMarkdown: fullMarkdown,\n      base64Content: base64Content,\n      filePath: `content/blog/${slug}.md`\n    }\n  });\n}\n\nreturn processedItems;"
+          "jsCode": "// Update markdown frontmatter with image URL\nconst items = $input.all();\nconst processedItems = [];\n\nfor (const item of items) {\n  const title = item.json.title;\n  const slug = item.json.slug;\n  const date = item.json.date;\n  const content = item.json.content;\n  const imageFilename = item.json.imageFilename;\n  \n  // Create image URL (assuming your site is hosted and images are accessible)\n  // Update this URL to match your actual domain\n  const imageUrl = `/images/blog/${imageFilename}`;\n  \n  // Create frontmatter with image\n  const frontmatter = `---\\ntitle: \"${title}\"\\ndate: \"${date}\"\\nslug: \"${slug}\"\\nimage: \"${imageUrl}\"\\ncategory: \"Industry Updates\"\\n---\\n\\n`;\n  \n  // Combine frontmatter and content\n  const fullMarkdown = frontmatter + content;\n  \n  // Base64 encode for GitHub API\n  const base64Content = Buffer.from(fullMarkdown, 'utf8').toString('base64');\n  \n  processedItems.push({\n    json: {\n      title: title,\n      slug: slug,\n      date: date,\n      filename: `${slug}.md`,\n      content: content,\n      imageUrl: imageUrl,\n      imageFilename: imageFilename,\n      fullMarkdown: fullMarkdown,\n      base64Content: base64Content,\n      filePath: `content/blog/${slug}.md`\n    }\n  });\n}\n\nreturn processedItems;"
         },
-        "id": "50cf91a6-4ebc-49fb-95ff-b836dcccfa02",
+        "id": "industry-frontmatter-001-4ebc-49fb-95ff-b836dcccfa02",
         "name": "Add Image to Frontmatter",
         "type": "n8n-nodes-base.code",
         "typeVersion": 2,
@@ -387,7 +387,7 @@
             "parameters": [
               {
                 "name": "message",
-                "value": "={{ `Add weekly blog post: ${$json.title}` }}"
+                "value": "={{ `Add industry updates blog post: ${$json.title}` }}"
               },
               {
                 "name": "content",
@@ -401,7 +401,7 @@
           },
           "options": {}
         },
-        "id": "22b98715-359c-4dfd-b564-0c9d29c15793",
+        "id": "industry-github-001-359c-4dfd-b564-0c9d29c15793",
         "name": "Create File in GitHub",
         "type": "n8n-nodes-base.httpRequest",
         "typeVersion": 4.3,
@@ -437,7 +437,7 @@
           "jsonBody": "={{ JSON.stringify({\n  event_type: 'rebuild',\n  client_payload: {\n    blog_post: $json.filename || 'unknown'\n  }\n}) }}",
           "options": {}
         },
-        "id": "3f4e1ca2-0528-41ac-a4b4-9fbc1c93bd05",
+        "id": "industry-rebuild-001-0528-41ac-a4b4-9fbc1c93bd05",
         "name": "Trigger Site Rebuild (Optional)",
         "type": "n8n-nodes-base.httpRequest",
         "typeVersion": 4.3,
@@ -457,11 +457,11 @@
         "parameters": {
           "fromEmail": "prem@prems.in",
           "toEmail": "prem@prems.in",
-          "subject": "={{ `Weekly Blog Post Created: ${$('Add Image to Frontmatter').item.json.title}` }}",
-          "html": "=<h2>Weekly Blog Post Created Successfully</h2>\n<p><strong>Post Title:</strong> {{ $('Add Image to Frontmatter').item.json.title }}</p>\n<p><strong>Filename:</strong> {{ $('Add Image to Frontmatter').item.json.filename }}</p>\n<p><strong>Date:</strong> {{ $('Add Image to Frontmatter').item.json.date }}</p>\n<p><strong>Image:</strong> {{ $('Add Image to Frontmatter').item.json.imageFilename }}</p>\n<p><strong>GitHub URL:</strong> <a href=\"https://github.com/premcool/prem-website/blob/main/content/blog/{{ $('Add Image to Frontmatter').item.json.filename }}\">View Post on GitHub</a></p>\n<p><strong>Image URL:</strong> <a href=\"https://github.com/premcool/prem-website/blob/main/public/images/blog/{{ $('Add Image to Frontmatter').item.json.imageFilename }}\">View Image on GitHub</a></p>\n<p>The blog post and header image have been created and committed to the repository. The site will rebuild automatically if configured with Vercel/Netlify webhooks.</p>",
+          "subject": "={{ `Industry Updates Blog Post Created: ${$('Add Image to Frontmatter').item.json.title}` }}",
+          "html": "=<h2>Industry Updates Blog Post Created Successfully</h2>\n<p><strong>Post Title:</strong> {{ $('Add Image to Frontmatter').item.json.title }}</p>\n<p><strong>Filename:</strong> {{ $('Add Image to Frontmatter').item.json.filename }}</p>\n<p><strong>Date:</strong> {{ $('Add Image to Frontmatter').item.json.date }}</p>\n<p><strong>Image:</strong> {{ $('Add Image to Frontmatter').item.json.imageFilename }}</p>\n<p><strong>GitHub URL:</strong> <a href=\"https://github.com/premcool/prem-website/blob/main/content/blog/{{ $('Add Image to Frontmatter').item.json.filename }}\">View Post on GitHub</a></p>\n<p><strong>Image URL:</strong> <a href=\"https://github.com/premcool/prem-website/blob/main/public/images/blog/{{ $('Add Image to Frontmatter').item.json.imageFilename }}\">View Image on GitHub</a></p>\n<p>The industry updates blog post and header image have been created and committed to the repository. The site will rebuild automatically if configured with Vercel/Netlify webhooks.</p>",
           "options": {}
         },
-        "id": "558867ce-e7d7-4a60-80e5-5eff45894b3a",
+        "id": "industry-email-001-e7d7-4a60-80e5-5eff45894b3a",
         "name": "Send Success Email",
         "type": "n8n-nodes-base.emailSend",
         "typeVersion": 2.1,
@@ -483,57 +483,57 @@
         "main": [
           [
             {
-              "node": "Read TechCrunch RSS",
+              "node": "Read InfoQ RSS",
               "type": "main",
               "index": 0
             },
             {
-              "node": "Read LastWeekIn.AI RSS",
+              "node": "Read Dev.to RSS",
               "type": "main",
               "index": 0
             },
             {
-              "node": "Read Google Research RSS",
+              "node": "Read Infosys RSS",
               "type": "main",
               "index": 0
             }
           ]
         ]
       },
-      "Read TechCrunch RSS": {
+      "Read InfoQ RSS": {
         "main": [
           [
             {
-              "node": "Limit TechCrunch to 3",
+              "node": "Limit InfoQ to 3",
               "type": "main",
               "index": 0
             }
           ]
         ]
       },
-      "Read LastWeekIn.AI RSS": {
+      "Read Dev.to RSS": {
         "main": [
           [
             {
-              "node": "Limit LastWeekIn.AI to 3",
+              "node": "Limit Dev.to to 3",
               "type": "main",
               "index": 0
             }
           ]
         ]
       },
-      "Read Google Research RSS": {
+      "Read Infosys RSS": {
         "main": [
           [
             {
-              "node": "Limit Google Research to 3",
+              "node": "Limit Infosys to 3",
               "type": "main",
               "index": 0
             }
           ]
         ]
       },
-      "Limit TechCrunch to 3": {
+      "Limit InfoQ to 3": {
         "main": [
           [
             {
@@ -544,7 +544,7 @@
           ]
         ]
       },
-      "Limit LastWeekIn.AI to 3": {
+      "Limit Dev.to to 3": {
         "main": [
           [
             {
@@ -555,7 +555,7 @@
           ]
         ]
       },
-      "Limit Google Research to 3": {
+      "Limit Infosys to 3": {
         "main": [
           [
             {
@@ -581,14 +581,14 @@
         "main": [
           [
             {
-              "node": "AI Agent - Generate Blog Post",
+              "node": "AI Agent - Generate Industry Blog Post",
               "type": "main",
               "index": 0
             }
           ]
         ]
       },
-      "AI Agent - Generate Blog Post": {
+      "AI Agent - Generate Industry Blog Post": {
         "main": [
           [
             {
@@ -603,7 +603,7 @@
         "ai_languageModel": [
           [
             {
-              "node": "AI Agent - Generate Blog Post",
+              "node": "AI Agent - Generate Industry Blog Post",
               "type": "ai_languageModel",
               "index": 0
             }
@@ -718,6 +718,6 @@
     "pinData": {},
     "meta": {
       "templateCredsSetupCompleted": true,
-      "instanceId": "186dce4d277dd47c82c9c6b24027d469269422530c72ba1f0e49ed4a09e082c1"
+      "instanceId": "industry-workflow-instance-001"
     }
   }

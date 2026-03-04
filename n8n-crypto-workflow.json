@@ -66,6 +66,20 @@
       },
       {
         "parameters": {
+          "url": "https://coinmarketcap.com/headlines/news/",
+          "options": {}
+        },
+        "id": "crypto-feed-004-bb50-5e3c-a6c4-19fc5b4dbf49",
+        "name": "Read CoinMarketCap RSS",
+        "type": "n8n-nodes-base.rssFeedRead",
+        "typeVersion": 1.2,
+        "position": [
+          3040,
+          960
+        ]
+      },
+      {
+        "parameters": {
           "maxItems": 3
         },
         "id": "crypto-limit-001-6652-494b-a4a6-64f46a955ce9",
@@ -105,7 +119,20 @@
       },
       {
         "parameters": {
-          "numberInputs": 3
+          "maxItems": 3
+        },
+        "id": "crypto-limit-004-59e2-5681-b8b3-17cbd49c91f",
+        "name": "Limit CoinMarketCap to 3",
+        "type": "n8n-nodes-base.limit",
+        "typeVersion": 1,
+        "position": [
+          3280,
+          1008
+        ]
+      },
+      {
+        "parameters": {
+          "numberInputs": 4
         },
         "id": "crypto-merge-001-50bc-4f5c-8af4-14be316be79e",
         "name": "Merge All Feeds",
@@ -143,7 +170,7 @@
           "promptType": "define",
           "text": "={{ $json.allArticles }}",
           "options": {
-            "systemMessage": "You are an AI content writer for a technical blog focused on cryptocurrency and blockchain technology. Your task is to take multiple RSS feed article summaries and create ONE comprehensive, engaging blog post in Markdown format.\n\nGuidelines:\n- Read through all the provided article summaries\n- Identify the key themes and important developments in cryptocurrency, blockchain, DeFi, NFTs, and Web3\n- Create a cohesive blog post that covers the main points from all articles\n- Write in a clear, professional, and engaging tone suitable for technology leaders and crypto enthusiasts\n- Use Markdown formatting: ## for section headings, **bold** for emphasis\n- Structure with clear sections and paragraphs\n- Make it informative and valuable for readers\n- Aim for 500-800 words total\n- Focus on actionable insights and implications for the crypto ecosystem\n- The post should feel like a unified roundup, not separate summaries\n- Write in a way that demonstrates thought leadership in cryptocurrency and blockchain technology"
+            "systemMessage": "You are writing a friendly, human blog post about cryptocurrency and blockchain technology. Your task is to take multiple RSS feed article summaries and create ONE natural, engaging blog post in Markdown format that sounds like it was written by a real person.\n\nWriting Style:\n- Write in simple, clear English - avoid crypto jargon unless you explain it first\n- Use a friendly, conversational tone - like you're chatting with a friend about crypto\n- Write naturally, as if you're sharing interesting news and insights you discovered\n- Use \"I\" and \"we\" occasionally to make it personal\n- Keep sentences relatively short and easy to read\n- Explain crypto concepts in plain language - not everyone is a crypto expert\n- Be enthusiastic but not overly hyped\n\nContent Guidelines:\n- Read through all the provided article summaries\n- Identify the key themes and important developments in cryptocurrency, blockchain, DeFi, NFTs, and Web3\n- Pay special attention to token recommendations, market analysis, and investment insights from CoinMarketCap and other sources\n- Create a cohesive blog post that covers the main points from all articles\n- Use Markdown formatting: ## for section headings, **bold** for emphasis\n- Structure with clear sections and paragraphs\n- Make it informative and valuable for readers\n- Aim for 500-800 words total\n- Focus on actionable insights, token recommendations, and what they mean for the crypto ecosystem\n- The post should feel like a unified roundup, not separate summaries\n- Write as if you're genuinely excited about these developments\n- Avoid sounding robotic or overly formal - be warm, approachable, and relatable"
           }
         },
         "id": "crypto-ai-001-61d3-41d3-a434-492cb3701f1d",
@@ -496,6 +523,11 @@
               "node": "Read CoinDesk RSS",
               "type": "main",
               "index": 0
+            },
+            {
+              "node": "Read CoinMarketCap RSS",
+              "type": "main",
+              "index": 0
             }
           ]
         ]
@@ -533,6 +565,17 @@
           ]
         ]
       },
+      "Read CoinMarketCap RSS": {
+        "main": [
+          [
+            {
+              "node": "Limit CoinMarketCap to 3",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
       "Limit CoinTelegraph to 3": {
         "main": [
           [
@@ -562,6 +605,17 @@
               "node": "Merge All Feeds",
               "type": "main",
               "index": 2
+            }
+          ]
+        ]
+      },
+      "Limit CoinMarketCap to 3": {
+        "main": [
+          [
+            {
+              "node": "Merge All Feeds",
+              "type": "main",
+              "index": 3
             }
           ]
         ]
