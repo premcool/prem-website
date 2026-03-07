@@ -24,12 +24,49 @@ const path = require('path');
 const https = require('https');
 const http = require('http');
 const { URL } = require('url');
-const { Redis } = require('@upstash/redis');
+
+// Ensure we're in the project root before requiring modules
+// __dirname is the scripts directory, so go up one level
+const projectRoot = path.resolve(__dirname, '..');
+process.chdir(projectRoot);
+
+// Check if node_modules exists, if not, install dependencies
+if (!fs.existsSync(path.join(projectRoot, 'node_modules'))) {
+  console.log('📦 Installing dependencies (first run)...');
+  try {
+    execSync('npm install', { stdio: 'inherit', cwd: projectRoot });
+  } catch (error) {
+    console.error('❌ Failed to install dependencies:', error.message);
+    process.exit(1);
+  }
+}
+
+// Add projectRoot/node_modules to module search path
+const nodeModulesPath = path.join(projectRoot, 'node_modules');
+if (fs.existsSync(nodeModulesPath)) {
+  // Add to NODE_PATH so require() can find modules
+  const originalNodePath = process.env.NODE_PATH || '';
+  process.env.NODE_PATH = nodeModulesPath + (originalNodePath ? path.delimiter + originalNodePath : '');
+  require('module')._initPaths();
+}
+
+// Now require the module (it will look in projectRoot/node_modules)
+let Redis;
+try {
+  Redis = require('@upstash/redis').Redis;
+} catch (error) {
+  console.error('❌ Failed to load @upstash/redis. Make sure dependencies are installed:');
+  console.error('   Current directory:', process.cwd());
+  console.error('   Project root:', projectRoot);
+  console.error('   Node modules path:', nodeModulesPath);
+  console.error('   Run: cd ' + projectRoot + ' && npm install');
+  process.exit(1);
+}
 
 const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://prems.in';
 const webhookSecret = process.env.NEWSLETTER_WEBHOOK_SECRET || '';
 const SENT_NEWSLETTERS_KEY = 'newsletter:sent_posts';
-const postsDirectory = path.join(process.cwd(), 'content/blog');
+const postsDirectory = path.join(projectRoot, 'content/blog');
 
 // Initialize Redis client
 function getRedisClient() {
@@ -151,11 +188,13 @@ function sendNewsletter(slug) {
 // Main function
 async function main() {
   console.log('🚀 Starting rebuild and newsletter process...\n');
+  console.log(`📁 Working directory: ${process.cwd()}\n`);
+
 
   // Step 1: Pull latest changes (if in git repo)
   try {
     console.log('📥 Pulling latest changes from GitHub...');
-    execSync('git pull origin main', { stdio: 'inherit', cwd: process.cwd() });
+    execSync('git pull origin main', { stdio: 'inherit', cwd: projectRoot });
     console.log('✅ Latest changes pulled\n');
   } catch (error) {
     console.warn('⚠️  Could not pull from git (not a git repo or no changes):', error.message);
@@ -164,7 +203,7 @@ async function main() {
   // Step 2: Rebuild Next.js site
   try {
     console.log('🔨 Rebuilding Next.js site...');
-    execSync('npm run build', { stdio: 'inherit', cwd: process.cwd() });
+    execSync('npm run build', { stdio: 'inherit', cwd: projectRoot });
     console.log('✅ Site rebuilt successfully\n');
   } catch (error) {
     console.error('❌ Build failed:', error.message);
