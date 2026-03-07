@@ -115,22 +115,38 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { slug } = await request.json();
+    const body = await request.json();
+    const { slug, title, content, date, image, category } = body;
 
-    if (!slug) {
+    let post;
+
+    // If full post data is provided (from n8n), use it directly
+    // Otherwise, fetch by slug from file system
+    if (title && content && date && slug) {
+      // Use post data provided directly from n8n workflow
+      post = {
+        slug,
+        title,
+        date,
+        category,
+        image: image || undefined,
+        content,
+        contentHtml: '', // Not needed for email
+      };
+    } else if (slug) {
+      // Fallback: fetch from file system (for backward compatibility)
+      post = await getPostBySlug(slug);
+      
+      if (!post) {
+        return NextResponse.json(
+          { error: 'Blog post not found. Either provide full post data (title, content, date, slug) or ensure the post exists in the file system.' },
+          { status: 404 }
+        );
+      }
+    } else {
       return NextResponse.json(
-        { error: 'Blog post slug is required' },
+        { error: 'Either slug or full post data (title, content, date, slug) is required' },
         { status: 400 }
-      );
-    }
-
-    // Get blog post
-    const post = await getPostBySlug(slug);
-
-    if (!post) {
-      return NextResponse.json(
-        { error: 'Blog post not found' },
-        { status: 404 }
       );
     }
 
