@@ -155,16 +155,22 @@ function sendNewsletter(slug) {
     const url = new URL(`${baseUrl}/api/newsletter/send`);
     const postData = JSON.stringify({ slug });
 
+    const headers = {
+      'Content-Type': 'application/json',
+      'Content-Length': Buffer.byteLength(postData),
+    };
+
+    // Add webhook secret if configured
+    if (webhookSecret) {
+      headers['x-webhook-secret'] = webhookSecret;
+    }
+
     const options = {
       hostname: url.hostname,
       port: url.port || (url.protocol === 'https:' ? 443 : 80),
       path: url.pathname,
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Content-Length': Buffer.byteLength(postData),
-        ...(webhookSecret && { 'x-webhook-secret': webhookSecret }),
-      },
+      headers: headers,
     };
 
     const client = url.protocol === 'https:' ? https : http;

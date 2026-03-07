@@ -18,13 +18,6 @@ PROJECT_DIR="$( cd "$SCRIPT_DIR/.." && pwd )"
 # Change to project directory
 cd "$PROJECT_DIR" || exit 1
 
-# Load environment variables if .env file exists
-if [ -f .env.premwebsite ]; then
-    set -a
-    source .env.premwebsite
-    set +a
-fi
-
 # Log file location (optional, can be overridden)
 LOG_FILE="${LOG_FILE:-/var/log/prem-website-rebuild.log}"
 
@@ -32,6 +25,23 @@ LOG_FILE="${LOG_FILE:-/var/log/prem-website-rebuild.log}"
 log() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" | tee -a "$LOG_FILE"
 }
+
+# Load environment variables if .env file exists
+# Check in project directory first, then in /home as fallback
+if [ -f .env.premwebsite ]; then
+    set -a
+    source .env.premwebsite
+    set +a
+    log "Loaded environment variables from .env.premwebsite (project directory)"
+elif [ -f /home/.env.premwebsite ]; then
+    set -a
+    source /home/.env.premwebsite
+    set +a
+    log "Loaded environment variables from /home/.env.premwebsite"
+else
+    log "⚠️  No .env.premwebsite file found. Environment variables may not be set."
+    log "   Expected locations: $PROJECT_DIR/.env.premwebsite or /home/.env.premwebsite"
+fi
 
 log "=========================================="
 log "Starting Prem Website Rebuild Process"
