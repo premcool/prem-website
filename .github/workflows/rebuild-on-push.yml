@@ -16,4 +16,9 @@ jobs:
           curl -X POST ${{ secrets.WEBHOOK_URL }} \
             -H "Authorization: Bearer ${{ secrets.WEBHOOK_SECRET }}" \
             -H "Content-Type: application/json" \
-            -d '{"event": "blog_post_created", "ref": "${{ github.ref }}"}'
+            -d '{"event": "blog_post_created", "ref": "${{ github.ref }}"}' \
+            --max-time 30 \
+            --connect-timeout 10 \
+            --fail \
+            --silent \
+            --show-error
