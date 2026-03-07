@@ -1,723 +1,952 @@
 {
-    "nodes": [
-      {
-        "parameters": {
-          "rule": {
-            "interval": [
-              {
-                "field": "weeks",
-                "triggerAtDay": [
-                  6
-                ]
-              }
-            ]
-          }
-        },
-        "id": "d9be3eb4-159d-4fb1-90c1-294534ceb1e0",
-        "name": "Schedule Trigger - Weekly",
-        "type": "n8n-nodes-base.scheduleTrigger",
-        "typeVersion": 1.3,
-        "position": [
-          2832,
-          640
-        ]
-      },
-      {
-        "parameters": {
-          "url": "https://techcrunch.com/tag/artificial-intelligence/feed/",
-          "options": {}
-        },
-        "id": "49af420a-d9fe-4510-8c30-d51fb0b1ce20",
-        "name": "Read TechCrunch RSS",
-        "type": "n8n-nodes-base.rssFeedRead",
-        "typeVersion": 1.2,
-        "position": [
-          3040,
-          448
-        ]
-      },
-      {
-        "parameters": {
-          "url": "https://lastweekin.ai/feed",
-          "options": {}
-        },
-        "id": "f52d8189-0ccc-429e-bed8-51beb18f5c83",
-        "name": "Read LastWeekIn.AI RSS",
-        "type": "n8n-nodes-base.rssFeedRead",
-        "typeVersion": 1.2,
-        "position": [
-          3040,
-          640
-        ]
-      },
-      {
-        "parameters": {
-          "url": "https://research.google/blog/rss/",
-          "options": {}
-        },
-        "id": "1a76244f-aa49-4e2b-95b3-08eb4a3eaf38",
-        "name": "Read Google Research RSS",
-        "type": "n8n-nodes-base.rssFeedRead",
-        "typeVersion": 1.2,
-        "position": [
-          3040,
-          800
-        ]
-      },
-      {
-        "parameters": {
-          "maxItems": 3
-        },
-        "id": "40bd3e89-6652-494b-a4a6-64f46a955ce9",
-        "name": "Limit TechCrunch to 3",
-        "type": "n8n-nodes-base.limit",
-        "typeVersion": 1,
-        "position": [
-          3264,
-          448
-        ]
-      },
-      {
-        "parameters": {
-          "maxItems": 3
-        },
-        "id": "88126bf6-b13f-4329-a27e-0d6e52cd47bd",
-        "name": "Limit LastWeekIn.AI to 3",
-        "type": "n8n-nodes-base.limit",
-        "typeVersion": 1,
-        "position": [
-          3264,
-          640
-        ]
-      },
-      {
-        "parameters": {
-          "maxItems": 3
-        },
-        "id": "53fc2ac3-48d1-4570-a7a2-06bacd38b80e",
-        "name": "Limit Google Research to 3",
-        "type": "n8n-nodes-base.limit",
-        "typeVersion": 1,
-        "position": [
-          3280,
-          848
-        ]
-      },
-      {
-        "parameters": {
-          "numberInputs": 3
-        },
-        "id": "06a5f361-50bc-4f5c-8af4-14be316be79e",
-        "name": "Merge All Feeds",
-        "type": "n8n-nodes-base.merge",
-        "typeVersion": 3.2,
-        "position": [
-          3488,
-          640
-        ]
-      },
-      {
-        "parameters": {
-          "fieldsToAggregate": {
-            "fieldToAggregate": [
-              {
-                "fieldToAggregate": "contentSnippet",
-                "renameField": true,
-                "outputFieldName": "allArticles"
-              }
-            ]
-          },
-          "options": {}
-        },
-        "id": "c1b96f15-d853-4e6c-9f39-0d32ca50d38e",
-        "name": "Combine All Articles",
-        "type": "n8n-nodes-base.aggregate",
-        "typeVersion": 1,
-        "position": [
-          3712,
-          640
-        ]
-      },
-      {
-        "parameters": {
-          "promptType": "define",
-          "text": "={{ $json.allArticles }}",
-          "options": {
-            "systemMessage": "You are writing a friendly, human blog post about AI & Cloud Transformation. Your task is to take multiple RSS feed article summaries and create ONE natural, engaging blog post in Markdown format that sounds like it was written by a real person.\n\nWriting Style:\n- Write in simple, clear English - avoid jargon and technical complexity unless necessary\n- Use a friendly, conversational tone - like you're talking to a colleague over coffee\n- Write naturally, as if you're sharing your thoughts and insights, not lecturing\n- Use \"I\" and \"we\" occasionally to make it personal\n- Keep sentences relatively short and easy to read\n- Explain technical concepts in plain language when needed\n\nContent Guidelines:\n- Read through all the provided article summaries\n- Identify the key themes and important developments in AI, cloud computing, and enterprise technology\n- Create a cohesive blog post that covers the main points from all articles\n- Use Markdown formatting: ## for section headings, **bold** for emphasis\n- Structure with clear sections and paragraphs\n- Make it informative and valuable for readers\n- Aim for 500-800 words total\n- Focus on actionable insights and what they mean for businesses\n- The post should feel like a unified roundup, not separate summaries\n- Write as if you're genuinely interested and excited about these developments\n- Avoid sounding robotic or overly formal - be warm and approachable"
-          }
-        },
-        "id": "7bb4d4bb-61d3-41d3-a434-492cb3701f1d",
-        "name": "AI Agent - Generate Blog Post",
-        "type": "@n8n/n8n-nodes-langchain.agent",
-        "typeVersion": 3,
-        "position": [
-          3920,
-          640
-        ]
-      },
-      {
-        "parameters": {
-          "options": {}
-        },
-        "id": "aa648fac-1d20-40a0-a11c-a03cbb9b7bd4",
-        "name": "Google Gemini Chat Model",
-        "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
-        "typeVersion": 1,
-        "position": [
-          3920,
-          848
-        ],
-        "credentials": {
-          "googlePalmApi": {
-            "id": "7Y12SG2vvaZLB4nG",
-            "name": "Google Gemini(PaLM) Api account"
-          }
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                6
+              ]
+            }
+          ]
         }
       },
-      {
-        "parameters": {
-          "jsCode": "// Extract AI-generated content and format for Next.js markdown blog\nconst items = $input.all();\nconst processedItems = [];\n\nfor (const item of items) {\n  const aiOutput = item.json.output || item.json.text || '';\n  \n  // Extract title (first line or marked with Title:)\n  let title = '';\n  let content = aiOutput;\n  \n  // Try to extract title from various formats\n  const titleMatch = aiOutput.match(/^(?:Title:|#)\\s*(.+?)(?:\\n|$)/i);\n  if (titleMatch) {\n    title = titleMatch[1].trim();\n    content = aiOutput.replace(/^(?:Title:|#)\\s*.+?(?:\\n|$)/i, '').trim();\n  } else {\n    // Use first line as title if no marker\n    const lines = aiOutput.split('\\n');\n    title = lines[0].trim().replace(/^#+\\s*/, '');\n    content = lines.slice(1).join('\\n').trim();\n  }\n  \n  // Clean the title\n  const cleanTitle = title.replace(/[^a-zA-Z0-9\\s-]/g, '').replace(/\\s+/g, ' ').trim();\n  \n  // Generate slug from title (for filename)\n  const slug = cleanTitle\n    .toLowerCase()\n    .replace(/[^a-z0-9\\s-]/g, '')\n    .replace(/\\s+/g, '-')\n    .replace(/-+/g, '-')\n    .replace(/^-|-$/g, '');\n  \n  // Get current date in YYYY-MM-DD format\n  const today = new Date();\n  const dateStr = today.toISOString().split('T')[0];\n  \n  // Ensure content is proper markdown (clean up any HTML)\n  let markdownContent = content\n    .replace(/<p>/g, '')\n    .replace(/<\\/p>/g, '\\n\\n')\n    .replace(/<strong>(.+?)<\\/strong>/g, '**$1**')\n    .replace(/<em>(.+?)<\\/em>/g, '*$1*')\n    .replace(/<h2>(.+?)<\\/h2>/g, '## $1')\n    .replace(/<h3>(.+?)<\\/h3>/g, '### $1')\n    .replace(/<ul>/g, '')\n    .replace(/<\\/ul>/g, '\\n')\n    .replace(/<li>(.+?)<\\/li>/g, '- $1\\n')\n    .replace(/<a href=\"(.+?)\">(.+?)<\\/a>/g, '[$2]($1)')\n    .trim();\n  \n  // Create frontmatter (image will be added later)\n  const frontmatter = `---\\ntitle: \"${cleanTitle}\"\\ndate: \"${dateStr}\"\\nslug: \"${slug}\"\\n---\\n\\n`;\n  \n  // Combine frontmatter and content\n  const fullMarkdown = frontmatter + markdownContent;\n  \n  // Base64 encode for GitHub API\n  const base64Content = Buffer.from(fullMarkdown, 'utf8').toString('base64');\n  \n  processedItems.push({\n    json: {\n      ...item.json,\n      title: cleanTitle,\n      slug: slug,\n      date: dateStr,\n      filename: `${slug}.md`,\n      content: markdownContent,\n      fullMarkdown: fullMarkdown,\n      base64Content: base64Content,\n      filePath: `content/blog/${slug}.md`\n    }\n  });\n}\n\nreturn processedItems;"
-        },
-        "id": "2c63cd08-aacb-4a0d-957f-3c6d9580b86e",
-        "name": "Format Markdown & Generate Frontmatter",
-        "type": "n8n-nodes-base.code",
-        "typeVersion": 2,
-        "position": [
-          4208,
-          640
-        ]
+      "id": "09c5bd27-d047-4d93-9ca7-fabaa62b44e9",
+      "name": "Schedule Trigger - Weekly",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -29264,
+        2384
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://techcrunch.com/tag/artificial-intelligence/feed/",
+        "options": {}
       },
-      {
-        "parameters": {
-          "jsCode": "// Generate image prompt from blog post title\nconst items = $input.all();\nconst processedItems = [];\n\nfor (const item of items) {\n  const title = item.json.title || '';\n  const content = item.json.content || '';\n  \n  // Extract key themes from content (first 200 chars)\n  const contentPreview = content.substring(0, 200).toLowerCase();\n  \n  // Create a descriptive image prompt\n  let imagePrompt = `A professional, modern illustration representing: ${title}. `;\n  \n  // Add context based on common AI/Cloud themes\n  if (contentPreview.includes('ai') || contentPreview.includes('artificial intelligence')) {\n    imagePrompt += 'Style: futuristic, tech-forward, with AI and machine learning visual elements. ';\n  }\n  if (contentPreview.includes('cloud') || contentPreview.includes('migration')) {\n    imagePrompt += 'Include cloud computing and digital transformation themes. ';\n  }\n  if (contentPreview.includes('enterprise') || contentPreview.includes('business')) {\n    imagePrompt += 'Professional business context, suitable for enterprise technology leaders. ';\n  }\n  \n  imagePrompt += 'Color scheme: modern tech colors (blues, purples, gradients). Clean, minimalist design suitable for a blog header image. 16:9 aspect ratio, high quality.';\n  \n  processedItems.push({\n    json: {\n      ...item.json,\n      imagePrompt: imagePrompt,\n      imageFilename: `${item.json.slug}-header.jpg`\n    }\n  });\n}\n\nreturn processedItems;"
-        },
-        "id": "3d83493e-5dcc-4bd6-9cd5-092414c4bcce",
-        "name": "Generate Image Prompt",
-        "type": "n8n-nodes-base.code",
-        "typeVersion": 2,
-        "position": [
-          4368,
-          640
-        ]
+      "id": "b7f8ff1a-ae9e-49b3-a2b4-84f9c62a1a2b",
+      "name": "Read TechCrunch RSS",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        -29056,
+        2192
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://lastweekin.ai/feed",
+        "options": {}
       },
-      {
-        "parameters": {
-          "method": "POST",
-          "url": "https://openrouter.ai/api/v1/chat/completions",
-          "authentication": "predefinedCredentialType",
-          "nodeCredentialType": "httpHeaderAuth",
-          "sendHeaders": true,
-          "headerParameters": {
-            "parameters": [
-              {
-                "name": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "name": "HTTP-Referer",
-                "value": "https://prems.in"
-              },
-              {
-                "name": "X-Title",
-                "value": "Prem's Blog Automation"
-              }
-            ]
-          },
-          "sendBody": true,
-          "specifyBody": "json",
-          "jsonBody": "={{ JSON.stringify({\n  model: 'google/gemini-2.5-flash-image',\n  modalities: ['image', 'text'],\n  messages: [\n    {\n      role: 'user',\n      content: $json.imagePrompt\n    }\n  ]\n}) }}",
-          "options": {}
-        },
-        "id": "865f7fd8-d62e-4aa9-97a8-c06b4838d4c2",
-        "name": "Generate Image with OpenRouter",
-        "type": "n8n-nodes-base.httpRequest",
-        "typeVersion": 4.3,
-        "position": [
-          4592,
-          640
-        ],
-        "credentials": {
-          "httpHeaderAuth": {
-            "id": "QBIXyd8iDBGK3tjt",
-            "name": "OpenRouter auth"
-          }
-        },
-        "notes": "Uses OpenRouter chat/completions endpoint with google/gemini-2.5-flash-image-preview and modalities:[image,text]. Image is returned as base64 in choices[0].message.images[0].image_url.url. Strip the data:image/...;base64, prefix before uploading to GitHub."
+      "id": "ad990116-f34a-4a37-b715-d9d953dabf6b",
+      "name": "Read LastWeekIn.AI RSS",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        -29056,
+        2384
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://research.google/blog/rss/",
+        "options": {}
       },
-      {
-        "parameters": {
-          "jsCode": "// Extract base64 image data from OpenRouter response\nconst items = $input.all();\nconst processedItems = [];\n\nfor (const item of items) {\n  try {\n    const response = item.json;\n    \n    // Extract image from response\n    let base64Image = '';\n    \n    if (response.choices && \n        response.choices[0] && \n        response.choices[0].message && \n        response.choices[0].message.images && \n        response.choices[0].message.images[0] && \n        response.choices[0].message.images[0].image_url && \n        response.choices[0].message.images[0].image_url.url) {\n      \n      const imageUrl = response.choices[0].message.images[0].image_url.url;\n      \n      // Remove data:image/...;base64, prefix\n      base64Image = imageUrl.replace(/^data:image\\/[^;]+;base64,/, '');\n    } else {\n      throw new Error('Image not found in response. Response structure: ' + JSON.stringify(response, null, 2));\n    }\n    \n    // Get image filename from previous node\n    const imagePromptNode = $('Generate Image Prompt').first();\n    const imageFilename = imagePromptNode ? imagePromptNode.json.imageFilename : 'image.jpg';\n    \n    processedItems.push({\n      json: {\n        ...item.json,\n        base64Image: base64Image,\n        imageFilename: imageFilename\n      }\n    });\n  } catch (error) {\n    // Pass through error for debugging\n    processedItems.push({\n      json: {\n        ...item.json,\n        error: error.message,\n        base64Image: ''\n      }\n    });\n  }\n}\n\nreturn processedItems;"
-        },
-        "id": "b5bfa490-2aa1-4d46-9b69-a5de178413f7",
-        "name": "Extract Image Base64",
-        "type": "n8n-nodes-base.code",
-        "typeVersion": 2,
-        "position": [
-          4816,
-          640
-        ]
+      "id": "9a8bc431-2dcd-4ae5-8580-5f3c79d9ce60",
+      "name": "Read Google Research RSS",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        -29056,
+        2544
+      ]
+    },
+    {
+      "parameters": {
+        "maxItems": 3
       },
-      {
-        "parameters": {
-          "method": "PUT",
-          "url": "=https://api.github.com/repos/premcool/prem-website/contents/public/images/blog/{{ $json.imageFilename }}",
-          "authentication": "predefinedCredentialType",
-          "nodeCredentialType": "httpHeaderAuth",
-          "sendHeaders": true,
-          "headerParameters": {
-            "parameters": [
-              {
-                "name": "Accept",
-                "value": "application/vnd.github.v3+json"
-              }
-            ]
-          },
-          "sendBody": true,
-          "bodyParameters": {
-            "parameters": [
-              {
-                "name": "message",
-                "value": "={{ `Add blog post image: ${$json.imageFilename}` }}"
-              },
-              {
-                "name": "content",
-                "value": "={{ $json.base64Image }}"
-              },
-              {
-                "name": "branch",
-                "value": "main"
-              }
-            ]
-          },
-          "options": {}
-        },
-        "id": "cdcaf671-14bf-4181-a6fe-a4e9b19fadaf",
-        "name": "Upload Image to GitHub",
-        "type": "n8n-nodes-base.httpRequest",
-        "typeVersion": 4.3,
-        "position": [
-          5024,
-          640
-        ],
-        "credentials": {
-          "httpHeaderAuth": {
-            "id": "zHMuvIhbG9iaHxxd",
-            "name": "Header Auth account"
-          }
-        },
-        "notes": "Uploads generated image to public/images/blog/ directory"
+      "id": "856fdd4d-d278-4c6c-9265-df47f37a913c",
+      "name": "Limit TechCrunch to 3",
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        -28832,
+        2192
+      ]
+    },
+    {
+      "parameters": {
+        "maxItems": 3
       },
-      {
-        "parameters": {
-          "assignments": {
-            "assignments": [
-              {
-                "id": "merge-blog-data",
-                "name": "title",
-                "value": "={{ $('Generate Image Prompt').item.json.title }}",
-                "type": "string"
-              },
-              {
-                "id": "merge-blog-data-2",
-                "name": "slug",
-                "value": "={{ $('Generate Image Prompt').item.json.slug }}",
-                "type": "string"
-              },
-              {
-                "id": "merge-blog-data-3",
-                "name": "date",
-                "value": "={{ $('Generate Image Prompt').item.json.date }}",
-                "type": "string"
-              },
-              {
-                "id": "merge-blog-data-4",
-                "name": "content",
-                "value": "={{ $('Generate Image Prompt').item.json.content }}",
-                "type": "string"
-              },
-              {
-                "id": "merge-blog-data-5",
-                "name": "imageFilename",
-                "value": "={{ $('Generate Image Prompt').item.json.imageFilename }}",
-                "type": "string"
-              }
-            ]
-          },
-          "options": {}
-        },
-        "id": "3b1a061a-9e1f-4dd3-8b25-d36f88adba55",
-        "name": "Merge Blog Post Data",
-        "type": "n8n-nodes-base.set",
-        "typeVersion": 3.4,
-        "position": [
-          5248,
-          640
-        ]
+      "id": "dc8cf6b5-1dab-49f5-8069-f68ed783bcf0",
+      "name": "Limit LastWeekIn.AI to 3",
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        -28832,
+        2384
+      ]
+    },
+    {
+      "parameters": {
+        "maxItems": 3
       },
-      {
-        "parameters": {
-          "jsCode": "// Update markdown frontmatter with image URL\nconst items = $input.all();\nconst processedItems = [];\n\nfor (const item of items) {\n  const title = item.json.title;\n  const slug = item.json.slug;\n  const date = item.json.date;\n  const content = item.json.content;\n  const imageFilename = item.json.imageFilename;\n  \n  // Create image URL (assuming your site is hosted and images are accessible)\n  // Update this URL to match your actual domain\n  const imageUrl = `/images/blog/${imageFilename}`;\n  \n  // Create frontmatter with image\n  const frontmatter = `---\\ntitle: \"${title}\"\\ndate: \"${date}\"\\nslug: \"${slug}\"\\nimage: \"${imageUrl}\"\\n---\\n\\n`;\n  \n  // Combine frontmatter and content\n  const fullMarkdown = frontmatter + content;\n  \n  // Base64 encode for GitHub API\n  const base64Content = Buffer.from(fullMarkdown, 'utf8').toString('base64');\n  \n  processedItems.push({\n    json: {\n      title: title,\n      slug: slug,\n      date: date,\n      filename: `${slug}.md`,\n      content: content,\n      imageUrl: imageUrl,\n      imageFilename: imageFilename,\n      fullMarkdown: fullMarkdown,\n      base64Content: base64Content,\n      filePath: `content/blog/${slug}.md`\n    }\n  });\n}\n\nreturn processedItems;"
-        },
-        "id": "50cf91a6-4ebc-49fb-95ff-b836dcccfa02",
-        "name": "Add Image to Frontmatter",
-        "type": "n8n-nodes-base.code",
-        "typeVersion": 2,
-        "position": [
-          5472,
-          672
-        ]
+      "id": "3910cc47-66c1-4324-adc9-e7bcda3232de",
+      "name": "Limit Google Research to 3",
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        -28816,
+        2592
+      ]
+    },
+    {
+      "parameters": {
+        "numberInputs": 3
       },
-      {
-        "parameters": {
-          "method": "PUT",
-          "url": "=https://api.github.com/repos/premcool/prem-website/contents/content/blog/{{ $json.filename }}",
-          "authentication": "predefinedCredentialType",
-          "nodeCredentialType": "httpHeaderAuth",
-          "sendHeaders": true,
-          "headerParameters": {
-            "parameters": [
-              {
-                "name": "Accept",
-                "value": "application/vnd.github.v3+json"
-              }
-            ]
-          },
-          "sendBody": true,
-          "bodyParameters": {
-            "parameters": [
-              {
-                "name": "message",
-                "value": "={{ `Add weekly blog post: ${$json.title}` }}"
-              },
-              {
-                "name": "content",
-                "value": "={{ $json.base64Content }}"
-              },
-              {
-                "name": "branch",
-                "value": "main"
-              }
-            ]
-          },
-          "options": {}
+      "id": "f8e13ceb-3465-4783-8f4a-2872d366ce84",
+      "name": "Merge All Feeds",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -28608,
+        2384
+      ]
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "contentSnippet",
+              "renameField": true,
+              "outputFieldName": "allArticles"
+            }
+          ]
         },
-        "id": "22b98715-359c-4dfd-b564-0c9d29c15793",
-        "name": "Create File in GitHub",
-        "type": "n8n-nodes-base.httpRequest",
-        "typeVersion": 4.3,
-        "position": [
-          5680,
-          640
-        ],
-        "credentials": {
-          "httpHeaderAuth": {
-            "id": "QBIXyd8iDBGK3tjt",
-            "name": "OpenRouter auth"
-          }
-        },
-        "notes": "Requires GitHub token with repo permissions. Token should be in Authorization header as 'token YOUR_TOKEN'"
+        "options": {}
       },
-      {
-        "parameters": {
-          "method": "POST",
-          "url": "=https://api.github.com/repos/premcool/prem-website/dispatches",
-          "authentication": "predefinedCredentialType",
-          "nodeCredentialType": "httpHeaderAuth",
-          "sendHeaders": true,
-          "headerParameters": {
-            "parameters": [
-              {
-                "name": "Accept",
-                "value": "application/vnd.github.v3+json"
-              }
-            ]
-          },
-          "sendBody": true,
-          "specifyBody": "json",
-          "jsonBody": "={{ JSON.stringify({\n  event_type: 'rebuild',\n  client_payload: {\n    blog_post: $json.filename || 'unknown'\n  }\n}) }}",
-          "options": {}
-        },
-        "id": "3f4e1ca2-0528-41ac-a4b4-9fbc1c93bd05",
-        "name": "Trigger Site Rebuild (Optional)",
-        "type": "n8n-nodes-base.httpRequest",
-        "typeVersion": 4.3,
-        "position": [
-          4576,
-          432
-        ],
-        "credentials": {
-          "httpHeaderAuth": {
-            "id": "QBIXyd8iDBGK3tjt",
-            "name": "OpenRouter auth"
-          }
-        },
-        "notes": "Optional: Triggers GitHub Actions workflow to rebuild site. Requires repository_dispatch event in GitHub Actions."
-      },
-      {
-        "parameters": {
-          "fromEmail": "prem@prems.in",
-          "toEmail": "prem@prems.in",
-          "subject": "={{ `Weekly Blog Post Created: ${$('Add Image to Frontmatter').item.json.title}` }}",
-          "html": "=<h2>Weekly Blog Post Created Successfully</h2>\n<p><strong>Post Title:</strong> {{ $('Add Image to Frontmatter').item.json.title }}</p>\n<p><strong>Filename:</strong> {{ $('Add Image to Frontmatter').item.json.filename }}</p>\n<p><strong>Date:</strong> {{ $('Add Image to Frontmatter').item.json.date }}</p>\n<p><strong>Image:</strong> {{ $('Add Image to Frontmatter').item.json.imageFilename }}</p>\n<p><strong>GitHub URL:</strong> <a href=\"https://github.com/premcool/prem-website/blob/main/content/blog/{{ $('Add Image to Frontmatter').item.json.filename }}\">View Post on GitHub</a></p>\n<p><strong>Image URL:</strong> <a href=\"https://github.com/premcool/prem-website/blob/main/public/images/blog/{{ $('Add Image to Frontmatter').item.json.imageFilename }}\">View Image on GitHub</a></p>\n<p>The blog post and header image have been created and committed to the repository. The site will rebuild automatically if configured with Vercel/Netlify webhooks.</p>",
-          "options": {}
-        },
-        "id": "558867ce-e7d7-4a60-80e5-5eff45894b3a",
-        "name": "Send Success Email",
-        "type": "n8n-nodes-base.emailSend",
-        "typeVersion": 2.1,
-        "position": [
-          5632,
-          384
-        ],
-        "webhookId": "220ce1f9-f164-4287-ab02-1e69039ca4f1",
-        "credentials": {
-          "smtp": {
-            "id": "ufNQlF7n5lyi43jx",
-            "name": "SMTP-prem-website"
-          }
+      "id": "161afa62-c54f-4b03-99ba-800d0ccacf37",
+      "name": "Combine All Articles",
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        -28384,
+        2384
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.allArticles }}",
+        "options": {
+          "systemMessage": "You are writing a friendly, human blog post about AI & Cloud Transformation. Your task is to take multiple RSS feed article summaries and create ONE natural, engaging blog post in Markdown format that sounds like it was written by a real person.\n\nWriting Style:\n- Write in simple, clear English - avoid jargon and technical complexity unless necessary\n- Use a friendly, conversational tone - like you're talking to a colleague over coffee\n- Write naturally, as if you're sharing your thoughts and insights, not lecturing\n- Use \"I\" and \"we\" occasionally to make it personal\n- Keep sentences relatively short and easy to read\n- Explain technical concepts in plain language when needed\n\nContent Guidelines:\n- Read through all the provided article summaries\n- Identify the key themes and important developments in AI, cloud computing, and enterprise technology\n- Create a cohesive blog post that covers the main points from all articles\n- Use Markdown formatting: ## for section headings, **bold** for emphasis\n- Structure with clear sections and paragraphs\n- Make it informative and valuable for readers\n- Aim for 500-800 words total\n- Focus on actionable insights and what they mean for businesses\n- The post should feel like a unified roundup, not separate summaries\n- Write as if you're genuinely interested and excited about these developments\n- Avoid sounding robotic or overly formal - be warm and approachable"
         }
-      }
-    ],
-    "connections": {
-      "Schedule Trigger - Weekly": {
-        "main": [
-          [
-            {
-              "node": "Read TechCrunch RSS",
-              "type": "main",
-              "index": 0
-            },
-            {
-              "node": "Read LastWeekIn.AI RSS",
-              "type": "main",
-              "index": 0
-            },
-            {
-              "node": "Read Google Research RSS",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
       },
-      "Read TechCrunch RSS": {
-        "main": [
-          [
-            {
-              "node": "Limit TechCrunch to 3",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
+      "id": "3e16bd7c-4958-43b5-9d69-30f1f00d657e",
+      "name": "AI Agent - Generate Blog Post",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        -28176,
+        2384
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
       },
-      "Read LastWeekIn.AI RSS": {
-        "main": [
-          [
-            {
-              "node": "Limit LastWeekIn.AI to 3",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Read Google Research RSS": {
-        "main": [
-          [
-            {
-              "node": "Limit Google Research to 3",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Limit TechCrunch to 3": {
-        "main": [
-          [
-            {
-              "node": "Merge All Feeds",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Limit LastWeekIn.AI to 3": {
-        "main": [
-          [
-            {
-              "node": "Merge All Feeds",
-              "type": "main",
-              "index": 1
-            }
-          ]
-        ]
-      },
-      "Limit Google Research to 3": {
-        "main": [
-          [
-            {
-              "node": "Merge All Feeds",
-              "type": "main",
-              "index": 2
-            }
-          ]
-        ]
-      },
-      "Merge All Feeds": {
-        "main": [
-          [
-            {
-              "node": "Combine All Articles",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Combine All Articles": {
-        "main": [
-          [
-            {
-              "node": "AI Agent - Generate Blog Post",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "AI Agent - Generate Blog Post": {
-        "main": [
-          [
-            {
-              "node": "Format Markdown & Generate Frontmatter",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Google Gemini Chat Model": {
-        "ai_languageModel": [
-          [
-            {
-              "node": "AI Agent - Generate Blog Post",
-              "type": "ai_languageModel",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Format Markdown & Generate Frontmatter": {
-        "main": [
-          [
-            {
-              "node": "Generate Image Prompt",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Generate Image Prompt": {
-        "main": [
-          [
-            {
-              "node": "Generate Image with OpenRouter",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Generate Image with OpenRouter": {
-        "main": [
-          [
-            {
-              "node": "Extract Image Base64",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Extract Image Base64": {
-        "main": [
-          [
-            {
-              "node": "Upload Image to GitHub",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Upload Image to GitHub": {
-        "main": [
-          [
-            {
-              "node": "Merge Blog Post Data",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Merge Blog Post Data": {
-        "main": [
-          [
-            {
-              "node": "Add Image to Frontmatter",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Add Image to Frontmatter": {
-        "main": [
-          [
-            {
-              "node": "Create File in GitHub",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Create File in GitHub": {
-        "main": [
-          [
-            {
-              "node": "Trigger Site Rebuild (Optional)",
-              "type": "main",
-              "index": 0
-            },
-            {
-              "node": "Send Success Email",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Trigger Site Rebuild (Optional)": {
-        "main": [
-          [
-            {
-              "node": "Send Success Email",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
+      "id": "e15608c0-fe07-485b-882a-94a88a1ee6b1",
+      "name": "Google Gemini Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -28176,
+        2592
+      ],
+      "credentials": {
+        "googlePalmApi": {
+          "id": "7Y12SG2vvaZLB4nG",
+          "name": "Google Gemini(PaLM) Api account"
+        }
       }
     },
-    "pinData": {},
-    "meta": {
-      "templateCredsSetupCompleted": true,
-      "instanceId": "186dce4d277dd47c82c9c6b24027d469269422530c72ba1f0e49ed4a09e082c1"
+    {
+      "parameters": {
+        "jsCode": "// Extract AI-generated content and format for Next.js markdown blog\nconst items = $input.all();\nconst processedItems = [];\n\nfor (const item of items) {\n  const aiOutput = item.json.output || item.json.text || '';\n  \n  // Extract title (first line or marked with Title:)\n  let title = '';\n  let content = aiOutput;\n  \n  // Try to extract title from various formats\n  const titleMatch = aiOutput.match(/^(?:Title:|#)\\s*(.+?)(?:\\n|$)/i);\n  if (titleMatch) {\n    title = titleMatch[1].trim();\n    content = aiOutput.replace(/^(?:Title:|#)\\s*.+?(?:\\n|$)/i, '').trim();\n  } else {\n    // Use first line as title if no marker\n    const lines = aiOutput.split('\\n');\n    title = lines[0].trim().replace(/^#+\\s*/, '');\n    content = lines.slice(1).join('\\n').trim();\n  }\n  \n  // Clean the title\n  const cleanTitle = title.replace(/[^a-zA-Z0-9\\s-]/g, '').replace(/\\s+/g, ' ').trim();\n  \n  // Generate slug from title (for filename)\n  let slug = cleanTitle\n    .toLowerCase()\n    .replace(/[^a-z0-9\\s-]/g, '')\n    .replace(/\\s+/g, '-')\n    .replace(/-+/g, '-')\n    .replace(/^-|-$/g, '');\n  \n  // Limit slug to 80 characters to prevent filesystem errors\n  if (slug.length > 80) {\n    slug = slug.substring(0, 80).replace(/-$/, '');\n  }\n  \n  // Get current date in YYYY-MM-DD format\n  const today = new Date();\n  const dateStr = today.toISOString().split('T')[0];\n  \n  // Ensure content is proper markdown (clean up any HTML)\n  let markdownContent = content\n    .replace(/<p>/g, '')\n    .replace(/<\\/p>/g, '\\n\\n')\n    .replace(/<strong>(.+?)<\\/strong>/g, '**$1**')\n    .replace(/<em>(.+?)<\\/em>/g, '*$1*')\n    .replace(/<h2>(.+?)<\\/h2>/g, '## $1')\n    .replace(/<h3>(.+?)<\\/h3>/g, '### $1')\n    .replace(/<ul>/g, '')\n    .replace(/<\\/ul>/g, '\\n')\n    .replace(/<li>(.+?)<\\/li>/g, '- $1\\n')\n    .replace(/<a href=\"(.+?)\">(.+?)<\\/a>/g, '[$2]($1)')\n    .trim();\n  \n  // Create frontmatter (image will be added later)\n  const frontmatter = `---\\ntitle: \"${cleanTitle}\"\\ndate: \"${dateStr}\"\\nslug: \"${slug}\"\\n---\\n\\n`;\n  \n  // Combine frontmatter and content\n  const fullMarkdown = frontmatter + markdownContent;\n  \n  // Base64 encode for GitHub API\n  const base64Content = Buffer.from(fullMarkdown, 'utf8').toString('base64');\n  \n  processedItems.push({\n    json: {\n      ...item.json,\n      title: cleanTitle,\n      slug: slug,\n      date: dateStr,\n      filename: `${slug}.md`,\n      content: markdownContent,\n      fullMarkdown: fullMarkdown,\n      base64Content: base64Content,\n      filePath: `content/blog/${slug}.md`\n    }\n  });\n}\n\nreturn processedItems;"
+      },
+      "id": "170e20f7-0a15-4269-bbda-a352fd3d5753",
+      "name": "Format Markdown & Generate Frontmatter",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -27888,
+        2384
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Generate image prompt from blog post title\nconst items = $input.all();\nconst processedItems = [];\n\nfor (const item of items) {\n  const title = item.json.title || '';\n  const content = item.json.content || '';\n  \n  // Extract key themes from content (first 200 chars)\n  const contentPreview = content.substring(0, 200).toLowerCase();\n  \n  // Create a descriptive image prompt\n  let imagePrompt = `A professional, modern illustration representing: ${title}. `;\n  \n  // Add context based on common AI/Cloud themes\n  if (contentPreview.includes('ai') || contentPreview.includes('artificial intelligence')) {\n    imagePrompt += 'Style: futuristic, tech-forward, with AI and machine learning visual elements. ';\n  }\n  if (contentPreview.includes('cloud') || contentPreview.includes('migration')) {\n    imagePrompt += 'Include cloud computing and digital transformation themes. ';\n  }\n  if (contentPreview.includes('enterprise') || contentPreview.includes('business')) {\n    imagePrompt += 'Professional business context, suitable for enterprise technology leaders. ';\n  }\n  \n  imagePrompt += 'Color scheme: modern tech colors (blues, purples, gradients). Clean, minimalist design suitable for a blog header image. 16:9 aspect ratio, high quality.';\n  \n  processedItems.push({\n    json: {\n      ...item.json,\n      imagePrompt: imagePrompt,\n      imageFilename: `${item.json.slug}-header.jpg`\n    }\n  });\n}\n\nreturn processedItems;"
+      },
+      "id": "8b2b6d2a-06bc-4ccc-9077-6043552ad5c8",
+      "name": "Generate Image Prompt",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -27728,
+        2384
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://openrouter.ai/api/v1/chat/completions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "HTTP-Referer",
+              "value": "https://prems.in"
+            },
+            {
+              "name": "X-Title",
+              "value": "Prem's Blog Automation"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  model: 'google/gemini-2.5-flash-image',\n  modalities: ['image', 'text'],\n  messages: [\n    {\n      role: 'user',\n      content: $json.imagePrompt\n    }\n  ]\n}) }}",
+        "options": {}
+      },
+      "id": "60bcb6c8-c0f9-40a1-bd99-5ea4c2cc2af0",
+      "name": "Generate Image with OpenRouter",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -27504,
+        2384
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "QBIXyd8iDBGK3tjt",
+          "name": "OpenRouter auth"
+        }
+      },
+      "notes": "Uses OpenRouter chat/completions endpoint with google/gemini-2.5-flash-image-preview and modalities:[image,text]. Image is returned as base64 in choices[0].message.images[0].image_url.url. Strip the data:image/...;base64, prefix before uploading to GitHub."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract base64 image data from OpenRouter response\nconst items = $input.all();\nconst processedItems = [];\n\nfor (const item of items) {\n  try {\n    const response = item.json;\n    \n    // Extract image from response\n    let base64Image = '';\n    \n    if (response.choices && \n        response.choices[0] && \n        response.choices[0].message && \n        response.choices[0].message.images && \n        response.choices[0].message.images[0] && \n        response.choices[0].message.images[0].image_url && \n        response.choices[0].message.images[0].image_url.url) {\n      \n      const imageUrl = response.choices[0].message.images[0].image_url.url;\n      \n      // Remove data:image/...;base64, prefix\n      base64Image = imageUrl.replace(/^data:image\\/[^;]+;base64,/, '');\n    } else {\n      throw new Error('Image not found in response. Response structure: ' + JSON.stringify(response, null, 2));\n    }\n    \n    // Get image filename from previous node\n    const imagePromptNode = $('Generate Image Prompt').first();\n    const imageFilename = imagePromptNode ? imagePromptNode.json.imageFilename : 'image.jpg';\n    \n    processedItems.push({\n      json: {\n        ...item.json,\n        base64Image: base64Image,\n        imageFilename: imageFilename\n      }\n    });\n  } catch (error) {\n    // Pass through error for debugging\n    processedItems.push({\n      json: {\n        ...item.json,\n        error: error.message,\n        base64Image: ''\n      }\n    });\n  }\n}\n\nreturn processedItems;"
+      },
+      "id": "60b2f57e-e911-4d7e-a598-fcdd49584bb0",
+      "name": "Extract Image Base64",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -27280,
+        2384
+      ]
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "=https://api.github.com/repos/premcool/prem-website/contents/public/images/blog/{{ $json.imageFilename }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/vnd.github.v3+json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "message",
+              "value": "={{ `Add blog post image: ${$json.imageFilename}` }}"
+            },
+            {
+              "name": "content",
+              "value": "={{ $json.base64Image }}"
+            },
+            {
+              "name": "branch",
+              "value": "main"
+            },
+            {
+              "name": "sha",
+              "value": "={{ $json.imageSha || '' }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "6b2235a9-fffe-4911-84d3-824684a39e32",
+      "name": "Upload Image to GitHub",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -27072,
+        2384
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "zHMuvIhbG9iaHxxd",
+          "name": "Header Auth account"
+        }
+      },
+      "notes": "Uploads generated image to public/images/blog/ directory"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Convert base64 image to binary data for Edit Image node\nconst items = $input.all();\nconst processedItems = [];\n\nfor (const item of items) {\n  try {\n    const base64Image = item.json.base64Image;\n    const imageFilename = item.json.imageFilename || 'image.jpg';\n    \n    if (!base64Image) {\n      throw new Error('No base64 image data found');\n    }\n    \n    // Convert base64 to buffer\n    const imageBuffer = Buffer.from(base64Image, 'base64');\n    const originalSizeKB = Math.round(imageBuffer.length / 1024);\n    \n    // Create binary data for Edit Image node\n    // n8n expects binary data in item.binary with a property name\n    processedItems.push({\n      json: {\n        ...item.json,\n        originalSizeKB: originalSizeKB,\n        imageFilename: imageFilename\n      },\n      binary: {\n        data: {\n          data: imageBuffer,\n          mimeType: 'image/jpeg',\n          fileName: imageFilename\n        }\n      }\n    });\n  } catch (error) {\n    processedItems.push({\n      json: {\n        ...item.json,\n        error: error.message\n      }\n    });\n  }\n}\n\nreturn processedItems;"
+      },
+      "id": "b2a6b272-27d7-457b-9640-46965453ea6a",
+      "name": "Convert Base64 to Binary",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -27424,
+        2640
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "resize",
+        "width": 1200,
+        "height": 675,
+        "options": {
+          "fileName": "={{ $json.imageFilename || 'featured-image.jpg' }}",
+          "format": "jpeg",
+          "quality": 50
+        }
+      },
+      "id": "b8b71a76-1573-40eb-bb5a-22fc64c26544",
+      "name": "Compress Image",
+      "type": "n8n-nodes-base.editImage",
+      "typeVersion": 1,
+      "position": [
+        -27216,
+        2560
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Convert compressed image from Edit Image node back to base64 for GitHub upload\n// Note: n8n Edit Image node outputs binary data that needs special handling\nconst items = $input.all();\nconst processedItems = [];\n\nfor (const item of items) {\n  try {\n    // Get original data from 'Extract Image Base64' node\n    const originalItem = $('Extract Image Base64').first();\n    const imageFilename = originalItem ? originalItem.json.imageFilename : item.json.imageFilename;\n    \n    // Get compressed image data from Edit Image node\n    // n8n stores binary data in item.binary - need to access it correctly\n    let compressedBase64 = '';\n    \n    // Check for binary data in the item\n    if (item.binary) {\n      // n8n binary data structure: item.binary[propertyName]\n      // The property name is usually 'data' based on how we set it in 'Convert Base64 to Binary'\n      const binaryProperty = item.binary.data || item.binary.image || Object.values(item.binary)[0];\n      \n      if (binaryProperty) {\n        // n8n binary data can be:\n        // 1. A Buffer object\n        // 2. An object with .data property containing Buffer\n        // 3. A filesystem path (string starting with filesystem-)\n        \n        let binaryData = null;\n        \n        if (Buffer.isBuffer(binaryProperty)) {\n          binaryData = binaryProperty;\n        } else if (binaryProperty.data) {\n          if (Buffer.isBuffer(binaryProperty.data)) {\n            binaryData = binaryProperty.data;\n          } else if (typeof binaryProperty.data === 'string' && !binaryProperty.data.startsWith('filesystem-')) {\n            binaryData = Buffer.from(binaryProperty.data, 'base64');\n          }\n        } else if (typeof binaryProperty === 'string' && !binaryProperty.startsWith('filesystem-')) {\n          // Try to decode as base64\n          binaryData = Buffer.from(binaryProperty, 'base64');\n        }\n        \n        if (binaryData && Buffer.isBuffer(binaryData)) {\n          compressedBase64 = binaryData.toString('base64');\n          const compressedSizeKB = Math.round(binaryData.length / 1024);\n          const originalSizeKB = originalItem ? Math.round(Buffer.from(originalItem.json.base64Image, 'base64').length / 1024) : 0;\n          const reduction = originalSizeKB > 0 ? Math.round((1 - compressedSizeKB/originalSizeKB) * 100) : 0;\n          console.log(`Image compressed: ${originalSizeKB}KB → ${compressedSizeKB}KB (${reduction}% reduction)`);\n        } else {\n          console.log('Warning: Binary data is a filesystem reference, using original image');\n          throw new Error('Filesystem reference detected');\n        }\n      } else {\n        throw new Error('No binary property found');\n      }\n    } else {\n      throw new Error('No binary data in item');\n    }\n    \n    // Validate base64 string\n    if (!compressedBase64 || compressedBase64.length === 0) {\n      throw new Error('Empty base64 string');\n    }\n    \n    processedItems.push({\n      json: {\n        ...(originalItem ? originalItem.json : item.json),\n        base64Image: compressedBase64,\n        imageFilename: imageFilename\n      }\n    });\n  } catch (error) {\n    // Fallback to original image if compression fails\n    const originalItem = $('Extract Image Base64').first();\n    console.log('Error in Convert Compressed to Base64, using original:', error.message);\n    \n    if (originalItem && originalItem.json.base64Image) {\n      processedItems.push({\n        json: {\n          ...originalItem.json,\n          error: error.message,\n          base64Image: originalItem.json.base64Image\n        }\n      });\n    } else {\n      // Last resort - pass through with error\n      processedItems.push({\n        json: {\n          ...item.json,\n          error: error.message,\n          base64Image: ''\n        }\n      });\n    }\n  }\n}\n\nreturn processedItems;"
+      },
+      "id": "70c2d030-ce0e-4dbe-b5d0-81ac85f57ac7",
+      "name": "Convert Compressed to Base64",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -27136,
+        2240
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=https://api.github.com/repos/premcool/prem-website/contents/public/images/blog/{{ $json.imageFilename }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/vnd.github.v3+json"
+            }
+          ]
+        },
+        "options": {
+          "ignoreResponseCode": true
+        }
+      },
+      "id": "1fdf80cb-15f8-4085-a08d-0760e1658ead",
+      "name": "Get Image SHA",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -26960,
+        2560
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "zHMuvIhbG9iaHxxd",
+          "name": "Header Auth account"
+        }
+      },
+      "continueOnFail": true,
+      "notes": "Gets SHA of existing image file if it exists (for updates). Continues on 404 (file doesn't exist)."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract SHA from GitHub response and merge with original data\n// Handles both 200 (file exists) and 404 (file doesn't exist) responses\n// Also handles case where HTTP Request node fails\nconst items = $input.all();\nconst processedItems = [];\n\n// Get original data from previous node\nconst originalItem = $('Convert Compressed to Base64').first();\n\n// If no items received (HTTP Request failed), use original item directly\nif (!items || items.length === 0) {\n  if (originalItem && originalItem.json) {\n    processedItems.push({\n      json: {\n        ...originalItem.json,\n        imageSha: ''\n      }\n    });\n  }\n  return processedItems;\n}\n\nfor (const item of items) {\n  let sha = '';\n  \n  try {\n    // Check if response has SHA (file exists)\n    // GitHub returns sha field when file exists (status 200)\n    // When file doesn't exist (404), response has message field instead\n    if (item.json && item.json.sha && typeof item.json.sha === 'string') {\n      sha = item.json.sha;\n    }\n    // If response has error message (404) or is empty, sha remains empty string (new file)\n  } catch (error) {\n    // If there's any error accessing the response, treat as new file (empty sha)\n    console.log('Error extracting SHA, treating as new file:', error.message);\n    sha = '';\n  }\n  \n  // Merge original data with SHA\n  // Always ensure we have the original data even if SHA extraction failed\n  if (originalItem && originalItem.json) {\n    processedItems.push({\n      json: {\n        ...originalItem.json,\n        imageSha: sha\n      }\n    });\n  } else if (item && item.json) {\n    // Fallback if original item not found\n    processedItems.push({\n      json: {\n        ...item.json,\n        imageSha: sha\n      }\n    });\n  }\n}\n\nreturn processedItems;"
+      },
+      "id": "adf5f286-dfa7-4a65-86b3-f2227eb42905",
+      "name": "Extract Image SHA",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -26912,
+        2256
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "merge-blog-data",
+              "name": "title",
+              "value": "={{ $('Generate Image Prompt').item.json.title }}",
+              "type": "string"
+            },
+            {
+              "id": "merge-blog-data-2",
+              "name": "slug",
+              "value": "={{ $('Generate Image Prompt').item.json.slug }}",
+              "type": "string"
+            },
+            {
+              "id": "merge-blog-data-3",
+              "name": "date",
+              "value": "={{ $('Generate Image Prompt').item.json.date }}",
+              "type": "string"
+            },
+            {
+              "id": "merge-blog-data-4",
+              "name": "content",
+              "value": "={{ $('Generate Image Prompt').item.json.content }}",
+              "type": "string"
+            },
+            {
+              "id": "merge-blog-data-5",
+              "name": "imageFilename",
+              "value": "={{ $('Generate Image Prompt').item.json.imageFilename }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "eb2e0583-5d94-4469-b948-5e93c12bde0e",
+      "name": "Merge Blog Post Data",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -26848,
+        2384
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Update markdown frontmatter with image URL\nconst items = $input.all();\nconst processedItems = [];\n\nfor (const item of items) {\n  const title = item.json.title;\n  const slug = item.json.slug;\n  const date = item.json.date;\n  const content = item.json.content;\n  const imageFilename = item.json.imageFilename;\n  \n  // Create image URL (assuming your site is hosted and images are accessible)\n  // Update this URL to match your actual domain\n  const imageUrl = `/images/blog/${imageFilename}`;\n  \n  // Create frontmatter with image\n  const frontmatter = `---\\ntitle: \"${title}\"\\ndate: \"${date}\"\\nslug: \"${slug}\"\\nimage: \"${imageUrl}\"\\n---\\n\\n`;\n  \n  // Combine frontmatter and content\n  const fullMarkdown = frontmatter + content;\n  \n  // Base64 encode for GitHub API\n  const base64Content = Buffer.from(fullMarkdown, 'utf8').toString('base64');\n  \n  processedItems.push({\n    json: {\n      title: title,\n      slug: slug,\n      date: date,\n      filename: `${slug}.md`,\n      content: content,\n      imageUrl: imageUrl,\n      imageFilename: imageFilename,\n      fullMarkdown: fullMarkdown,\n      base64Content: base64Content,\n      filePath: `content/blog/${slug}.md`\n    }\n  });\n}\n\nreturn processedItems;"
+      },
+      "id": "26c1ae50-fdf3-41e6-adc7-bbbe06b1be75",
+      "name": "Add Image to Frontmatter",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -26624,
+        2416
+      ]
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "=https://api.github.com/repos/premcool/prem-website/contents/content/blog/{{ $json.filename }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/vnd.github.v3+json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "message",
+              "value": "={{ `Add weekly blog post: ${$json.title}` }}"
+            },
+            {
+              "name": "content",
+              "value": "={{ $json.base64Content }}"
+            },
+            {
+              "name": "branch",
+              "value": "main"
+            },
+            {
+              "name": "sha",
+              "value": "={{ $json.fileSha || '' }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "e6779d69-550a-4bc3-9cc8-3054c64837be",
+      "name": "Create File in GitHub",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -26160,
+        2368
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "zHMuvIhbG9iaHxxd",
+          "name": "Header Auth account"
+        }
+      },
+      "notes": "Requires GitHub token with repo permissions. Token should be in Authorization header as 'token YOUR_TOKEN'"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=https://api.github.com/repos/premcool/prem-website/contents/content/blog/{{ $json.filename }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/vnd.github.v3+json"
+            }
+          ]
+        },
+        "options": {
+          "ignoreResponseCode": true
+        }
+      },
+      "id": "1bfe9860-b477-45c7-b441-a7c17c269bcf",
+      "name": "Get File SHA",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -26480,
+        2384
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "zHMuvIhbG9iaHxxd",
+          "name": "Header Auth account"
+        }
+      },
+      "continueOnFail": true,
+      "notes": "Gets SHA of existing markdown file if it exists (for updates). Continues on 404 (file doesn't exist)."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract SHA from GitHub response and merge with original data\n// Handles both 200 (file exists) and 404 (file doesn't exist) responses\n// Also handles case where HTTP Request node fails\nconst items = $input.all();\nconst processedItems = [];\n\n// Get original data from previous node\nconst originalItem = $('Add Image to Frontmatter').first();\n\n// If no items received (HTTP Request failed), use original item directly\nif (!items || items.length === 0) {\n  if (originalItem && originalItem.json) {\n    processedItems.push({\n      json: {\n        ...originalItem.json,\n        fileSha: ''\n      }\n    });\n  }\n  return processedItems;\n}\n\nfor (const item of items) {\n  let sha = '';\n  \n  try {\n    // Check if response has SHA (file exists)\n    // GitHub returns sha field when file exists (status 200)\n    // When file doesn't exist (404), response has message field instead\n    if (item.json && item.json.sha && typeof item.json.sha === 'string') {\n      sha = item.json.sha;\n    }\n    // If response has error message (404) or is empty, sha remains empty string (new file)\n  } catch (error) {\n    // If there's any error accessing the response, treat as new file (empty sha)\n    console.log('Error extracting SHA, treating as new file:', error.message);\n    sha = '';\n  }\n  \n  // Merge original data with SHA\n  // Always ensure we have the original data even if SHA extraction failed\n  if (originalItem && originalItem.json) {\n    processedItems.push({\n      json: {\n        ...originalItem.json,\n        fileSha: sha\n      }\n    });\n  } else if (item && item.json) {\n    // Fallback if original item not found\n    processedItems.push({\n      json: {\n        ...item.json,\n        fileSha: sha\n      }\n    });\n  }\n}\n\nreturn processedItems;"
+      },
+      "id": "50eb266b-02ab-413c-8e25-d724d4f75952",
+      "name": "Extract File SHA",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -26384,
+        2288
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.github.com/repos/premcool/prem-website/dispatches",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/vnd.github.v3+json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  event_type: 'rebuild',\n  client_payload: {\n    blog_post: $json.filename || 'unknown'\n  }\n}) }}",
+        "options": {}
+      },
+      "id": "cab7d995-1f72-4f69-89f3-8521ce2b33ba",
+      "name": "Trigger Site Rebuild (Optional)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -27520,
+        2176
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "zHMuvIhbG9iaHxxd",
+          "name": "Header Auth account"
+        }
+      },
+      "notes": "Optional: Triggers GitHub Actions workflow to rebuild site. Requires repository_dispatch event in GitHub Actions."
+    },
+    {
+      "parameters": {
+        "fromEmail": "prem@prems.in",
+        "toEmail": "prem@prems.in",
+        "subject": "={{ `Weekly Blog Post Created: ${$('Add Image to Frontmatter').item.json.title}` }}",
+        "html": "=<h2>Weekly Blog Post Created Successfully</h2>\n<p><strong>Post Title:</strong> {{ $('Add Image to Frontmatter').item.json.title }}</p>\n<p><strong>Filename:</strong> {{ $('Add Image to Frontmatter').item.json.filename }}</p>\n<p><strong>Date:</strong> {{ $('Add Image to Frontmatter').item.json.date }}</p>\n<p><strong>Image:</strong> {{ $('Add Image to Frontmatter').item.json.imageFilename }}</p>\n<p><strong>GitHub URL:</strong> <a href=\"https://github.com/premcool/prem-website/blob/main/content/blog/{{ $('Add Image to Frontmatter').item.json.filename }}\">View Post on GitHub</a></p>\n<p><strong>Image URL:</strong> <a href=\"https://github.com/premcool/prem-website/blob/main/public/images/blog/{{ $('Add Image to Frontmatter').item.json.imageFilename }}\">View Image on GitHub</a></p>\n<p>The blog post and header image have been created and committed to the repository. The site will rebuild automatically if configured with Vercel/Netlify webhooks.</p>",
+        "options": {}
+      },
+      "id": "aa04a57e-e49d-410e-8d97-544ef21e8f29",
+      "name": "Send Success Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        -26464,
+        2128
+      ],
+      "webhookId": "220ce1f9-f164-4287-ab02-1e69039ca4f1",
+      "credentials": {
+        "smtp": {
+          "id": "ufNQlF7n5lyi43jx",
+          "name": "SMTP-prem-website"
+        }
+      }
     }
+  ],
+  "connections": {
+    "Schedule Trigger - Weekly": {
+      "main": [
+        [
+          {
+            "node": "Read TechCrunch RSS",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Read LastWeekIn.AI RSS",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Read Google Research RSS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read TechCrunch RSS": {
+      "main": [
+        [
+          {
+            "node": "Limit TechCrunch to 3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read LastWeekIn.AI RSS": {
+      "main": [
+        [
+          {
+            "node": "Limit LastWeekIn.AI to 3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Google Research RSS": {
+      "main": [
+        [
+          {
+            "node": "Limit Google Research to 3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit TechCrunch to 3": {
+      "main": [
+        [
+          {
+            "node": "Merge All Feeds",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit LastWeekIn.AI to 3": {
+      "main": [
+        [
+          {
+            "node": "Merge All Feeds",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Limit Google Research to 3": {
+      "main": [
+        [
+          {
+            "node": "Merge All Feeds",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Merge All Feeds": {
+      "main": [
+        [
+          {
+            "node": "Combine All Articles",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Combine All Articles": {
+      "main": [
+        [
+          {
+            "node": "AI Agent - Generate Blog Post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent - Generate Blog Post": {
+      "main": [
+        [
+          {
+            "node": "Format Markdown & Generate Frontmatter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent - Generate Blog Post",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Markdown & Generate Frontmatter": {
+      "main": [
+        [
+          {
+            "node": "Generate Image Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Image Prompt": {
+      "main": [
+        [
+          {
+            "node": "Generate Image with OpenRouter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Image with OpenRouter": {
+      "main": [
+        [
+          {
+            "node": "Extract Image Base64",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Image Base64": {
+      "main": [
+        [
+          {
+            "node": "Convert Base64 to Binary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload Image to GitHub": {
+      "main": [
+        [
+          {
+            "node": "Merge Blog Post Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert Base64 to Binary": {
+      "main": [
+        [
+          {
+            "node": "Compress Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compress Image": {
+      "main": [
+        [
+          {
+            "node": "Convert Compressed to Base64",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert Compressed to Base64": {
+      "main": [
+        [
+          {
+            "node": "Get Image SHA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Image SHA": {
+      "main": [
+        [
+          {
+            "node": "Extract Image SHA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Image SHA": {
+      "main": [
+        [
+          {
+            "node": "Upload Image to GitHub",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Blog Post Data": {
+      "main": [
+        [
+          {
+            "node": "Add Image to Frontmatter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add Image to Frontmatter": {
+      "main": [
+        [
+          {
+            "node": "Get File SHA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create File in GitHub": {
+      "main": [
+        [
+          {
+            "node": "Trigger Site Rebuild (Optional)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send Success Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get File SHA": {
+      "main": [
+        [
+          {
+            "node": "Extract File SHA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract File SHA": {
+      "main": [
+        [
+          {
+            "node": "Create File in GitHub",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Trigger Site Rebuild (Optional)": {
+      "main": [
+        [
+          {
+            "node": "Send Success Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "186dce4d277dd47c82c9c6b24027d469269422530c72ba1f0e49ed4a09e082c1"
   }
+}

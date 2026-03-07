@@ -1,777 +1,1003 @@
 {
-    "nodes": [
-      {
-        "parameters": {
-          "rule": {
-            "interval": [
-              {
-                "field": "weeks",
-                "triggerAtDay": [
-                  6
-                ]
-              }
-            ]
-          }
-        },
-        "id": "crypto-trigger-001-159d-4fb1-90c1-294534ceb1e0",
-        "name": "Schedule Trigger - Weekly",
-        "type": "n8n-nodes-base.scheduleTrigger",
-        "typeVersion": 1.3,
-        "position": [
-          2832,
-          640
-        ]
-      },
-      {
-        "parameters": {
-          "url": "https://cointelegraph.com/rss",
-          "options": {}
-        },
-        "id": "crypto-feed-001-d9fe-4510-8c30-d51fb0b1ce20",
-        "name": "Read CoinTelegraph RSS",
-        "type": "n8n-nodes-base.rssFeedRead",
-        "typeVersion": 1.2,
-        "position": [
-          3040,
-          448
-        ]
-      },
-      {
-        "parameters": {
-          "url": "https://decrypt.co/feed",
-          "options": {}
-        },
-        "id": "crypto-feed-002-0ccc-429e-bed8-51beb18f5c83",
-        "name": "Read Decrypt RSS",
-        "type": "n8n-nodes-base.rssFeedRead",
-        "typeVersion": 1.2,
-        "position": [
-          3040,
-          640
-        ]
-      },
-      {
-        "parameters": {
-          "url": "https://www.coindesk.com/feed/",
-          "options": {}
-        },
-        "id": "crypto-feed-003-aa49-4e2b-95b3-08eb4a3eaf38",
-        "name": "Read CoinDesk RSS",
-        "type": "n8n-nodes-base.rssFeedRead",
-        "typeVersion": 1.2,
-        "position": [
-          3040,
-          800
-        ]
-      },
-      {
-        "parameters": {
-          "url": "https://coinmarketcap.com/headlines/news/",
-          "options": {}
-        },
-        "id": "crypto-feed-004-bb50-5e3c-a6c4-19fc5b4dbf49",
-        "name": "Read CoinMarketCap RSS",
-        "type": "n8n-nodes-base.rssFeedRead",
-        "typeVersion": 1.2,
-        "position": [
-          3040,
-          960
-        ]
-      },
-      {
-        "parameters": {
-          "maxItems": 3
-        },
-        "id": "crypto-limit-001-6652-494b-a4a6-64f46a955ce9",
-        "name": "Limit CoinTelegraph to 3",
-        "type": "n8n-nodes-base.limit",
-        "typeVersion": 1,
-        "position": [
-          3264,
-          448
-        ]
-      },
-      {
-        "parameters": {
-          "maxItems": 3
-        },
-        "id": "crypto-limit-002-b13f-4329-a27e-0d6e52cd47bd",
-        "name": "Limit Decrypt to 3",
-        "type": "n8n-nodes-base.limit",
-        "typeVersion": 1,
-        "position": [
-          3264,
-          640
-        ]
-      },
-      {
-        "parameters": {
-          "maxItems": 3
-        },
-        "id": "crypto-limit-003-48d1-4570-a7a2-06bacd38b80e",
-        "name": "Limit CoinDesk to 3",
-        "type": "n8n-nodes-base.limit",
-        "typeVersion": 1,
-        "position": [
-          3280,
-          848
-        ]
-      },
-      {
-        "parameters": {
-          "maxItems": 3
-        },
-        "id": "crypto-limit-004-59e2-5681-b8b3-17cbd49c91f",
-        "name": "Limit CoinMarketCap to 3",
-        "type": "n8n-nodes-base.limit",
-        "typeVersion": 1,
-        "position": [
-          3280,
-          1008
-        ]
-      },
-      {
-        "parameters": {
-          "numberInputs": 4
-        },
-        "id": "crypto-merge-001-50bc-4f5c-8af4-14be316be79e",
-        "name": "Merge All Feeds",
-        "type": "n8n-nodes-base.merge",
-        "typeVersion": 3.2,
-        "position": [
-          3488,
-          640
-        ]
-      },
-      {
-        "parameters": {
-          "fieldsToAggregate": {
-            "fieldToAggregate": [
-              {
-                "fieldToAggregate": "contentSnippet",
-                "renameField": true,
-                "outputFieldName": "allArticles"
-              }
-            ]
-          },
-          "options": {}
-        },
-        "id": "crypto-aggregate-001-d853-4e6c-9f39-0d32ca50d38e",
-        "name": "Combine All Articles",
-        "type": "n8n-nodes-base.aggregate",
-        "typeVersion": 1,
-        "position": [
-          3712,
-          640
-        ]
-      },
-      {
-        "parameters": {
-          "promptType": "define",
-          "text": "={{ $json.allArticles }}",
-          "options": {
-            "systemMessage": "You are writing a friendly, human blog post about cryptocurrency and blockchain technology. Your task is to take multiple RSS feed article summaries and create ONE natural, engaging blog post in Markdown format that sounds like it was written by a real person.\n\nWriting Style:\n- Write in simple, clear English - avoid crypto jargon unless you explain it first\n- Use a friendly, conversational tone - like you're chatting with a friend about crypto\n- Write naturally, as if you're sharing interesting news and insights you discovered\n- Use \"I\" and \"we\" occasionally to make it personal\n- Keep sentences relatively short and easy to read\n- Explain crypto concepts in plain language - not everyone is a crypto expert\n- Be enthusiastic but not overly hyped\n\nContent Guidelines:\n- Read through all the provided article summaries\n- Identify the key themes and important developments in cryptocurrency, blockchain, DeFi, NFTs, and Web3\n- Pay special attention to token recommendations, market analysis, and investment insights from CoinMarketCap and other sources\n- Create a cohesive blog post that covers the main points from all articles\n- Use Markdown formatting: ## for section headings, **bold** for emphasis\n- Structure with clear sections and paragraphs\n- Make it informative and valuable for readers\n- Aim for 500-800 words total\n- Focus on actionable insights, token recommendations, and what they mean for the crypto ecosystem\n- The post should feel like a unified roundup, not separate summaries\n- Write as if you're genuinely excited about these developments\n- Avoid sounding robotic or overly formal - be warm, approachable, and relatable"
-          }
-        },
-        "id": "crypto-ai-001-61d3-41d3-a434-492cb3701f1d",
-        "name": "AI Agent - Generate Crypto Blog Post",
-        "type": "@n8n/n8n-nodes-langchain.agent",
-        "typeVersion": 3,
-        "position": [
-          3920,
-          640
-        ]
-      },
-      {
-        "parameters": {
-          "options": {}
-        },
-        "id": "crypto-model-001-1d20-40a0-a11c-a03cbb9b7bd4",
-        "name": "Google Gemini Chat Model",
-        "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
-        "typeVersion": 1,
-        "position": [
-          3920,
-          848
-        ],
-        "credentials": {
-          "googlePalmApi": {
-            "id": "7Y12SG2vvaZLB4nG",
-            "name": "Google Gemini(PaLM) Api account"
-          }
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks"
+            }
+          ]
         }
       },
-      {
-        "parameters": {
-          "jsCode": "// Extract AI-generated content and format for Next.js markdown blog\nconst items = $input.all();\nconst processedItems = [];\n\nfor (const item of items) {\n  const aiOutput = item.json.output || item.json.text || '';\n  \n  // Extract title (first line or marked with Title:)\n  let title = '';\n  let content = aiOutput;\n  \n  // Try to extract title from various formats\n  const titleMatch = aiOutput.match(/^(?:Title:|#)\\s*(.+?)(?:\\n|$)/i);\n  if (titleMatch) {\n    title = titleMatch[1].trim();\n    content = aiOutput.replace(/^(?:Title:|#)\\s*.+?(?:\\n|$)/i, '').trim();\n  } else {\n    // Use first line as title if no marker\n    const lines = aiOutput.split('\\n');\n    title = lines[0].trim().replace(/^#+\\s*/, '');\n    content = lines.slice(1).join('\\n').trim();\n  }\n  \n  // Clean the title\n  const cleanTitle = title.replace(/[^a-zA-Z0-9\\s-]/g, '').replace(/\\s+/g, ' ').trim();\n  \n  // Generate slug from title (for filename)\n  const slug = cleanTitle\n    .toLowerCase()\n    .replace(/[^a-z0-9\\s-]/g, '')\n    .replace(/\\s+/g, '-')\n    .replace(/-+/g, '-')\n    .replace(/^-|-$/g, '');\n  \n  // Get current date in YYYY-MM-DD format\n  const today = new Date();\n  const dateStr = today.toISOString().split('T')[0];\n  \n  // Ensure content is proper markdown (clean up any HTML)\n  let markdownContent = content\n    .replace(/<p>/g, '')\n    .replace(/<\\/p>/g, '\\n\\n')\n    .replace(/<strong>(.+?)<\\/strong>/g, '**$1**')\n    .replace(/<em>(.+?)<\\/em>/g, '*$1*')\n    .replace(/<h2>(.+?)<\\/h2>/g, '## $1')\n    .replace(/<h3>(.+?)<\\/h3>/g, '### $1')\n    .replace(/<ul>/g, '')\n    .replace(/<\\/ul>/g, '\\n')\n    .replace(/<li>(.+?)<\\/li>/g, '- $1\\n')\n    .replace(/<a href=\"(.+?)\">(.+?)<\\/a>/g, '[$2]($1)')\n    .trim();\n  \n  // Create frontmatter (image will be added later)\n  const frontmatter = `---\\ntitle: \"${cleanTitle}\"\\ndate: \"${dateStr}\"\\nslug: \"${slug}\"\\ncategory: \"Crypto Roundup\"\\n---\\n\\n`;\n  \n  // Combine frontmatter and content\n  const fullMarkdown = frontmatter + markdownContent;\n  \n  // Base64 encode for GitHub API\n  const base64Content = Buffer.from(fullMarkdown, 'utf8').toString('base64');\n  \n  processedItems.push({\n    json: {\n      ...item.json,\n      title: cleanTitle,\n      slug: slug,\n      date: dateStr,\n      filename: `${slug}.md`,\n      content: markdownContent,\n      fullMarkdown: fullMarkdown,\n      base64Content: base64Content,\n      filePath: `content/blog/${slug}.md`\n    }\n  });\n}\n\nreturn processedItems;"
-        },
-        "id": "crypto-format-001-aacb-4a0d-957f-3c6d9580b86e",
-        "name": "Format Markdown & Generate Frontmatter",
-        "type": "n8n-nodes-base.code",
-        "typeVersion": 2,
-        "position": [
-          4208,
-          640
-        ]
+      "id": "092b1b79-8368-40db-ac56-bb8c78b34721",
+      "name": "Schedule Trigger - Weekly",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -3152,
+        688
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://cointelegraph.com/rss",
+        "options": {}
       },
-      {
-        "parameters": {
-          "jsCode": "// Generate image prompt from blog post title\nconst items = $input.all();\nconst processedItems = [];\n\nfor (const item of items) {\n  const title = item.json.title || '';\n  const content = item.json.content || '';\n  \n  // Extract key themes from content (first 200 chars)\n  const contentPreview = content.substring(0, 200).toLowerCase();\n  \n  // Create a descriptive image prompt\n  let imagePrompt = `A professional, modern illustration representing: ${title}. `;\n  \n  // Add context based on common crypto/blockchain themes\n  if (contentPreview.includes('bitcoin') || contentPreview.includes('btc')) {\n    imagePrompt += 'Style: digital currency, blockchain technology, with Bitcoin visual elements. ';\n  }\n  if (contentPreview.includes('ethereum') || contentPreview.includes('eth') || contentPreview.includes('defi')) {\n    imagePrompt += 'Include Ethereum, DeFi, and smart contract themes. ';\n  }\n  if (contentPreview.includes('nft') || contentPreview.includes('web3')) {\n    imagePrompt += 'Include NFT and Web3 visual elements. ';\n  }\n  if (contentPreview.includes('blockchain') || contentPreview.includes('crypto')) {\n    imagePrompt += 'Blockchain and cryptocurrency themes, digital assets. ';\n  }\n  \n  imagePrompt += 'Color scheme: modern crypto colors (oranges, blues, digital gradients). Clean, tech-forward design suitable for a blog header image. 16:9 aspect ratio, high quality.';\n  \n  processedItems.push({\n    json: {\n      ...item.json,\n      imagePrompt: imagePrompt,\n      imageFilename: `${item.json.slug}-header.jpg`\n    }\n  });\n}\n\nreturn processedItems;"
-        },
-        "id": "crypto-image-001-5dcc-4bd6-9cd5-092414c4bcce",
-        "name": "Generate Image Prompt",
-        "type": "n8n-nodes-base.code",
-        "typeVersion": 2,
-        "position": [
-          4368,
-          640
-        ]
+      "id": "f7dac16f-986f-40c3-a9c4-25ce76c01a68",
+      "name": "Read CoinTelegraph RSS",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        -2944,
+        496
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://decrypt.co/feed",
+        "options": {}
       },
-      {
-        "parameters": {
-          "method": "POST",
-          "url": "https://openrouter.ai/api/v1/chat/completions",
-          "authentication": "predefinedCredentialType",
-          "nodeCredentialType": "httpHeaderAuth",
-          "sendHeaders": true,
-          "headerParameters": {
-            "parameters": [
-              {
-                "name": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "name": "HTTP-Referer",
-                "value": "https://prems.in"
-              },
-              {
-                "name": "X-Title",
-                "value": "Prem's Blog Automation"
-              }
-            ]
-          },
-          "sendBody": true,
-          "specifyBody": "json",
-          "jsonBody": "={{ JSON.stringify({\n  model: 'google/gemini-2.5-flash-image',\n  modalities: ['image', 'text'],\n  messages: [\n    {\n      role: 'user',\n      content: $json.imagePrompt\n    }\n  ]\n}) }}",
-          "options": {}
-        },
-        "id": "crypto-openrouter-001-d62e-4aa9-97a8-c06b4838d4c2",
-        "name": "Generate Image with OpenRouter",
-        "type": "n8n-nodes-base.httpRequest",
-        "typeVersion": 4.3,
-        "position": [
-          4592,
-          640
-        ],
-        "credentials": {
-          "httpHeaderAuth": {
-            "id": "QBIXyd8iDBGK3tjt",
-            "name": "OpenRouter auth"
-          }
-        },
-        "notes": "Uses OpenRouter chat/completions endpoint with google/gemini-2.5-flash-image-preview and modalities:[image,text]. Image is returned as base64 in choices[0].message.images[0].image_url.url. Strip the data:image/...;base64, prefix before uploading to GitHub."
+      "id": "ccfd2ede-2c7d-410d-ae8c-52ecfdf0b52d",
+      "name": "Read Decrypt RSS",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        -2944,
+        688
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://www.coindesk.com/arc/outboundfeeds/rss",
+        "options": {}
       },
-      {
-        "parameters": {
-          "jsCode": "// Extract base64 image data from OpenRouter response\nconst items = $input.all();\nconst processedItems = [];\n\nfor (const item of items) {\n  try {\n    const response = item.json;\n    \n    // Extract image from response\n    let base64Image = '';\n    \n    if (response.choices && \n        response.choices[0] && \n        response.choices[0].message && \n        response.choices[0].message.images && \n        response.choices[0].message.images[0] && \n        response.choices[0].message.images[0].image_url && \n        response.choices[0].message.images[0].image_url.url) {\n      \n      const imageUrl = response.choices[0].message.images[0].image_url.url;\n      \n      // Remove data:image/...;base64, prefix\n      base64Image = imageUrl.replace(/^data:image\\/[^;]+;base64,/, '');\n    } else {\n      throw new Error('Image not found in response. Response structure: ' + JSON.stringify(response, null, 2));\n    }\n    \n    // Get image filename from previous node\n    const imagePromptNode = $('Generate Image Prompt').first();\n    const imageFilename = imagePromptNode ? imagePromptNode.json.imageFilename : 'image.jpg';\n    \n    processedItems.push({\n      json: {\n        ...item.json,\n        base64Image: base64Image,\n        imageFilename: imageFilename\n      }\n    });\n  } catch (error) {\n    // Pass through error for debugging\n    processedItems.push({\n      json: {\n        ...item.json,\n        error: error.message,\n        base64Image: ''\n      }\n    });\n  }\n}\n\nreturn processedItems;"
-        },
-        "id": "crypto-extract-001-2aa1-4d46-9b69-a5de178413f7",
-        "name": "Extract Image Base64",
-        "type": "n8n-nodes-base.code",
-        "typeVersion": 2,
-        "position": [
-          4816,
-          640
-        ]
+      "id": "9b7d60a2-7e46-42bb-bc50-9cfa4ca85bbf",
+      "name": "Read CoinDesk RSS",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        -2944,
+        848
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://bitcoinist.com/feed/",
+        "options": {}
       },
-      {
-        "parameters": {
-          "method": "PUT",
-          "url": "=https://api.github.com/repos/premcool/prem-website/contents/public/images/blog/{{ $json.imageFilename }}",
-          "authentication": "predefinedCredentialType",
-          "nodeCredentialType": "httpHeaderAuth",
-          "sendHeaders": true,
-          "headerParameters": {
-            "parameters": [
-              {
-                "name": "Accept",
-                "value": "application/vnd.github.v3+json"
-              }
-            ]
-          },
-          "sendBody": true,
-          "bodyParameters": {
-            "parameters": [
-              {
-                "name": "message",
-                "value": "={{ `Add crypto blog post image: ${$json.imageFilename}` }}"
-              },
-              {
-                "name": "content",
-                "value": "={{ $json.base64Image }}"
-              },
-              {
-                "name": "branch",
-                "value": "main"
-              }
-            ]
-          },
-          "options": {}
-        },
-        "id": "crypto-upload-001-14bf-4181-a6fe-a4e9b19fadaf",
-        "name": "Upload Image to GitHub",
-        "type": "n8n-nodes-base.httpRequest",
-        "typeVersion": 4.3,
-        "position": [
-          5024,
-          640
-        ],
-        "credentials": {
-          "httpHeaderAuth": {
-            "id": "zHMuvIhbG9iaHxxd",
-            "name": "Header Auth account"
-          }
-        },
-        "notes": "Uploads generated image to public/images/blog/ directory"
+      "id": "f78dcaa7-69b4-422c-a3af-2247f71942b8",
+      "name": "Read CoinMarketCap RSS",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        -2944,
+        1008
+      ]
+    },
+    {
+      "parameters": {
+        "maxItems": 3
       },
-      {
-        "parameters": {
-          "assignments": {
-            "assignments": [
-              {
-                "id": "merge-blog-data",
-                "name": "title",
-                "value": "={{ $('Generate Image Prompt').item.json.title }}",
-                "type": "string"
-              },
-              {
-                "id": "merge-blog-data-2",
-                "name": "slug",
-                "value": "={{ $('Generate Image Prompt').item.json.slug }}",
-                "type": "string"
-              },
-              {
-                "id": "merge-blog-data-3",
-                "name": "date",
-                "value": "={{ $('Generate Image Prompt').item.json.date }}",
-                "type": "string"
-              },
-              {
-                "id": "merge-blog-data-4",
-                "name": "content",
-                "value": "={{ $('Generate Image Prompt').item.json.content }}",
-                "type": "string"
-              },
-              {
-                "id": "merge-blog-data-5",
-                "name": "imageFilename",
-                "value": "={{ $('Generate Image Prompt').item.json.imageFilename }}",
-                "type": "string"
-              }
-            ]
-          },
-          "options": {}
-        },
-        "id": "crypto-merge-data-001-9e1f-4dd3-8b25-d36f88adba55",
-        "name": "Merge Blog Post Data",
-        "type": "n8n-nodes-base.set",
-        "typeVersion": 3.4,
-        "position": [
-          5248,
-          640
-        ]
+      "id": "ff907ce9-835f-4a66-9ec0-7b3346177c71",
+      "name": "Limit CoinTelegraph to 3",
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        -2720,
+        496
+      ]
+    },
+    {
+      "parameters": {
+        "maxItems": 3
       },
-      {
-        "parameters": {
-          "jsCode": "// Update markdown frontmatter with image URL\nconst items = $input.all();\nconst processedItems = [];\n\nfor (const item of items) {\n  const title = item.json.title;\n  const slug = item.json.slug;\n  const date = item.json.date;\n  const content = item.json.content;\n  const imageFilename = item.json.imageFilename;\n  \n  // Create image URL (assuming your site is hosted and images are accessible)\n  // Update this URL to match your actual domain\n  const imageUrl = `/images/blog/${imageFilename}`;\n  \n  // Create frontmatter with image\n  const frontmatter = `---\\ntitle: \"${title}\"\\ndate: \"${date}\"\\nslug: \"${slug}\"\\nimage: \"${imageUrl}\"\\ncategory: \"Crypto Roundup\"\\n---\\n\\n`;\n  \n  // Combine frontmatter and content\n  const fullMarkdown = frontmatter + content;\n  \n  // Base64 encode for GitHub API\n  const base64Content = Buffer.from(fullMarkdown, 'utf8').toString('base64');\n  \n  processedItems.push({\n    json: {\n      title: title,\n      slug: slug,\n      date: date,\n      filename: `${slug}.md`,\n      content: content,\n      imageUrl: imageUrl,\n      imageFilename: imageFilename,\n      fullMarkdown: fullMarkdown,\n      base64Content: base64Content,\n      filePath: `content/blog/${slug}.md`\n    }\n  });\n}\n\nreturn processedItems;"
-        },
-        "id": "crypto-frontmatter-001-4ebc-49fb-95ff-b836dcccfa02",
-        "name": "Add Image to Frontmatter",
-        "type": "n8n-nodes-base.code",
-        "typeVersion": 2,
-        "position": [
-          5472,
-          672
-        ]
+      "id": "b9f3d0fb-d423-4aae-acc1-4d678e71e43a",
+      "name": "Limit Decrypt to 3",
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        -2720,
+        688
+      ]
+    },
+    {
+      "parameters": {
+        "maxItems": 3
       },
-      {
-        "parameters": {
-          "method": "PUT",
-          "url": "=https://api.github.com/repos/premcool/prem-website/contents/content/blog/{{ $json.filename }}",
-          "authentication": "predefinedCredentialType",
-          "nodeCredentialType": "httpHeaderAuth",
-          "sendHeaders": true,
-          "headerParameters": {
-            "parameters": [
-              {
-                "name": "Accept",
-                "value": "application/vnd.github.v3+json"
-              }
-            ]
-          },
-          "sendBody": true,
-          "bodyParameters": {
-            "parameters": [
-              {
-                "name": "message",
-                "value": "={{ `Add crypto roundup blog post: ${$json.title}` }}"
-              },
-              {
-                "name": "content",
-                "value": "={{ $json.base64Content }}"
-              },
-              {
-                "name": "branch",
-                "value": "main"
-              }
-            ]
-          },
-          "options": {}
-        },
-        "id": "crypto-github-001-359c-4dfd-b564-0c9d29c15793",
-        "name": "Create File in GitHub",
-        "type": "n8n-nodes-base.httpRequest",
-        "typeVersion": 4.3,
-        "position": [
-          5680,
-          640
-        ],
-        "credentials": {
-          "httpHeaderAuth": {
-            "id": "QBIXyd8iDBGK3tjt",
-            "name": "OpenRouter auth"
-          }
-        },
-        "notes": "Requires GitHub token with repo permissions. Token should be in Authorization header as 'token YOUR_TOKEN'"
+      "id": "1bacc784-7948-4cea-8005-191172887002",
+      "name": "Limit CoinDesk to 3",
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        -2704,
+        896
+      ]
+    },
+    {
+      "parameters": {
+        "maxItems": 3
       },
-      {
-        "parameters": {
-          "method": "POST",
-          "url": "=https://api.github.com/repos/premcool/prem-website/dispatches",
-          "authentication": "predefinedCredentialType",
-          "nodeCredentialType": "httpHeaderAuth",
-          "sendHeaders": true,
-          "headerParameters": {
-            "parameters": [
-              {
-                "name": "Accept",
-                "value": "application/vnd.github.v3+json"
-              }
-            ]
-          },
-          "sendBody": true,
-          "specifyBody": "json",
-          "jsonBody": "={{ JSON.stringify({\n  event_type: 'rebuild',\n  client_payload: {\n    blog_post: $json.filename || 'unknown'\n  }\n}) }}",
-          "options": {}
-        },
-        "id": "crypto-rebuild-001-0528-41ac-a4b4-9fbc1c93bd05",
-        "name": "Trigger Site Rebuild (Optional)",
-        "type": "n8n-nodes-base.httpRequest",
-        "typeVersion": 4.3,
-        "position": [
-          4576,
-          432
-        ],
-        "credentials": {
-          "httpHeaderAuth": {
-            "id": "QBIXyd8iDBGK3tjt",
-            "name": "OpenRouter auth"
-          }
-        },
-        "notes": "Optional: Triggers GitHub Actions workflow to rebuild site. Requires repository_dispatch event in GitHub Actions."
+      "id": "c7ceaf98-937c-4a4a-a7c5-5aa8a2816ab0",
+      "name": "Limit CoinMarketCap to 3",
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        -2704,
+        1056
+      ]
+    },
+    {
+      "parameters": {
+        "numberInputs": 4
       },
-      {
-        "parameters": {
-          "fromEmail": "prem@prems.in",
-          "toEmail": "prem@prems.in",
-          "subject": "={{ `Crypto Roundup Blog Post Created: ${$('Add Image to Frontmatter').item.json.title}` }}",
-          "html": "=<h2>Crypto Roundup Blog Post Created Successfully</h2>\n<p><strong>Post Title:</strong> {{ $('Add Image to Frontmatter').item.json.title }}</p>\n<p><strong>Filename:</strong> {{ $('Add Image to Frontmatter').item.json.filename }}</p>\n<p><strong>Date:</strong> {{ $('Add Image to Frontmatter').item.json.date }}</p>\n<p><strong>Image:</strong> {{ $('Add Image to Frontmatter').item.json.imageFilename }}</p>\n<p><strong>GitHub URL:</strong> <a href=\"https://github.com/premcool/prem-website/blob/main/content/blog/{{ $('Add Image to Frontmatter').item.json.filename }}\">View Post on GitHub</a></p>\n<p><strong>Image URL:</strong> <a href=\"https://github.com/premcool/prem-website/blob/main/public/images/blog/{{ $('Add Image to Frontmatter').item.json.imageFilename }}\">View Image on GitHub</a></p>\n<p>The crypto roundup blog post and header image have been created and committed to the repository. The site will rebuild automatically if configured with Vercel/Netlify webhooks.</p>",
-          "options": {}
+      "id": "d403d035-28a4-45b3-9da2-b620a49d10b2",
+      "name": "Merge All Feeds",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -2496,
+        688
+      ]
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "contentSnippet",
+              "renameField": true,
+              "outputFieldName": "allArticles"
+            }
+          ]
         },
-        "id": "crypto-email-001-e7d7-4a60-80e5-5eff45894b3a",
-        "name": "Send Success Email",
-        "type": "n8n-nodes-base.emailSend",
-        "typeVersion": 2.1,
-        "position": [
-          5632,
-          384
-        ],
-        "webhookId": "220ce1f9-f164-4287-ab02-1e69039ca4f1",
-        "credentials": {
-          "smtp": {
-            "id": "ufNQlF7n5lyi43jx",
-            "name": "SMTP-prem-website"
-          }
+        "options": {}
+      },
+      "id": "02183742-3a6a-4ac6-85ef-fff6c90f1ca9",
+      "name": "Combine All Articles",
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        -2272,
+        688
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.allArticles }}",
+        "options": {
+          "systemMessage": "You are writing a friendly, human blog post about cryptocurrency and blockchain technology. Your task is to take multiple RSS feed article summaries and create ONE natural, engaging blog post in Markdown format that sounds like it was written by a real person.\n\nWriting Style:\n- Write in simple, clear English - avoid crypto jargon unless you explain it first\n- Use a friendly, conversational tone - like you're chatting with a friend about crypto\n- Write naturally, as if you're sharing interesting news and insights you discovered\n- Use \"I\" and \"we\" occasionally to make it personal\n- Keep sentences relatively short and easy to read\n- Explain crypto concepts in plain language - not everyone is a crypto expert\n- Be enthusiastic but not overly hyped\n\nContent Guidelines:\n- Read through all the provided article summaries\n- Identify the key themes and important developments in cryptocurrency, blockchain, DeFi, NFTs, and Web3\n- Pay special attention to token recommendations, market analysis, and investment insights from CoinMarketCap and other sources\n- Create a cohesive blog post that covers the main points from all articles\n- Use Markdown formatting: ## for section headings, **bold** for emphasis\n- Structure with clear sections and paragraphs\n- Make it informative and valuable for readers\n- Aim for 500-800 words total\n- Focus on actionable insights, token recommendations, and what they mean for the crypto ecosystem\n- The post should feel like a unified roundup, not separate summaries\n- Write as if you're genuinely excited about these developments\n- Avoid sounding robotic or overly formal - be warm, approachable, and relatable"
         }
-      }
-    ],
-    "connections": {
-      "Schedule Trigger - Weekly": {
-        "main": [
-          [
-            {
-              "node": "Read CoinTelegraph RSS",
-              "type": "main",
-              "index": 0
-            },
-            {
-              "node": "Read Decrypt RSS",
-              "type": "main",
-              "index": 0
-            },
-            {
-              "node": "Read CoinDesk RSS",
-              "type": "main",
-              "index": 0
-            },
-            {
-              "node": "Read CoinMarketCap RSS",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
       },
-      "Read CoinTelegraph RSS": {
-        "main": [
-          [
-            {
-              "node": "Limit CoinTelegraph to 3",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
+      "id": "1cf233b0-c05f-4d72-a09b-5e4ae50caf89",
+      "name": "AI Agent - Generate Crypto Blog Post",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        -2064,
+        688
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
       },
-      "Read Decrypt RSS": {
-        "main": [
-          [
-            {
-              "node": "Limit Decrypt to 3",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Read CoinDesk RSS": {
-        "main": [
-          [
-            {
-              "node": "Limit CoinDesk to 3",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Read CoinMarketCap RSS": {
-        "main": [
-          [
-            {
-              "node": "Limit CoinMarketCap to 3",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Limit CoinTelegraph to 3": {
-        "main": [
-          [
-            {
-              "node": "Merge All Feeds",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Limit Decrypt to 3": {
-        "main": [
-          [
-            {
-              "node": "Merge All Feeds",
-              "type": "main",
-              "index": 1
-            }
-          ]
-        ]
-      },
-      "Limit CoinDesk to 3": {
-        "main": [
-          [
-            {
-              "node": "Merge All Feeds",
-              "type": "main",
-              "index": 2
-            }
-          ]
-        ]
-      },
-      "Limit CoinMarketCap to 3": {
-        "main": [
-          [
-            {
-              "node": "Merge All Feeds",
-              "type": "main",
-              "index": 3
-            }
-          ]
-        ]
-      },
-      "Merge All Feeds": {
-        "main": [
-          [
-            {
-              "node": "Combine All Articles",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Combine All Articles": {
-        "main": [
-          [
-            {
-              "node": "AI Agent - Generate Crypto Blog Post",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "AI Agent - Generate Crypto Blog Post": {
-        "main": [
-          [
-            {
-              "node": "Format Markdown & Generate Frontmatter",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Google Gemini Chat Model": {
-        "ai_languageModel": [
-          [
-            {
-              "node": "AI Agent - Generate Crypto Blog Post",
-              "type": "ai_languageModel",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Format Markdown & Generate Frontmatter": {
-        "main": [
-          [
-            {
-              "node": "Generate Image Prompt",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Generate Image Prompt": {
-        "main": [
-          [
-            {
-              "node": "Generate Image with OpenRouter",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Generate Image with OpenRouter": {
-        "main": [
-          [
-            {
-              "node": "Extract Image Base64",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Extract Image Base64": {
-        "main": [
-          [
-            {
-              "node": "Upload Image to GitHub",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Upload Image to GitHub": {
-        "main": [
-          [
-            {
-              "node": "Merge Blog Post Data",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Merge Blog Post Data": {
-        "main": [
-          [
-            {
-              "node": "Add Image to Frontmatter",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Add Image to Frontmatter": {
-        "main": [
-          [
-            {
-              "node": "Create File in GitHub",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Create File in GitHub": {
-        "main": [
-          [
-            {
-              "node": "Trigger Site Rebuild (Optional)",
-              "type": "main",
-              "index": 0
-            },
-            {
-              "node": "Send Success Email",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Trigger Site Rebuild (Optional)": {
-        "main": [
-          [
-            {
-              "node": "Send Success Email",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
+      "id": "096951ee-4bfc-46ed-8c1a-97ccb6500202",
+      "name": "Google Gemini Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -2064,
+        896
+      ],
+      "credentials": {
+        "googlePalmApi": {
+          "id": "7Y12SG2vvaZLB4nG",
+          "name": "Google Gemini(PaLM) Api account"
+        }
       }
     },
-    "pinData": {},
-    "meta": {
-      "templateCredsSetupCompleted": true,
-      "instanceId": "crypto-workflow-instance-001"
+    {
+      "parameters": {
+        "jsCode": "// Extract AI-generated content and format for Next.js markdown blog\nconst items = $input.all();\nconst processedItems = [];\n\nfor (const item of items) {\n  const aiOutput = item.json.output || item.json.text || '';\n  \n  // Extract title (first line or marked with Title:)\n  let title = '';\n  let content = aiOutput;\n  \n  // Try to extract title from various formats\n  const titleMatch = aiOutput.match(/^(?:Title:|#)\\s*(.+?)(?:\\n|$)/i);\n  if (titleMatch) {\n    title = titleMatch[1].trim();\n    content = aiOutput.replace(/^(?:Title:|#)\\s*.+?(?:\\n|$)/i, '').trim();\n  } else {\n    // Use first line as title if no marker\n    const lines = aiOutput.split('\\n');\n    title = lines[0].trim().replace(/^#+\\s*/, '');\n    content = lines.slice(1).join('\\n').trim();\n  }\n  \n  // Clean the title\n  const cleanTitle = title.replace(/[^a-zA-Z0-9\\s-]/g, '').replace(/\\s+/g, ' ').trim();\n  \n  // Generate slug from title (for filename)\n  let slug = cleanTitle\n    .toLowerCase()\n    .replace(/[^a-z0-9\\s-]/g, '')\n    .replace(/\\s+/g, '-')\n    .replace(/-+/g, '-')\n    .replace(/^-|-$/g, '');\n  \n  // Limit slug to 80 characters to prevent filesystem errors\n  if (slug.length > 80) {\n    slug = slug.substring(0, 80).replace(/-$/, '');\n  }\n  \n  // Get current date in YYYY-MM-DD format\n  const today = new Date();\n  const dateStr = today.toISOString().split('T')[0];\n  \n  // Ensure content is proper markdown (clean up any HTML)\n  let markdownContent = content\n    .replace(/<p>/g, '')\n    .replace(/<\\/p>/g, '\\n\\n')\n    .replace(/<strong>(.+?)<\\/strong>/g, '**$1**')\n    .replace(/<em>(.+?)<\\/em>/g, '*$1*')\n    .replace(/<h2>(.+?)<\\/h2>/g, '## $1')\n    .replace(/<h3>(.+?)<\\/h3>/g, '### $1')\n    .replace(/<ul>/g, '')\n    .replace(/<\\/ul>/g, '\\n')\n    .replace(/<li>(.+?)<\\/li>/g, '- $1\\n')\n    .replace(/<a href=\"(.+?)\">(.+?)<\\/a>/g, '[$2]($1)')\n    .trim();\n  \n  // Create frontmatter (image will be added later)\n  const frontmatter = `---\\ntitle: \"${cleanTitle}\"\\ndate: \"${dateStr}\"\\nslug: \"${slug}\"\\ncategory: \"Crypto Roundup\"\\n---\\n\\n`;\n  \n  // Combine frontmatter and content\n  const fullMarkdown = frontmatter + markdownContent;\n  \n  // Base64 encode for GitHub API\n  const base64Content = Buffer.from(fullMarkdown, 'utf8').toString('base64');\n  \n  processedItems.push({\n    json: {\n      ...item.json,\n      title: cleanTitle,\n      slug: slug,\n      date: dateStr,\n      filename: `${slug}.md`,\n      content: markdownContent,\n      fullMarkdown: fullMarkdown,\n      base64Content: base64Content,\n      filePath: `content/blog/${slug}.md`\n    }\n  });\n}\n\nreturn processedItems;"
+      },
+      "id": "b5d3462f-7946-4664-871d-016ab5dee654",
+      "name": "Format Markdown & Generate Frontmatter",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1776,
+        688
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Generate image prompt from blog post title\nconst items = $input.all();\nconst processedItems = [];\n\nfor (const item of items) {\n  const title = item.json.title || '';\n  const content = item.json.content || '';\n  \n  // Extract key themes from content (first 200 chars)\n  const contentPreview = content.substring(0, 200).toLowerCase();\n  \n  // Create a descriptive image prompt\n  let imagePrompt = `A professional, modern illustration representing: ${title}. `;\n  \n  // Add context based on common crypto/blockchain themes\n  if (contentPreview.includes('bitcoin') || contentPreview.includes('btc')) {\n    imagePrompt += 'Style: digital currency, blockchain technology, with Bitcoin visual elements. ';\n  }\n  if (contentPreview.includes('ethereum') || contentPreview.includes('eth') || contentPreview.includes('defi')) {\n    imagePrompt += 'Include Ethereum, DeFi, and smart contract themes. ';\n  }\n  if (contentPreview.includes('nft') || contentPreview.includes('web3')) {\n    imagePrompt += 'Include NFT and Web3 visual elements. ';\n  }\n  if (contentPreview.includes('blockchain') || contentPreview.includes('crypto')) {\n    imagePrompt += 'Blockchain and cryptocurrency themes, digital assets. ';\n  }\n  \n  imagePrompt += 'Color scheme: modern crypto colors (oranges, blues, digital gradients). Clean, tech-forward design suitable for a blog header image. 16:9 aspect ratio, high quality.';\n  \n  processedItems.push({\n    json: {\n      ...item.json,\n      imagePrompt: imagePrompt,\n      imageFilename: `${item.json.slug}-header.jpg`\n    }\n  });\n}\n\nreturn processedItems;"
+      },
+      "id": "e50ca522-0013-4dc1-a4a3-e61d9cbae1c3",
+      "name": "Generate Image Prompt",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1616,
+        688
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://openrouter.ai/api/v1/chat/completions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "HTTP-Referer",
+              "value": "https://prems.in"
+            },
+            {
+              "name": "X-Title",
+              "value": "Prem's Blog Automation"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  model: 'google/gemini-2.5-flash-image',\n  modalities: ['image', 'text'],\n  messages: [\n    {\n      role: 'user',\n      content: $json.imagePrompt\n    }\n  ]\n}) }}",
+        "options": {}
+      },
+      "id": "5aed10f7-91f2-4809-b092-0234d449d800",
+      "name": "Generate Image with OpenRouter",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -1392,
+        688
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "QBIXyd8iDBGK3tjt",
+          "name": "OpenRouter auth"
+        }
+      },
+      "notes": "Uses OpenRouter chat/completions endpoint with google/gemini-2.5-flash-image-preview and modalities:[image,text]. Image is returned as base64 in choices[0].message.images[0].image_url.url. Strip the data:image/...;base64, prefix before uploading to GitHub."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract base64 image data from OpenRouter response\nconst items = $input.all();\nconst processedItems = [];\n\nfor (const item of items) {\n  try {\n    const response = item.json;\n    \n    // Extract image from response\n    let base64Image = '';\n    \n    if (response.choices && \n        response.choices[0] && \n        response.choices[0].message && \n        response.choices[0].message.images && \n        response.choices[0].message.images[0] && \n        response.choices[0].message.images[0].image_url && \n        response.choices[0].message.images[0].image_url.url) {\n      \n      const imageUrl = response.choices[0].message.images[0].image_url.url;\n      \n      // Remove data:image/...;base64, prefix\n      base64Image = imageUrl.replace(/^data:image\\/[^;]+;base64,/, '');\n    } else {\n      throw new Error('Image not found in response. Response structure: ' + JSON.stringify(response, null, 2));\n    }\n    \n    // Get image filename from previous node\n    const imagePromptNode = $('Generate Image Prompt').first();\n    const imageFilename = imagePromptNode ? imagePromptNode.json.imageFilename : 'image.jpg';\n    \n    processedItems.push({\n      json: {\n        ...item.json,\n        base64Image: base64Image,\n        imageFilename: imageFilename\n      }\n    });\n  } catch (error) {\n    // Pass through error for debugging\n    processedItems.push({\n      json: {\n        ...item.json,\n        error: error.message,\n        base64Image: ''\n      }\n    });\n  }\n}\n\nreturn processedItems;"
+      },
+      "id": "68922453-b302-4b44-afce-5257922a66d9",
+      "name": "Extract Image Base64",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1232,
+        672
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Convert base64 image to binary data for Edit Image node\nconst items = $input.all();\nconst processedItems = [];\n\nfor (const item of items) {\n  try {\n    const base64Image = item.json.base64Image;\n    const imageFilename = item.json.imageFilename || 'image.jpg';\n    \n    if (!base64Image) {\n      throw new Error('No base64 image data found');\n    }\n    \n    // Convert base64 to buffer\n    const imageBuffer = Buffer.from(base64Image, 'base64');\n    const originalSizeKB = Math.round(imageBuffer.length / 1024);\n    \n    // Create binary data for Edit Image node\n    // n8n expects binary data in item.binary with a property name\n    processedItems.push({\n      json: {\n        ...item.json,\n        originalSizeKB: originalSizeKB,\n        imageFilename: imageFilename\n      },\n      binary: {\n        data: {\n          data: imageBuffer,\n          mimeType: 'image/jpeg',\n          fileName: imageFilename\n        }\n      }\n    });\n  } catch (error) {\n    processedItems.push({\n      json: {\n        ...item.json,\n        error: error.message\n      }\n    });\n  }\n}\n\nreturn processedItems;"
+      },
+      "id": "de2a1043-8d5a-4f45-ba98-fb7357ac4d69",
+      "name": "Convert Base64 to Binary",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1104,
+        512
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "resize",
+        "width": 1200,
+        "height": 675,
+        "options": {
+          "fileName": "={{ $json.imageFilename || 'featured-image.jpg' }}",
+          "format": "jpeg",
+          "quality": 50
+        }
+      },
+      "id": "cfb97702-2ff1-4f7d-b8bb-0b3aff515454",
+      "name": "Compress Image",
+      "type": "n8n-nodes-base.editImage",
+      "typeVersion": 1,
+      "position": [
+        -992,
+        704
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Convert compressed image from Edit Image node back to base64 for GitHub upload\n// Note: n8n Edit Image node outputs binary data that needs special handling\nconst items = $input.all();\nconst processedItems = [];\n\nfor (const item of items) {\n  try {\n    // Get original data from 'Extract Image Base64' node\n    const originalItem = $('Extract Image Base64').first();\n    const imageFilename = originalItem ? originalItem.json.imageFilename : item.json.imageFilename;\n    \n    // Get compressed image data from Edit Image node\n    // n8n stores binary data in item.binary - need to access it correctly\n    let compressedBase64 = '';\n    \n    // Check for binary data in the item\n    if (item.binary) {\n      // n8n binary data structure: item.binary[propertyName]\n      // The property name is usually 'data' based on how we set it in 'Convert Base64 to Binary'\n      const binaryProperty = item.binary.data || item.binary.image || Object.values(item.binary)[0];\n      \n      if (binaryProperty) {\n        // n8n binary data can be:\n        // 1. A Buffer object\n        // 2. An object with .data property containing Buffer\n        // 3. A filesystem path (string starting with filesystem-)\n        \n        let binaryData = null;\n        \n        if (Buffer.isBuffer(binaryProperty)) {\n          binaryData = binaryProperty;\n        } else if (binaryProperty.data) {\n          if (Buffer.isBuffer(binaryProperty.data)) {\n            binaryData = binaryProperty.data;\n          } else if (typeof binaryProperty.data === 'string' && !binaryProperty.data.startsWith('filesystem-')) {\n            binaryData = Buffer.from(binaryProperty.data, 'base64');\n          }\n        } else if (typeof binaryProperty === 'string' && !binaryProperty.startsWith('filesystem-')) {\n          // Try to decode as base64\n          binaryData = Buffer.from(binaryProperty, 'base64');\n        }\n        \n        if (binaryData && Buffer.isBuffer(binaryData)) {\n          compressedBase64 = binaryData.toString('base64');\n          const compressedSizeKB = Math.round(binaryData.length / 1024);\n          const originalSizeKB = originalItem ? Math.round(Buffer.from(originalItem.json.base64Image, 'base64').length / 1024) : 0;\n          const reduction = originalSizeKB > 0 ? Math.round((1 - compressedSizeKB/originalSizeKB) * 100) : 0;\n          console.log(`Image compressed: ${originalSizeKB}KB → ${compressedSizeKB}KB (${reduction}% reduction)`);\n        } else {\n          console.log('Warning: Binary data is a filesystem reference, using original image');\n          throw new Error('Filesystem reference detected');\n        }\n      } else {\n        throw new Error('No binary property found');\n      }\n    } else {\n      throw new Error('No binary data in item');\n    }\n    \n    // Validate base64 string\n    if (!compressedBase64 || compressedBase64.length === 0) {\n      throw new Error('Empty base64 string');\n    }\n    \n    processedItems.push({\n      json: {\n        ...(originalItem ? originalItem.json : item.json),\n        base64Image: compressedBase64,\n        imageFilename: imageFilename\n      }\n    });\n  } catch (error) {\n    // Fallback to original image if compression fails\n    const originalItem = $('Extract Image Base64').first();\n    console.log('Error in Convert Compressed to Base64, using original:', error.message);\n    \n    if (originalItem && originalItem.json.base64Image) {\n      processedItems.push({\n        json: {\n          ...originalItem.json,\n          error: error.message,\n          base64Image: originalItem.json.base64Image\n        }\n      });\n    } else {\n      // Last resort - pass through with error\n      processedItems.push({\n        json: {\n          ...item.json,\n          error: error.message,\n          base64Image: ''\n        }\n      });\n    }\n  }\n}\n\nreturn processedItems;"
+      },
+      "id": "075bf3f3-aa3d-4075-9afe-bf74bf4ff5c2",
+      "name": "Convert Compressed to Base64",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -896,
+        512
+      ]
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "=https://api.github.com/repos/premcool/prem-website/contents/public/images/blog/{{ $json.imageFilename }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/vnd.github.v3+json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "message",
+              "value": "={{ `Add crypto blog post image: ${$json.imageFilename}` }}"
+            },
+            {
+              "name": "content",
+              "value": "={{ $json.base64Image }}"
+            },
+            {
+              "name": "branch",
+              "value": "main"
+            },
+            {
+              "name": "sha",
+              "value": "={{ $json.imageSha || '' }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a170f4a6-e0b3-4e3d-a3ed-79d97a9d6983",
+      "name": "Upload Image to GitHub",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -784,
+        688
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "zHMuvIhbG9iaHxxd",
+          "name": "Header Auth account"
+        }
+      },
+      "notes": "Uploads generated image to public/images/blog/ directory"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=https://api.github.com/repos/premcool/prem-website/contents/public/images/blog/{{ $json.imageFilename }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/vnd.github.v3+json"
+            }
+          ]
+        },
+        "options": {
+          "ignoreResponseCode": true
+        }
+      },
+      "id": "crypto-get-image-sha-002",
+      "name": "Get Image SHA",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -896,
+        688
+      ],
+      "continueOnFail": true,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "zHMuvIhbG9iaHxxd",
+          "name": "Header Auth account"
+        }
+      },
+      "notes": "Gets SHA of existing image file if it exists (for updates). Continues on 404 (file doesn't exist)."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract SHA from GitHub response and merge with original data\n// Handles both 200 (file exists) and 404 (file doesn't exist) responses\n// Also handles case where HTTP Request node fails\nconst items = $input.all();\nconst processedItems = [];\n\n// Get original data from previous node\nconst originalItem = $('Convert Compressed to Base64').first();\n\n// If no items received (HTTP Request failed), use original item directly\nif (!items || items.length === 0) {\n  if (originalItem && originalItem.json) {\n    processedItems.push({\n      json: {\n        ...originalItem.json,\n        imageSha: ''\n      }\n    });\n  }\n  return processedItems;\n}\n\nfor (const item of items) {\n  let sha = '';\n  \n  try {\n    // Check if response has SHA (file exists)\n    // GitHub returns sha field when file exists (status 200)\n    // When file doesn't exist (404), response has message field instead\n    if (item.json && item.json.sha && typeof item.json.sha === 'string') {\n      sha = item.json.sha;\n    }\n    // If response has error message (404) or is empty, sha remains empty string (new file)\n  } catch (error) {\n    // If there's any error accessing the response, treat as new file (empty sha)\n    console.log('Error extracting SHA, treating as new file:', error.message);\n    sha = '';\n  }\n  \n  // Merge original data with SHA\n  // Always ensure we have the original data even if SHA extraction failed\n  if (originalItem && originalItem.json) {\n    processedItems.push({\n      json: {\n        ...originalItem.json,\n        imageSha: sha\n      }\n    });\n  } else if (item && item.json) {\n    // Fallback if original item not found\n    processedItems.push({\n      json: {\n        ...item.json,\n        imageSha: sha\n      }\n    });\n  }\n}\n\nreturn processedItems;"
+      },
+      "id": "crypto-extract-image-sha-002",
+      "name": "Extract Image SHA",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -840,
+        688
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "merge-blog-data",
+              "name": "title",
+              "value": "={{ $('Generate Image Prompt').item.json.title }}",
+              "type": "string"
+            },
+            {
+              "id": "merge-blog-data-2",
+              "name": "slug",
+              "value": "={{ $('Generate Image Prompt').item.json.slug }}",
+              "type": "string"
+            },
+            {
+              "id": "merge-blog-data-3",
+              "name": "date",
+              "value": "={{ $('Generate Image Prompt').item.json.date }}",
+              "type": "string"
+            },
+            {
+              "id": "merge-blog-data-4",
+              "name": "content",
+              "value": "={{ $('Generate Image Prompt').item.json.content }}",
+              "type": "string"
+            },
+            {
+              "id": "merge-blog-data-5",
+              "name": "imageFilename",
+              "value": "={{ $('Generate Image Prompt').item.json.imageFilename }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "13af6ae0-b91e-4718-b953-58cdc29a2a93",
+      "name": "Merge Blog Post Data",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -640,
+        496
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Update markdown frontmatter with image URL\nconst items = $input.all();\nconst processedItems = [];\n\nfor (const item of items) {\n  const title = item.json.title;\n  const slug = item.json.slug;\n  const date = item.json.date;\n  const content = item.json.content;\n  const imageFilename = item.json.imageFilename;\n  \n  // Create image URL (assuming your site is hosted and images are accessible)\n  // Update this URL to match your actual domain\n  const imageUrl = `/images/blog/${imageFilename}`;\n  \n  // Create frontmatter with image\n  const frontmatter = `---\\ntitle: \"${title}\"\\ndate: \"${date}\"\\nslug: \"${slug}\"\\nimage: \"${imageUrl}\"\\ncategory: \"Crypto Roundup\"\\n---\\n\\n`;\n  \n  // Combine frontmatter and content\n  const fullMarkdown = frontmatter + content;\n  \n  // Base64 encode for GitHub API\n  const base64Content = Buffer.from(fullMarkdown, 'utf8').toString('base64');\n  \n  processedItems.push({\n    json: {\n      title: title,\n      slug: slug,\n      date: date,\n      filename: `${slug}.md`,\n      content: content,\n      imageUrl: imageUrl,\n      imageFilename: imageFilename,\n      fullMarkdown: fullMarkdown,\n      base64Content: base64Content,\n      filePath: `content/blog/${slug}.md`\n    }\n  });\n}\n\nreturn processedItems;"
+      },
+      "id": "b73c3259-85a2-495e-a440-2f858b27ae9d",
+      "name": "Add Image to Frontmatter",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -512,
+        720
+      ]
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "=https://api.github.com/repos/premcool/prem-website/contents/content/blog/{{ $json.filename }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/vnd.github.v3+json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "message",
+              "value": "={{ `Add crypto roundup blog post: ${$json.title}` }}"
+            },
+            {
+              "name": "content",
+              "value": "={{ $json.base64Content }}"
+            },
+            {
+              "name": "branch",
+              "value": "main"
+            },
+            {
+              "name": "sha",
+              "value": "={{ $json.fileSha || '' }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "3d7addff-bf84-4ef5-a051-e59b7ca1605c",
+      "name": "Create File in GitHub",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -304,
+        688
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "zHMuvIhbG9iaHxxd",
+          "name": "Header Auth account"
+        }
+      },
+      "notes": "Requires GitHub token with repo permissions. Token should be in Authorization header as 'token YOUR_TOKEN'"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=https://api.github.com/repos/premcool/prem-website/contents/content/blog/{{ $json.filename }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/vnd.github.v3+json"
+            }
+          ]
+        },
+        "options": {
+          "ignoreResponseCode": true
+        }
+      },
+      "id": "crypto-get-file-sha-002",
+      "name": "Get File SHA",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -416,
+        688
+      ],
+      "continueOnFail": true,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "zHMuvIhbG9iaHxxd",
+          "name": "Header Auth account"
+        }
+      },
+      "notes": "Gets SHA of existing markdown file if it exists (for updates). Continues on 404 (file doesn't exist)."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract SHA from GitHub response and merge with original data\n// Handles both 200 (file exists) and 404 (file doesn't exist) responses\nconst items = $input.all();\nconst processedItems = [];\n\n// Get original data from previous node\nconst originalItem = $('Add Image to Frontmatter').first();\n\nfor (const item of items) {\n  let sha = '';\n  \n  try {\n    // Check if response has SHA (file exists)\n    // GitHub returns sha field when file exists (status 200)\n    // When file doesn't exist (404), response has message field instead\n    if (item.json && item.json.sha && typeof item.json.sha === 'string') {\n      sha = item.json.sha;\n    }\n    // If response has error message (404) or is empty, sha remains empty string (new file)\n  } catch (error) {\n    // If there's any error accessing the response, treat as new file (empty sha)\n    console.log('Error extracting SHA, treating as new file:', error.message);\n    sha = '';\n  }\n  \n  // Merge original data with SHA\n  // Always ensure we have the original data even if SHA extraction failed\n  if (originalItem && originalItem.json) {\n    processedItems.push({\n      json: {\n        ...originalItem.json,\n        fileSha: sha\n      }\n    });\n  } else {\n    // Fallback if original item not found\n    processedItems.push({\n      json: {\n        ...item.json,\n        fileSha: sha\n      }\n    });\n  }\n}\n\nreturn processedItems;"
+      },
+      "id": "crypto-extract-file-sha-002",
+      "name": "Extract File SHA",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -360,
+        688
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.github.com/repos/premcool/prem-website/dispatches",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/vnd.github.v3+json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  event_type: 'rebuild',\n  client_payload: {\n    blog_post: $json.filename || 'unknown'\n  }\n}) }}",
+        "options": {}
+      },
+      "id": "9dfa2953-5363-48c4-8bda-e599f54c6b14",
+      "name": "Trigger Site Rebuild (Optional)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -1424,
+        288
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "zHMuvIhbG9iaHxxd",
+          "name": "Header Auth account"
+        }
+      },
+      "notes": "Optional: Triggers GitHub Actions workflow to rebuild site. Requires repository_dispatch event in GitHub Actions."
+    },
+    {
+      "parameters": {
+        "fromEmail": "prem@prems.in",
+        "toEmail": "prem@prems.in",
+        "subject": "={{ `Crypto Roundup Blog Post Created: ${$('Add Image to Frontmatter').item.json.title}` }}",
+        "html": "=<h2>Crypto Roundup Blog Post Created Successfully</h2>\n<p><strong>Post Title:</strong> {{ $('Add Image to Frontmatter').item.json.title }}</p>\n<p><strong>Filename:</strong> {{ $('Add Image to Frontmatter').item.json.filename }}</p>\n<p><strong>Date:</strong> {{ $('Add Image to Frontmatter').item.json.date }}</p>\n<p><strong>Image:</strong> {{ $('Add Image to Frontmatter').item.json.imageFilename }}</p>\n<p><strong>GitHub URL:</strong> <a href=\"https://github.com/premcool/prem-website/blob/main/content/blog/{{ $('Add Image to Frontmatter').item.json.filename }}\">View Post on GitHub</a></p>\n<p><strong>Image URL:</strong> <a href=\"https://github.com/premcool/prem-website/blob/main/public/images/blog/{{ $('Add Image to Frontmatter').item.json.imageFilename }}\">View Image on GitHub</a></p>\n<p>The crypto roundup blog post and header image have been created and committed to the repository. The site will rebuild automatically if configured with Vercel/Netlify webhooks.</p>",
+        "options": {}
+      },
+      "id": "d92bb7a6-1e83-49fc-a5d9-9170f9fc1f0c",
+      "name": "Send Success Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        -352,
+        432
+      ],
+      "webhookId": "220ce1f9-f164-4287-ab02-1e69039ca4f1",
+      "credentials": {
+        "smtp": {
+          "id": "ufNQlF7n5lyi43jx",
+          "name": "SMTP-prem-website"
+        }
+      }
     }
+  ],
+  "connections": {
+    "Schedule Trigger - Weekly": {
+      "main": [
+        [
+          {
+            "node": "Read CoinTelegraph RSS",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Read Decrypt RSS",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Read CoinDesk RSS",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Read CoinMarketCap RSS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read CoinTelegraph RSS": {
+      "main": [
+        [
+          {
+            "node": "Limit CoinTelegraph to 3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Decrypt RSS": {
+      "main": [
+        [
+          {
+            "node": "Limit Decrypt to 3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read CoinDesk RSS": {
+      "main": [
+        [
+          {
+            "node": "Limit CoinDesk to 3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read CoinMarketCap RSS": {
+      "main": [
+        [
+          {
+            "node": "Limit CoinMarketCap to 3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit CoinTelegraph to 3": {
+      "main": [
+        [
+          {
+            "node": "Merge All Feeds",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit Decrypt to 3": {
+      "main": [
+        [
+          {
+            "node": "Merge All Feeds",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Limit CoinDesk to 3": {
+      "main": [
+        [
+          {
+            "node": "Merge All Feeds",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Limit CoinMarketCap to 3": {
+      "main": [
+        [
+          {
+            "node": "Merge All Feeds",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "Merge All Feeds": {
+      "main": [
+        [
+          {
+            "node": "Combine All Articles",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Combine All Articles": {
+      "main": [
+        [
+          {
+            "node": "AI Agent - Generate Crypto Blog Post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent - Generate Crypto Blog Post": {
+      "main": [
+        [
+          {
+            "node": "Format Markdown & Generate Frontmatter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent - Generate Crypto Blog Post",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Markdown & Generate Frontmatter": {
+      "main": [
+        [
+          {
+            "node": "Generate Image Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Image Prompt": {
+      "main": [
+        [
+          {
+            "node": "Generate Image with OpenRouter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Image with OpenRouter": {
+      "main": [
+        [
+          {
+            "node": "Extract Image Base64",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Image Base64": {
+      "main": [
+        [
+          {
+            "node": "Convert Base64 to Binary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert Base64 to Binary": {
+      "main": [
+        [
+          {
+            "node": "Compress Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compress Image": {
+      "main": [
+        [
+          {
+            "node": "Convert Compressed to Base64",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert Compressed to Base64": {
+      "main": [
+        [
+          {
+            "node": "Get Image SHA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Image SHA": {
+      "main": [
+        [
+          {
+            "node": "Extract Image SHA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Image SHA": {
+      "main": [
+        [
+          {
+            "node": "Upload Image to GitHub",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload Image to GitHub": {
+      "main": [
+        [
+          {
+            "node": "Merge Blog Post Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Blog Post Data": {
+      "main": [
+        [
+          {
+            "node": "Add Image to Frontmatter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add Image to Frontmatter": {
+      "main": [
+        [
+          {
+            "node": "Get File SHA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get File SHA": {
+      "main": [
+        [
+          {
+            "node": "Extract File SHA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract File SHA": {
+      "main": [
+        [
+          {
+            "node": "Create File in GitHub",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create File in GitHub": {
+      "main": [
+        [
+          {
+            "node": "Trigger Site Rebuild (Optional)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send Success Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Trigger Site Rebuild (Optional)": {
+      "main": [
+        [
+          {
+            "node": "Send Success Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "186dce4d277dd47c82c9c6b24027d469269422530c72ba1f0e49ed4a09e082c1"
   }
+}
