@@ -215,13 +215,49 @@ async function main() {
   }
 
   // Step 2: Rebuild Next.js site
-  try {
-    console.log('🔨 Rebuilding Next.js site...');
-    execSync('npm run build', { stdio: 'inherit', cwd: projectRoot });
-    console.log('✅ Site rebuilt successfully\n');
-  } catch (error) {
-    console.error('❌ Build failed:', error.message);
-    process.exit(1);
+  let buildAttempts = 0;
+  const maxBuildAttempts = 2;
+  
+  while (buildAttempts < maxBuildAttempts) {
+    try {
+      console.log('🔨 Rebuilding Next.js site...');
+      execSync('npm run build', { stdio: 'inherit', cwd: projectRoot });
+      console.log('✅ Site rebuilt successfully\n');
+      break; // Success, exit loop
+    } catch (error) {
+      buildAttempts++;
+      
+      if (buildAttempts >= maxBuildAttempts) {
+        console.error('❌ Build failed after', maxBuildAttempts, 'attempts');
+        console.error('   Error:', error.message);
+        console.error('\n💡 Try cleaning and reinstalling dependencies:');
+        console.error('   cd', projectRoot);
+        console.error('   rm -rf node_modules package-lock.json');
+        console.error('   npm install');
+        process.exit(1);
+      }
+      
+      // If first attempt failed, try cleaning and reinstalling
+      console.warn('⚠️  Build failed. Cleaning and reinstalling dependencies...');
+      try {
+        // Remove node_modules and package-lock.json
+        if (fs.existsSync(path.join(projectRoot, 'node_modules'))) {
+          console.log('   Removing node_modules...');
+          execSync('rm -rf node_modules', { stdio: 'inherit', cwd: projectRoot });
+        }
+        if (fs.existsSync(path.join(projectRoot, 'package-lock.json'))) {
+          console.log('   Removing package-lock.json...');
+          execSync('rm -f package-lock.json', { stdio: 'inherit', cwd: projectRoot });
+        }
+        
+        console.log('   Installing fresh dependencies...');
+        execSync('npm install', { stdio: 'inherit', cwd: projectRoot });
+        console.log('✅ Dependencies reinstalled, retrying build...\n');
+      } catch (cleanError) {
+        console.error('❌ Failed to clean/reinstall:', cleanError.message);
+        process.exit(1);
+      }
+    }
   }
 
   // Step 3: Detect new blog posts and send newsletters
