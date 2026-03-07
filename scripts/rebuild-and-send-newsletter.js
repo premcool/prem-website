@@ -31,35 +31,49 @@ const projectRoot = path.resolve(__dirname, '..');
 process.chdir(projectRoot);
 
 // Check if node_modules exists, if not, install dependencies
-if (!fs.existsSync(path.join(projectRoot, 'node_modules'))) {
-  console.log('📦 Installing dependencies (first run)...');
+const nodeModulesPath = path.join(projectRoot, 'node_modules');
+if (!fs.existsSync(nodeModulesPath)) {
+  console.log('📦 node_modules not found. Installing dependencies...');
   try {
     execSync('npm install', { stdio: 'inherit', cwd: projectRoot });
+    console.log('✅ Dependencies installed');
   } catch (error) {
     console.error('❌ Failed to install dependencies:', error.message);
+    console.error('   Please run manually: cd ' + projectRoot + ' && npm install');
     process.exit(1);
   }
 }
 
-// Add projectRoot/node_modules to module search path
-const nodeModulesPath = path.join(projectRoot, 'node_modules');
-if (fs.existsSync(nodeModulesPath)) {
-  // Add to NODE_PATH so require() can find modules
-  const originalNodePath = process.env.NODE_PATH || '';
-  process.env.NODE_PATH = nodeModulesPath + (originalNodePath ? path.delimiter + originalNodePath : '');
-  require('module')._initPaths();
+// Check if @upstash/redis is installed
+const upstashRedisPath = path.join(nodeModulesPath, '@upstash', 'redis');
+
+if (!fs.existsSync(upstashRedisPath)) {
+  console.log('📦 @upstash/redis not found. Installing dependencies...');
+  try {
+    execSync('npm install', { stdio: 'inherit', cwd: projectRoot });
+    console.log('✅ Dependencies installed');
+  } catch (error) {
+    console.error('❌ Failed to install dependencies:', error.message);
+    console.error('   Please run manually: cd ' + projectRoot + ' && npm install');
+    process.exit(1);
+  }
 }
 
-// Now require the module (it will look in projectRoot/node_modules)
+// Now require the module - should work since we're in project root and dependencies are installed
 let Redis;
 try {
+  // Use normal require - Node.js will find it in node_modules since we're in project root
   Redis = require('@upstash/redis').Redis;
 } catch (error) {
-  console.error('❌ Failed to load @upstash/redis. Make sure dependencies are installed:');
+  console.error('❌ Failed to load @upstash/redis:');
+  console.error('   Error:', error.message);
   console.error('   Current directory:', process.cwd());
   console.error('   Project root:', projectRoot);
-  console.error('   Node modules path:', nodeModulesPath);
-  console.error('   Run: cd ' + projectRoot + ' && npm install');
+  console.error('   Module should be at:', upstashRedisPath);
+  console.error('   Module exists:', fs.existsSync(upstashRedisPath));
+  console.error('');
+  console.error('   Please ensure dependencies are installed:');
+  console.error('   cd ' + projectRoot + ' && npm install');
   process.exit(1);
 }
 
