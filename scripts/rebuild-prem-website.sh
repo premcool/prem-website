@@ -83,6 +83,70 @@ else
     exit 1
 fi
 
+# Docker container management
+# Check if docker-compose is available and if we're in a directory with docker-compose.yml
+SERVICE_NAME="prem-website"
+if command -v docker-compose >/dev/null 2>&1 || command -v docker >/dev/null 2>&1; then
+    # Determine which command to use
+    if command -v docker-compose >/dev/null 2>&1; then
+        DOCKER_COMPOSE_CMD="docker-compose"
+    else
+        DOCKER_COMPOSE_CMD="docker compose"
+    fi
+    
+    # Check if docker-compose.yml exists (check in project dir and parent dir)
+    if [ -f docker-compose.yml ] || [ -f ../docker-compose.yml ]; then
+        log "=========================================="
+        log "Rebuilding Docker Container"
+        log "=========================================="
+        
+        # Determine docker-compose file location
+        if [ -f docker-compose.yml ]; then
+            COMPOSE_DIR="$PROJECT_DIR"
+        else
+            COMPOSE_DIR="$(cd "$PROJECT_DIR/.." && pwd)"
+        fi
+        
+        cd "$COMPOSE_DIR" || exit 1
+        
+        # Stop container first to avoid ContainerConfig errors
+        log "Stopping container..."
+        $DOCKER_COMPOSE_CMD stop "$SERVICE_NAME" >> "$LOG_FILE" 2>&1 || true
+        
+        # Remove the container to avoid ContainerConfig errors
+        log "Removing old container..."
+        $DOCKER_COMPOSE_CMD rm -f "$SERVICE_NAME" >> "$LOG_FILE" 2>&1 || true
+        
+        # Safe version that won't exit on error
+        log "Cleaning up dangling images..."
+        docker images -f "dangling=true" -q | xargs -r docker rmi >> "$LOG_FILE" 2>&1 || true
+        
+        # Rebuild without cache
+        log "Rebuilding container (no cache)..."
+        $DOCKER_COMPOSE_CMD build --no-cache "$SERVICE_NAME" >> "$LOG_FILE" 2>&1 || {
+            log "ERROR: Build failed"
+            exit 1
+        }
+        
+        # Start container (will create new one)
+        log "Starting container..."
+        $DOCKER_COMPOSE_CMD up -d "$SERVICE_NAME" >> "$LOG_FILE" 2>&1 || {
+            log "ERROR: Failed to start container"
+            exit 1
+        }
+        
+        log "✅ Docker container rebuilt and started successfully"
+        
+        # Return to project directory
+        cd "$PROJECT_DIR" || exit 1
+    else
+        log "⚠️  docker-compose.yml not found, skipping Docker rebuild"
+        log "   Expected locations: $PROJECT_DIR/docker-compose.yml or $(cd "$PROJECT_DIR/.." && pwd)/docker-compose.yml"
+    fi
+else
+    log "⚠️  Docker/Docker Compose not available, skipping container rebuild"
+fi
+
 log "=========================================="
 log "Process Completed"
 log "=========================================="
