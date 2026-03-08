@@ -3,7 +3,16 @@ import { getPostBySlug } from '@/lib/posts';
 import { Redis } from '@upstash/redis';
 import nodemailer from 'nodemailer';
 
-const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://prems.in';
+// Use NEXT_PUBLIC_SITE_URL but ensure it's prems.in (not dentalreminder.in or other domains)
+const envUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://prems.in';
+// Force prems.in for newsletter links to ensure correct domain
+const baseUrl = envUrl.includes('prems.in') ? envUrl : 'https://prems.in';
+
+// Warn if wrong domain was detected
+if (envUrl && !envUrl.includes('prems.in')) {
+  console.warn(`⚠️  NEXT_PUBLIC_SITE_URL is set to "${envUrl}" but newsletter will use "https://prems.in" for links`);
+}
+
 const SUBSCRIBERS_KEY = 'newsletter:subscribers';
 
 // Initialize Redis client
