@@ -326,6 +326,14 @@ async function main() {
     } catch (error) {
       console.error(`   ❌ Failed to send newsletter: ${error.message}`);
       
+      // If it's a 404 error (post not found), mark as sent to skip in future
+      if (error.message.includes('404') || error.message.includes('not found')) {
+        console.error(`   ⚠️  Post not found - marking as sent to skip in future runs`);
+        await markNewsletterSent(redis, post.slug);
+        // Don't count as error since we've handled it
+        continue;
+      }
+      
       // If it's a 401 error, provide more helpful debugging
       if (error.message.includes('401') || error.message.includes('Unauthorized')) {
         console.error(`   💡 This is an authentication error. Check:`);
