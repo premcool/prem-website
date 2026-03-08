@@ -62,8 +62,13 @@ if (!fs.existsSync(upstashRedisPath)) {
 // Now require the module - should work since we're in project root and dependencies are installed
 let Redis;
 try {
+  // Clear require cache for this module in case it's corrupted
+  const modulePath = require.resolve('@upstash/redis');
+  delete require.cache[modulePath];
+  
   // Use normal require - Node.js will find it in node_modules since we're in project root
-  Redis = require('@upstash/redis').Redis;
+  const upstashRedis = require('@upstash/redis');
+  Redis = upstashRedis.Redis;
 } catch (error) {
   console.error('❌ Failed to load @upstash/redis:');
   console.error('   Error:', error.message);
@@ -71,9 +76,17 @@ try {
   console.error('   Project root:', projectRoot);
   console.error('   Module should be at:', upstashRedisPath);
   console.error('   Module exists:', fs.existsSync(upstashRedisPath));
-  console.error('');
-  console.error('   Please ensure dependencies are installed:');
-  console.error('   cd ' + projectRoot + ' && npm install');
+  
+  // If module exists but can't be loaded, it might be corrupted
+  if (fs.existsSync(upstashRedisPath)) {
+    console.error('');
+    console.error('   Module exists but appears corrupted. Try reinstalling:');
+    console.error('   cd ' + projectRoot + ' && rm -rf node_modules/@upstash && npm install');
+  } else {
+    console.error('');
+    console.error('   Please ensure dependencies are installed:');
+    console.error('   cd ' + projectRoot + ' && npm install');
+  }
   process.exit(1);
 }
 

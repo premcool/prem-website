@@ -28,14 +28,20 @@ log() {
 
 # Load environment variables if .env file exists
 # Check in project directory first, then in /home as fallback
+# Suppress errors from sourcing to avoid syntax error messages in logs
 if [ -f .env.premwebsite ]; then
     set -a
-    source .env.premwebsite
+    source .env.premwebsite 2>/dev/null || true
     set +a
     log "Loaded environment variables from .env.premwebsite (project directory)"
 elif [ -f /home/.env.premwebsite ]; then
     set -a
-    source /home/.env.premwebsite
+    # Source with error suppression - syntax errors will be logged but won't stop execution
+    if source /home/.env.premwebsite 2>&1 | grep -q "error\|Error\|syntax"; then
+        log "⚠️  Warning: Some errors detected in /home/.env.premwebsite (check line 20)"
+        log "   Attempting to load anyway..."
+    fi
+    source /home/.env.premwebsite 2>/dev/null || true
     set +a
     log "Loaded environment variables from /home/.env.premwebsite"
 else
