@@ -28,11 +28,23 @@ export async function getAllRepos(): Promise<GitHubRepo[]> {
     );
 
     if (!response.ok) {
-      // Handle rate limiting specifically
+      // Handle different error cases gracefully
+      if (response.status === 401) {
+        // 401 Unauthorized - token missing or invalid (expected in some environments)
+        if (!token) {
+          console.warn('GitHub API: No token provided. Set GITHUB_TOKEN environment variable to fetch repos.');
+        } else {
+          console.warn('GitHub API: Invalid or expired token. Please update GITHUB_TOKEN environment variable.');
+        }
+        return [];
+      }
       if (response.status === 403) {
         console.warn('GitHub API rate limit exceeded. Consider setting GITHUB_TOKEN environment variable.');
+        return [];
       }
-      throw new Error(`GitHub API error: ${response.status} ${response.statusText}`);
+      // For other errors, log but don't fail the build
+      console.warn(`GitHub API error: ${response.status} ${response.statusText}. Continuing without repos.`);
+      return [];
     }
 
     const repos: GitHubRepo[] = await response.json();
@@ -57,13 +69,20 @@ export async function getAllRepos(): Promise<GitHubRepo[]> {
       return dateB - dateA;
     });
   } catch (error) {
-    console.error('Error fetching GitHub repos:', error);
+    // Only log unexpected errors (network issues, JSON parsing, etc.)
+    // Expected HTTP errors (401, 403) are already handled above
+    console.warn('Unexpected error fetching GitHub repos:', error instanceof Error ? error.message : 'Unknown error');
     return [];
   }
 }
 
 export async function getFeaturedRepo(): Promise<GitHubRepo | null> {
-  const repos = await getAllRepos();
-  const featured = repos.find((repo) => repo.name === 'ai-coder-buddy');
-  return featured || null;
+  try {
+    const repos = await getAllRepos();
+    const featured = repos.find((repo) => repo.name === 'ai-coder-buddy');
+    return featured || null;
+  } catch (error) {
+    // getAllRepos already handles errors and returns [], so this should rarely happen
+    return null;
+  }
 }

@@ -327,12 +327,12 @@
     {
       "parameters": {
         "operation": "resize",
-        "width": 1200,
-        "height": 675,
+        "width": 1000,
+        "height": 563,
         "options": {
           "fileName": "={{ $json.imageFilename || 'featured-image.jpg' }}",
           "format": "jpeg",
-          "quality": 50
+          "quality": 30
         }
       },
       "id": "8de7d902-4c67-42e2-a903-2b8063ba6b0b",

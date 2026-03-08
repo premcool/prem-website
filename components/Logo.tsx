@@ -44,7 +44,7 @@ export default function Logo({ className = '', showText = true }: LogoProps) {
         </svg>
       </div>
       {showText && (
-        <span className="hidden sm:inline-block text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+        <span className="inline-block text-lg sm:text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
           Prem Saktheesh
         </span>
       )}
