@@ -4,7 +4,30 @@ import matter from 'gray-matter';
 import { remark } from 'remark';
 import html from 'remark-html';
 
-const postsDirectory = path.join(process.cwd(), 'content/blog');
+// Resolve posts directory - handle both development and production (standalone) builds
+function getPostsDirectory(): string {
+  const cwd = process.cwd();
+  
+  // Try multiple possible locations
+  const possiblePaths = [
+    path.join(cwd, 'content/blog'),           // Standard location
+    path.join(cwd, '..', 'content/blog'),     // If cwd is in .next/standalone
+  ];
+  
+  for (const dirPath of possiblePaths) {
+    if (fs.existsSync(dirPath)) {
+      return dirPath;
+    }
+  }
+  
+  // Fallback to standard location
+  return path.join(cwd, 'content/blog');
+}
+
+// Get posts directory at runtime (not module load time) to handle different execution contexts
+function getPostsDirectoryPath(): string {
+  return getPostsDirectory();
+}
 
 export type BlogCategory = 'AI Roundup' | 'Crypto Roundup' | 'Industry Updates';
 
@@ -27,8 +50,12 @@ interface PostFrontmatter {
 }
 
 export function getAllPosts(): Post[] {
+  const postsDirectory = getPostsDirectoryPath();
+  
   // Check if directory exists
   if (!fs.existsSync(postsDirectory)) {
+    console.error(`Posts directory not found: ${postsDirectory}`);
+    console.error(`Current working directory: ${process.cwd()}`);
     return [];
   }
 
@@ -90,10 +117,25 @@ export function getAllPosts(): Post[] {
 }
 
 export async function getPostBySlug(slug: string): Promise<Post | null> {
+  const postsDirectory = getPostsDirectoryPath();
   const fullPath = path.join(postsDirectory, `${slug}.md`);
   
   // Check if file exists
   if (!fs.existsSync(fullPath)) {
+    // Log for debugging
+    console.error(`Post file not found: ${fullPath}`);
+    console.error(`Posts directory: ${postsDirectory}`);
+    console.error(`Current working directory: ${process.cwd()}`);
+    console.error(`Looking for slug: ${slug}`);
+    // List available files for debugging
+    try {
+      if (fs.existsSync(postsDirectory)) {
+        const files = fs.readdirSync(postsDirectory);
+        console.error(`Available files in posts directory: ${files.join(', ')}`);
+      }
+    } catch (err) {
+      console.error(`Could not list files in posts directory: ${err}`);
+    }
     return null;
   }
 
@@ -130,6 +172,8 @@ export async function getPostBySlug(slug: string): Promise<Post | null> {
 }
 
 export function getAllPostSlugs(): string[] {
+  const postsDirectory = getPostsDirectoryPath();
+  
   // Check if directory exists
   if (!fs.existsSync(postsDirectory)) {
     return [];

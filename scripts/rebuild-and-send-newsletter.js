@@ -162,15 +162,35 @@ function getAllBlogPosts() {
   }
 }
 
+// Read blog post file and extract frontmatter and content
+function readBlogPost(filePath) {
+  try {
+    const fileContents = fs.readFileSync(filePath, 'utf8');
+    const matter = require('gray-matter');
+    const result = matter(fileContents);
+    
+    return {
+      slug: result.data.slug || path.basename(filePath, '.md'),
+      title: result.data.title,
+      date: result.data.date,
+      category: result.data.category,
+      image: result.data.image,
+      content: result.content.trim(),
+    };
+  } catch (error) {
+    throw new Error(`Failed to read blog post file ${filePath}: ${error.message}`);
+  }
+}
+
 // Send newsletter for a post (using Node.js http/https)
-function sendNewsletter(slug) {
+function sendNewsletter(postData) {
   return new Promise((resolve, reject) => {
     const url = new URL(`${baseUrl}/api/newsletter/send`);
-    const postData = JSON.stringify({ slug });
+    const jsonData = JSON.stringify(postData);
 
     const headers = {
       'Content-Type': 'application/json',
-      'Content-Length': Buffer.byteLength(postData),
+      'Content-Length': Buffer.byteLength(jsonData),
     };
 
     // Add webhook secret if configured (trim whitespace)
@@ -213,7 +233,7 @@ function sendNewsletter(slug) {
       reject(new Error(`Request failed: ${error.message}`));
     });
 
-    req.write(postData);
+    req.write(jsonData);
     req.end();
   });
 }
@@ -316,7 +336,20 @@ async function main() {
   for (const post of newPosts) {
     try {
       console.log(`📨 Sending newsletter for: ${post.slug}...`);
-      const result = await sendNewsletter(post.slug);
+      
+      // Read the blog post file to get full post data
+      let postData;
+      try {
+        const fullPost = readBlogPost(post.path);
+        postData = fullPost;
+        console.log(`   📄 Read post: "${fullPost.title}" (${fullPost.date})`);
+      } catch (readError) {
+        console.error(`   ⚠️  Failed to read post file, falling back to slug-only: ${readError.message}`);
+        // Fallback to slug-only if file read fails
+        postData = { slug: post.slug };
+      }
+      
+      const result = await sendNewsletter(postData);
       
       // Mark as sent only if successful
       await markNewsletterSent(redis, post.slug);
