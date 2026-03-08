@@ -10,13 +10,13 @@
           ]
         }
       },
-      "id": "092b1b79-8368-40db-ac56-bb8c78b34721",
+      "id": "197c8d63-65c9-44b1-bc4d-a562c90b4cb7",
       "name": "Schedule Trigger - Weekly",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.3,
       "position": [
-        -3152,
-        688
+        -4688,
+        1424
       ]
     },
     {
@@ -24,13 +24,13 @@
         "url": "https://cointelegraph.com/rss",
         "options": {}
       },
-      "id": "f7dac16f-986f-40c3-a9c4-25ce76c01a68",
+      "id": "cb890b05-7965-4dcd-a1d2-700ad72aee06",
       "name": "Read CoinTelegraph RSS",
       "type": "n8n-nodes-base.rssFeedRead",
       "typeVersion": 1.2,
       "position": [
-        -2944,
-        496
+        -4480,
+        1232
       ]
     },
     {
@@ -38,13 +38,13 @@
         "url": "https://decrypt.co/feed",
         "options": {}
       },
-      "id": "ccfd2ede-2c7d-410d-ae8c-52ecfdf0b52d",
+      "id": "fec208a6-faa4-4246-807c-98dc6457c3bc",
       "name": "Read Decrypt RSS",
       "type": "n8n-nodes-base.rssFeedRead",
       "typeVersion": 1.2,
       "position": [
-        -2944,
-        688
+        -4480,
+        1424
       ]
     },
     {
@@ -52,13 +52,13 @@
         "url": "https://www.coindesk.com/arc/outboundfeeds/rss",
         "options": {}
       },
-      "id": "9b7d60a2-7e46-42bb-bc50-9cfa4ca85bbf",
+      "id": "c9417261-ba57-4a3a-b712-e66a6467eb0e",
       "name": "Read CoinDesk RSS",
       "type": "n8n-nodes-base.rssFeedRead",
       "typeVersion": 1.2,
       "position": [
-        -2944,
-        848
+        -4480,
+        1584
       ]
     },
     {
@@ -66,78 +66,78 @@
         "url": "https://bitcoinist.com/feed/",
         "options": {}
       },
-      "id": "f78dcaa7-69b4-422c-a3af-2247f71942b8",
+      "id": "94457c86-da37-4fc2-911e-ca3b2881260d",
       "name": "Read CoinMarketCap RSS",
       "type": "n8n-nodes-base.rssFeedRead",
       "typeVersion": 1.2,
       "position": [
-        -2944,
-        1008
+        -4480,
+        1744
       ]
     },
     {
       "parameters": {
         "maxItems": 3
       },
-      "id": "ff907ce9-835f-4a66-9ec0-7b3346177c71",
+      "id": "bd3f5c2c-74af-4843-8481-580150275b49",
       "name": "Limit CoinTelegraph to 3",
       "type": "n8n-nodes-base.limit",
       "typeVersion": 1,
       "position": [
-        -2720,
-        496
+        -4256,
+        1232
       ]
     },
     {
       "parameters": {
         "maxItems": 3
       },
-      "id": "b9f3d0fb-d423-4aae-acc1-4d678e71e43a",
+      "id": "9ff9136b-0b70-48c2-97f8-d4e5849eb4e7",
       "name": "Limit Decrypt to 3",
       "type": "n8n-nodes-base.limit",
       "typeVersion": 1,
       "position": [
-        -2720,
-        688
+        -4256,
+        1424
       ]
     },
     {
       "parameters": {
         "maxItems": 3
       },
-      "id": "1bacc784-7948-4cea-8005-191172887002",
+      "id": "ae718856-9b80-480d-a78a-9ccab66f91e4",
       "name": "Limit CoinDesk to 3",
       "type": "n8n-nodes-base.limit",
       "typeVersion": 1,
       "position": [
-        -2704,
-        896
+        -4240,
+        1632
       ]
     },
     {
       "parameters": {
         "maxItems": 3
       },
-      "id": "c7ceaf98-937c-4a4a-a7c5-5aa8a2816ab0",
+      "id": "651d4a75-029c-46d3-921f-0ad1d6b1ea79",
       "name": "Limit CoinMarketCap to 3",
       "type": "n8n-nodes-base.limit",
       "typeVersion": 1,
       "position": [
-        -2704,
-        1056
+        -4240,
+        1792
       ]
     },
     {
       "parameters": {
         "numberInputs": 4
       },
-      "id": "d403d035-28a4-45b3-9da2-b620a49d10b2",
+      "id": "45898df1-a4ea-4cf1-a299-5ab4d0f48bb5",
       "name": "Merge All Feeds",
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        -2496,
-        688
+        -4032,
+        1424
       ]
     },
     {
@@ -153,13 +153,13 @@
         },
         "options": {}
       },
-      "id": "02183742-3a6a-4ac6-85ef-fff6c90f1ca9",
+      "id": "1dcb63bf-76b2-43d2-909e-336cd8fbebf7",
       "name": "Combine All Articles",
       "type": "n8n-nodes-base.aggregate",
       "typeVersion": 1,
       "position": [
-        -2272,
-        688
+        -3808,
+        1424
       ]
     },
     {
@@ -170,26 +170,26 @@
           "systemMessage": "You are writing a friendly, human blog post about cryptocurrency and blockchain technology. Your task is to take multiple RSS feed article summaries and create ONE natural, engaging blog post in Markdown format that sounds like it was written by a real person.\n\nWriting Style:\n- Write in simple, clear English - avoid crypto jargon unless you explain it first\n- Use a friendly, conversational tone - like you're chatting with a friend about crypto\n- Write naturally, as if you're sharing interesting news and insights you discovered\n- Use \"I\" and \"we\" occasionally to make it personal\n- Keep sentences relatively short and easy to read\n- Explain crypto concepts in plain language - not everyone is a crypto expert\n- Be enthusiastic but not overly hyped\n\nContent Guidelines:\n- Read through all the provided article summaries\n- Identify the key themes and important developments in cryptocurrency, blockchain, DeFi, NFTs, and Web3\n- Pay special attention to token recommendations, market analysis, and investment insights from CoinMarketCap and other sources\n- Create a cohesive blog post that covers the main points from all articles\n- Use Markdown formatting: ## for section headings, **bold** for emphasis\n- Structure with clear sections and paragraphs\n- Make it informative and valuable for readers\n- Aim for 500-800 words total\n- Focus on actionable insights, token recommendations, and what they mean for the crypto ecosystem\n- The post should feel like a unified roundup, not separate summaries\n- Write as if you're genuinely excited about these developments\n- Avoid sounding robotic or overly formal - be warm, approachable, and relatable"
         }
       },
-      "id": "1cf233b0-c05f-4d72-a09b-5e4ae50caf89",
+      "id": "9335f18b-c8a5-42f7-af02-0f2c64070768",
       "name": "AI Agent - Generate Crypto Blog Post",
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 3,
       "position": [
-        -2064,
-        688
+        -3600,
+        1424
       ]
     },
     {
       "parameters": {
         "options": {}
       },
-      "id": "096951ee-4bfc-46ed-8c1a-97ccb6500202",
+      "id": "661598c9-9aeb-4ca6-ace7-9dae2f9049de",
       "name": "Google Gemini Chat Model",
       "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
       "typeVersion": 1,
       "position": [
-        -2064,
-        896
+        -3600,
+        1632
       ],
       "credentials": {
         "googlePalmApi": {
@@ -202,26 +202,26 @@
       "parameters": {
         "jsCode": "// Extract AI-generated content and format for Next.js markdown blog\nconst items = $input.all();\nconst processedItems = [];\n\nfor (const item of items) {\n  const aiOutput = item.json.output || item.json.text || '';\n  \n  // Extract title (first line or marked with Title:)\n  let title = '';\n  let content = aiOutput;\n  \n  // Try to extract title from various formats\n  const titleMatch = aiOutput.match(/^(?:Title:|#)\\s*(.+?)(?:\\n|$)/i);\n  if (titleMatch) {\n    title = titleMatch[1].trim();\n    content = aiOutput.replace(/^(?:Title:|#)\\s*.+?(?:\\n|$)/i, '').trim();\n  } else {\n    // Use first line as title if no marker\n    const lines = aiOutput.split('\\n');\n    title = lines[0].trim().replace(/^#+\\s*/, '');\n    content = lines.slice(1).join('\\n').trim();\n  }\n  \n  // Clean the title\n  const cleanTitle = title.replace(/[^a-zA-Z0-9\\s-]/g, '').replace(/\\s+/g, ' ').trim();\n  \n  // Generate slug from title (for filename)\n  let slug = cleanTitle\n    .toLowerCase()\n    .replace(/[^a-z0-9\\s-]/g, '')\n    .replace(/\\s+/g, '-')\n    .replace(/-+/g, '-')\n    .replace(/^-|-$/g, '');\n  \n  // Limit slug to 80 characters to prevent filesystem errors\n  if (slug.length > 80) {\n    slug = slug.substring(0, 80).replace(/-$/, '');\n  }\n  \n  // Get current date in YYYY-MM-DD format\n  const today = new Date();\n  const dateStr = today.toISOString().split('T')[0];\n  \n  // Ensure content is proper markdown (clean up any HTML)\n  let markdownContent = content\n    .replace(/<p>/g, '')\n    .replace(/<\\/p>/g, '\\n\\n')\n    .replace(/<strong>(.+?)<\\/strong>/g, '**$1**')\n    .replace(/<em>(.+?)<\\/em>/g, '*$1*')\n    .replace(/<h2>(.+?)<\\/h2>/g, '## $1')\n    .replace(/<h3>(.+?)<\\/h3>/g, '### $1')\n    .replace(/<ul>/g, '')\n    .replace(/<\\/ul>/g, '\\n')\n    .replace(/<li>(.+?)<\\/li>/g, '- $1\\n')\n    .replace(/<a href=\"(.+?)\">(.+?)<\\/a>/g, '[$2]($1)')\n    .trim();\n  \n  // Create frontmatter (image will be added later)\n  const frontmatter = `---\\ntitle: \"${cleanTitle}\"\\ndate: \"${dateStr}\"\\nslug: \"${slug}\"\\ncategory: \"Crypto Roundup\"\\n---\\n\\n`;\n  \n  // Combine frontmatter and content\n  const fullMarkdown = frontmatter + markdownContent;\n  \n  // Base64 encode for GitHub API\n  const base64Content = Buffer.from(fullMarkdown, 'utf8').toString('base64');\n  \n  processedItems.push({\n    json: {\n      ...item.json,\n      title: cleanTitle,\n      slug: slug,\n      date: dateStr,\n      filename: `${slug}.md`,\n      content: markdownContent,\n      fullMarkdown: fullMarkdown,\n      base64Content: base64Content,\n      filePath: `content/blog/${slug}.md`\n    }\n  });\n}\n\nreturn processedItems;"
       },
-      "id": "b5d3462f-7946-4664-871d-016ab5dee654",
+      "id": "c073e377-ecc5-49e4-a6be-77373205e5c2",
       "name": "Format Markdown & Generate Frontmatter",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -1776,
-        688
+        -3312,
+        1424
       ]
     },
     {
       "parameters": {
         "jsCode": "// Generate image prompt from blog post title\nconst items = $input.all();\nconst processedItems = [];\n\nfor (const item of items) {\n  const title = item.json.title || '';\n  const content = item.json.content || '';\n  \n  // Extract key themes from content (first 200 chars)\n  const contentPreview = content.substring(0, 200).toLowerCase();\n  \n  // Create a descriptive image prompt\n  let imagePrompt = `A professional, modern illustration representing: ${title}. `;\n  \n  // Add context based on common crypto/blockchain themes\n  if (contentPreview.includes('bitcoin') || contentPreview.includes('btc')) {\n    imagePrompt += 'Style: digital currency, blockchain technology, with Bitcoin visual elements. ';\n  }\n  if (contentPreview.includes('ethereum') || contentPreview.includes('eth') || contentPreview.includes('defi')) {\n    imagePrompt += 'Include Ethereum, DeFi, and smart contract themes. ';\n  }\n  if (contentPreview.includes('nft') || contentPreview.includes('web3')) {\n    imagePrompt += 'Include NFT and Web3 visual elements. ';\n  }\n  if (contentPreview.includes('blockchain') || contentPreview.includes('crypto')) {\n    imagePrompt += 'Blockchain and cryptocurrency themes, digital assets. ';\n  }\n  \n  imagePrompt += 'Color scheme: modern crypto colors (oranges, blues, digital gradients). Clean, tech-forward design suitable for a blog header image. 16:9 aspect ratio, high quality.';\n  \n  processedItems.push({\n    json: {\n      ...item.json,\n      imagePrompt: imagePrompt,\n      imageFilename: `${item.json.slug}-header.jpg`\n    }\n  });\n}\n\nreturn processedItems;"
       },
-      "id": "e50ca522-0013-4dc1-a4a3-e61d9cbae1c3",
+      "id": "ed71dab1-698f-4ed7-b1b2-6c5688c1c851",
       "name": "Generate Image Prompt",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -1616,
-        688
+        -3152,
+        1424
       ]
     },
     {
@@ -252,13 +252,13 @@
         "jsonBody": "={{ JSON.stringify({\n  model: 'google/gemini-2.5-flash-image',\n  modalities: ['image', 'text'],\n  messages: [\n    {\n      role: 'user',\n      content: $json.imagePrompt\n    }\n  ]\n}) }}",
         "options": {}
       },
-      "id": "5aed10f7-91f2-4809-b092-0234d449d800",
+      "id": "35608e14-749a-41fc-8968-324c4e2e45a2",
       "name": "Generate Image with OpenRouter",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        -1392,
-        688
+        -2928,
+        1424
       ],
       "credentials": {
         "httpHeaderAuth": {
@@ -272,26 +272,26 @@
       "parameters": {
         "jsCode": "// Extract base64 image data from OpenRouter response\nconst items = $input.all();\nconst processedItems = [];\n\nfor (const item of items) {\n  try {\n    const response = item.json;\n    \n    // Extract image from response\n    let base64Image = '';\n    \n    if (response.choices && \n        response.choices[0] && \n        response.choices[0].message && \n        response.choices[0].message.images && \n        response.choices[0].message.images[0] && \n        response.choices[0].message.images[0].image_url && \n        response.choices[0].message.images[0].image_url.url) {\n      \n      const imageUrl = response.choices[0].message.images[0].image_url.url;\n      \n      // Remove data:image/...;base64, prefix\n      base64Image = imageUrl.replace(/^data:image\\/[^;]+;base64,/, '');\n    } else {\n      throw new Error('Image not found in response. Response structure: ' + JSON.stringify(response, null, 2));\n    }\n    \n    // Get image filename from previous node\n    const imagePromptNode = $('Generate Image Prompt').first();\n    const imageFilename = imagePromptNode ? imagePromptNode.json.imageFilename : 'image.jpg';\n    \n    processedItems.push({\n      json: {\n        ...item.json,\n        base64Image: base64Image,\n        imageFilename: imageFilename\n      }\n    });\n  } catch (error) {\n    // Pass through error for debugging\n    processedItems.push({\n      json: {\n        ...item.json,\n        error: error.message,\n        base64Image: ''\n      }\n    });\n  }\n}\n\nreturn processedItems;"
       },
-      "id": "68922453-b302-4b44-afce-5257922a66d9",
+      "id": "07451db2-cc60-4436-9550-e3d6c0787f0c",
       "name": "Extract Image Base64",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -1232,
-        672
+        -2784,
+        1216
       ]
     },
     {
       "parameters": {
         "jsCode": "// Convert base64 image to binary data for Edit Image node\nconst items = $input.all();\nconst processedItems = [];\n\nfor (const item of items) {\n  try {\n    const base64Image = item.json.base64Image;\n    const imageFilename = item.json.imageFilename || 'image.jpg';\n    \n    if (!base64Image) {\n      throw new Error('No base64 image data found');\n    }\n    \n    // Convert base64 to buffer\n    const imageBuffer = Buffer.from(base64Image, 'base64');\n    const originalSizeKB = Math.round(imageBuffer.length / 1024);\n    \n    // Create binary data for Edit Image node\n    // n8n expects binary data in item.binary with a property name\n    processedItems.push({\n      json: {\n        ...item.json,\n        originalSizeKB: originalSizeKB,\n        imageFilename: imageFilename\n      },\n      binary: {\n        data: {\n          data: imageBuffer,\n          mimeType: 'image/jpeg',\n          fileName: imageFilename\n        }\n      }\n    });\n  } catch (error) {\n    processedItems.push({\n      json: {\n        ...item.json,\n        error: error.message\n      }\n    });\n  }\n}\n\nreturn processedItems;"
       },
-      "id": "de2a1043-8d5a-4f45-ba98-fb7357ac4d69",
+      "id": "ac0a3ece-13de-4c7f-a6da-5392b96f191f",
       "name": "Convert Base64 to Binary",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -1104,
-        512
+        -2608,
+        1216
       ]
     },
     {
@@ -305,26 +305,26 @@
           "quality": 50
         }
       },
-      "id": "cfb97702-2ff1-4f7d-b8bb-0b3aff515454",
+      "id": "560e8c35-7572-4a07-bc48-4d7cf72c7cfb",
       "name": "Compress Image",
       "type": "n8n-nodes-base.editImage",
       "typeVersion": 1,
       "position": [
-        -992,
-        704
+        -2464,
+        1216
       ]
     },
     {
       "parameters": {
         "jsCode": "// Convert compressed image from Edit Image node back to base64 for GitHub upload\n// Note: n8n Edit Image node outputs binary data that needs special handling\nconst items = $input.all();\nconst processedItems = [];\n\nfor (const item of items) {\n  try {\n    // Get original data from 'Extract Image Base64' node\n    const originalItem = $('Extract Image Base64').first();\n    const imageFilename = originalItem ? originalItem.json.imageFilename : item.json.imageFilename;\n    \n    // Get compressed image data from Edit Image node\n    // n8n stores binary data in item.binary - need to access it correctly\n    let compressedBase64 = '';\n    \n    // Check for binary data in the item\n    if (item.binary) {\n      // n8n binary data structure: item.binary[propertyName]\n      // The property name is usually 'data' based on how we set it in 'Convert Base64 to Binary'\n      const binaryProperty = item.binary.data || item.binary.image || Object.values(item.binary)[0];\n      \n      if (binaryProperty) {\n        // n8n binary data can be:\n        // 1. A Buffer object\n        // 2. An object with .data property containing Buffer\n        // 3. A filesystem path (string starting with filesystem-)\n        \n        let binaryData = null;\n        \n        if (Buffer.isBuffer(binaryProperty)) {\n          binaryData = binaryProperty;\n        } else if (binaryProperty.data) {\n          if (Buffer.isBuffer(binaryProperty.data)) {\n            binaryData = binaryProperty.data;\n          } else if (typeof binaryProperty.data === 'string' && !binaryProperty.data.startsWith('filesystem-')) {\n            binaryData = Buffer.from(binaryProperty.data, 'base64');\n          }\n        } else if (typeof binaryProperty === 'string' && !binaryProperty.startsWith('filesystem-')) {\n          // Try to decode as base64\n          binaryData = Buffer.from(binaryProperty, 'base64');\n        }\n        \n        if (binaryData && Buffer.isBuffer(binaryData)) {\n          compressedBase64 = binaryData.toString('base64');\n          const compressedSizeKB = Math.round(binaryData.length / 1024);\n          const originalSizeKB = originalItem ? Math.round(Buffer.from(originalItem.json.base64Image, 'base64').length / 1024) : 0;\n          const reduction = originalSizeKB > 0 ? Math.round((1 - compressedSizeKB/originalSizeKB) * 100) : 0;\n          console.log(`Image compressed: ${originalSizeKB}KB → ${compressedSizeKB}KB (${reduction}% reduction)`);\n        } else {\n          console.log('Warning: Binary data is a filesystem reference, using original image');\n          throw new Error('Filesystem reference detected');\n        }\n      } else {\n        throw new Error('No binary property found');\n      }\n    } else {\n      throw new Error('No binary data in item');\n    }\n    \n    // Validate base64 string\n    if (!compressedBase64 || compressedBase64.length === 0) {\n      throw new Error('Empty base64 string');\n    }\n    \n    processedItems.push({\n      json: {\n        ...(originalItem ? originalItem.json : item.json),\n        base64Image: compressedBase64,\n        imageFilename: imageFilename\n      }\n    });\n  } catch (error) {\n    // Fallback to original image if compression fails\n    const originalItem = $('Extract Image Base64').first();\n    console.log('Error in Convert Compressed to Base64, using original:', error.message);\n    \n    if (originalItem && originalItem.json.base64Image) {\n      processedItems.push({\n        json: {\n          ...originalItem.json,\n          error: error.message,\n          base64Image: originalItem.json.base64Image\n        }\n      });\n    } else {\n      // Last resort - pass through with error\n      processedItems.push({\n        json: {\n          ...item.json,\n          error: error.message,\n          base64Image: ''\n        }\n      });\n    }\n  }\n}\n\nreturn processedItems;"
       },
-      "id": "075bf3f3-aa3d-4075-9afe-bf74bf4ff5c2",
+      "id": "3171575e-3a10-442d-812b-e74344543b5a",
       "name": "Convert Compressed to Base64",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -896,
-        512
+        -2512,
+        1408
       ]
     },
     {
@@ -365,13 +365,13 @@
         },
         "options": {}
       },
-      "id": "a170f4a6-e0b3-4e3d-a3ed-79d97a9d6983",
+      "id": "09787772-5581-4f98-94ab-725920aed910",
       "name": "Upload Image to GitHub",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        -784,
-        688
+        -2128,
+        1552
       ],
       "credentials": {
         "httpHeaderAuth": {
@@ -383,7 +383,6 @@
     },
     {
       "parameters": {
-        "method": "GET",
         "url": "=https://api.github.com/repos/premcool/prem-website/contents/public/images/blog/{{ $json.imageFilename }}",
         "authentication": "predefinedCredentialType",
         "nodeCredentialType": "httpHeaderAuth",
@@ -396,38 +395,36 @@
             }
           ]
         },
-        "options": {
-          "ignoreResponseCode": true
-        }
+        "options": {}
       },
-      "id": "crypto-get-image-sha-002",
+      "id": "e0bfc60e-43c8-4c0d-a51a-94be0519689f",
       "name": "Get Image SHA",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        -896,
-        688
+        -2480,
+        1712
       ],
-      "continueOnFail": true,
       "credentials": {
         "httpHeaderAuth": {
           "id": "zHMuvIhbG9iaHxxd",
           "name": "Header Auth account"
         }
       },
+      "continueOnFail": true,
       "notes": "Gets SHA of existing image file if it exists (for updates). Continues on 404 (file doesn't exist)."
     },
     {
       "parameters": {
-        "jsCode": "// Extract SHA from GitHub response and merge with original data\n// Handles both 200 (file exists) and 404 (file doesn't exist) responses\n// Also handles case where HTTP Request node fails\nconst items = $input.all();\nconst processedItems = [];\n\n// Get original data from previous node\nconst originalItem = $('Convert Compressed to Base64').first();\n\n// If no items received (HTTP Request failed), use original item directly\nif (!items || items.length === 0) {\n  if (originalItem && originalItem.json) {\n    processedItems.push({\n      json: {\n        ...originalItem.json,\n        imageSha: ''\n      }\n    });\n  }\n  return processedItems;\n}\n\nfor (const item of items) {\n  let sha = '';\n  \n  try {\n    // Check if response has SHA (file exists)\n    // GitHub returns sha field when file exists (status 200)\n    // When file doesn't exist (404), response has message field instead\n    if (item.json && item.json.sha && typeof item.json.sha === 'string') {\n      sha = item.json.sha;\n    }\n    // If response has error message (404) or is empty, sha remains empty string (new file)\n  } catch (error) {\n    // If there's any error accessing the response, treat as new file (empty sha)\n    console.log('Error extracting SHA, treating as new file:', error.message);\n    sha = '';\n  }\n  \n  // Merge original data with SHA\n  // Always ensure we have the original data even if SHA extraction failed\n  if (originalItem && originalItem.json) {\n    processedItems.push({\n      json: {\n        ...originalItem.json,\n        imageSha: sha\n      }\n    });\n  } else if (item && item.json) {\n    // Fallback if original item not found\n    processedItems.push({\n      json: {\n        ...item.json,\n        imageSha: sha\n      }\n    });\n  }\n}\n\nreturn processedItems;"
+        "jsCode": "// Extract SHA from GitHub response and merge with compressed image data\n// Receives compressed image from 'Convert Compressed to Base64' as primary input\n// Receives SHA from 'Get Image SHA' as secondary input (or looks it up)\nconst items = $input.all();\nconst processedItems = [];\n\n// Find the compressed image data (from Convert Compressed to Base64)\n// It should have base64Image property\nconst compressedImageItem = items.find(item => item.json && item.json.base64Image) || items[0];\n\n// Get SHA from Get Image SHA node (if it ran)\nconst shaItem = $('Get Image SHA').first();\nlet sha = '';\n\nif (shaItem && shaItem.json && shaItem.json.sha && typeof shaItem.json.sha === 'string') {\n  sha = shaItem.json.sha;\n}\n\n// Use the compressed image data directly from input\nif (compressedImageItem && compressedImageItem.json && compressedImageItem.json.base64Image) {\n  // This is the compressed image - use it!\n  processedItems.push({\n    json: {\n      ...compressedImageItem.json,\n      imageSha: sha\n    }\n  });\n} else {\n  // Fallback: try to get from Convert Compressed to Base64 node\n  const originalItem = $('Convert Compressed to Base64').first();\n  if (originalItem && originalItem.json) {\n    processedItems.push({\n      json: {\n        ...originalItem.json,\n        imageSha: sha\n      }\n    });\n  } else {\n    // Last resort - pass through whatever we got\n    items.forEach(item => {\n      processedItems.push({\n        json: {\n          ...item.json,\n          imageSha: sha\n        }\n      });\n    });\n  }\n}\n\nreturn processedItems;"
       },
-      "id": "crypto-extract-image-sha-002",
+      "id": "9e36fc14-4c90-4bda-910b-49f8b210f014",
       "name": "Extract Image SHA",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -840,
-        688
+        -2304,
+        1680
       ]
     },
     {
@@ -468,26 +465,26 @@
         },
         "options": {}
       },
-      "id": "13af6ae0-b91e-4718-b953-58cdc29a2a93",
+      "id": "929539d6-9979-4a69-82cb-3e22b736b704",
       "name": "Merge Blog Post Data",
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        -640,
-        496
+        -2000,
+        1360
       ]
     },
     {
       "parameters": {
         "jsCode": "// Update markdown frontmatter with image URL\nconst items = $input.all();\nconst processedItems = [];\n\nfor (const item of items) {\n  const title = item.json.title;\n  const slug = item.json.slug;\n  const date = item.json.date;\n  const content = item.json.content;\n  const imageFilename = item.json.imageFilename;\n  \n  // Create image URL (assuming your site is hosted and images are accessible)\n  // Update this URL to match your actual domain\n  const imageUrl = `/images/blog/${imageFilename}`;\n  \n  // Create frontmatter with image\n  const frontmatter = `---\\ntitle: \"${title}\"\\ndate: \"${date}\"\\nslug: \"${slug}\"\\nimage: \"${imageUrl}\"\\ncategory: \"Crypto Roundup\"\\n---\\n\\n`;\n  \n  // Combine frontmatter and content\n  const fullMarkdown = frontmatter + content;\n  \n  // Base64 encode for GitHub API\n  const base64Content = Buffer.from(fullMarkdown, 'utf8').toString('base64');\n  \n  processedItems.push({\n    json: {\n      title: title,\n      slug: slug,\n      date: date,\n      filename: `${slug}.md`,\n      content: content,\n      imageUrl: imageUrl,\n      imageFilename: imageFilename,\n      fullMarkdown: fullMarkdown,\n      base64Content: base64Content,\n      filePath: `content/blog/${slug}.md`\n    }\n  });\n}\n\nreturn processedItems;"
       },
-      "id": "b73c3259-85a2-495e-a440-2f858b27ae9d",
+      "id": "73d7f147-080f-4ce9-b477-789d4793720d",
       "name": "Add Image to Frontmatter",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -512,
-        720
+        -1936,
+        1760
       ]
     },
     {
@@ -528,13 +525,13 @@
         },
         "options": {}
       },
-      "id": "3d7addff-bf84-4ef5-a051-e59b7ca1605c",
+      "id": "2f8193f4-945f-4cf9-9a92-f6001e2377b1",
       "name": "Create File in GitHub",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        -304,
-        688
+        -1616,
+        1424
       ],
       "credentials": {
         "httpHeaderAuth": {
@@ -546,7 +543,6 @@
     },
     {
       "parameters": {
-        "method": "GET",
         "url": "=https://api.github.com/repos/premcool/prem-website/contents/content/blog/{{ $json.filename }}",
         "authentication": "predefinedCredentialType",
         "nodeCredentialType": "httpHeaderAuth",
@@ -559,38 +555,36 @@
             }
           ]
         },
-        "options": {
-          "ignoreResponseCode": true
-        }
+        "options": {}
       },
-      "id": "crypto-get-file-sha-002",
+      "id": "34ce84e0-d5b7-43c9-b314-30cc80c201c5",
       "name": "Get File SHA",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        -416,
-        688
+        -1872,
+        1600
       ],
-      "continueOnFail": true,
       "credentials": {
         "httpHeaderAuth": {
           "id": "zHMuvIhbG9iaHxxd",
           "name": "Header Auth account"
         }
       },
+      "continueOnFail": true,
       "notes": "Gets SHA of existing markdown file if it exists (for updates). Continues on 404 (file doesn't exist)."
     },
     {
       "parameters": {
         "jsCode": "// Extract SHA from GitHub response and merge with original data\n// Handles both 200 (file exists) and 404 (file doesn't exist) responses\nconst items = $input.all();\nconst processedItems = [];\n\n// Get original data from previous node\nconst originalItem = $('Add Image to Frontmatter').first();\n\nfor (const item of items) {\n  let sha = '';\n  \n  try {\n    // Check if response has SHA (file exists)\n    // GitHub returns sha field when file exists (status 200)\n    // When file doesn't exist (404), response has message field instead\n    if (item.json && item.json.sha && typeof item.json.sha === 'string') {\n      sha = item.json.sha;\n    }\n    // If response has error message (404) or is empty, sha remains empty string (new file)\n  } catch (error) {\n    // If there's any error accessing the response, treat as new file (empty sha)\n    console.log('Error extracting SHA, treating as new file:', error.message);\n    sha = '';\n  }\n  \n  // Merge original data with SHA\n  // Always ensure we have the original data even if SHA extraction failed\n  if (originalItem && originalItem.json) {\n    processedItems.push({\n      json: {\n        ...originalItem.json,\n        fileSha: sha\n      }\n    });\n  } else {\n    // Fallback if original item not found\n    processedItems.push({\n      json: {\n        ...item.json,\n        fileSha: sha\n      }\n    });\n  }\n}\n\nreturn processedItems;"
       },
-      "id": "crypto-extract-file-sha-002",
+      "id": "6e62756a-5bd3-456a-88df-b44e8882813d",
       "name": "Extract File SHA",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -360,
-        688
+        -1776,
+        1504
       ]
     },
     {
@@ -613,13 +607,13 @@
         "jsonBody": "={{ JSON.stringify({\n  event_type: 'rebuild',\n  client_payload: {\n    blog_post: $json.filename || 'unknown'\n  }\n}) }}",
         "options": {}
       },
-      "id": "9dfa2953-5363-48c4-8bda-e599f54c6b14",
+      "id": "3851cee1-e8d8-41ca-9c0f-6d75fa2072f3",
       "name": "Trigger Site Rebuild (Optional)",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        -1424,
-        288
+        -1440,
+        1216
       ],
       "credentials": {
         "httpHeaderAuth": {
@@ -637,13 +631,13 @@
         "html": "=<h2>Crypto Roundup Blog Post Created Successfully</h2>\n<p><strong>Post Title:</strong> {{ $('Add Image to Frontmatter').item.json.title }}</p>\n<p><strong>Filename:</strong> {{ $('Add Image to Frontmatter').item.json.filename }}</p>\n<p><strong>Date:</strong> {{ $('Add Image to Frontmatter').item.json.date }}</p>\n<p><strong>Image:</strong> {{ $('Add Image to Frontmatter').item.json.imageFilename }}</p>\n<p><strong>GitHub URL:</strong> <a href=\"https://github.com/premcool/prem-website/blob/main/content/blog/{{ $('Add Image to Frontmatter').item.json.filename }}\">View Post on GitHub</a></p>\n<p><strong>Image URL:</strong> <a href=\"https://github.com/premcool/prem-website/blob/main/public/images/blog/{{ $('Add Image to Frontmatter').item.json.imageFilename }}\">View Image on GitHub</a></p>\n<p>The crypto roundup blog post and header image have been created and committed to the repository. The site will rebuild automatically if configured with Vercel/Netlify webhooks.</p>",
         "options": {}
       },
-      "id": "d92bb7a6-1e83-49fc-a5d9-9170f9fc1f0c",
+      "id": "6b769530-e9ca-45c5-9f61-5fc0664c90e0",
       "name": "Send Success Email",
       "type": "n8n-nodes-base.emailSend",
       "typeVersion": 2.1,
       "position": [
-        -352,
-        432
+        -1152,
+        1328
       ],
       "webhookId": "220ce1f9-f164-4287-ab02-1e69039ca4f1",
       "credentials": {
@@ -883,7 +877,23 @@
       "main": [
         [
           {
+            "node": "Extract Image SHA",
+            "type": "main",
+            "index": 0
+          },
+          {
             "node": "Get Image SHA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload Image to GitHub": {
+      "main": [
+        [
+          {
+            "node": "Merge Blog Post Data",
             "type": "main",
             "index": 0
           }
@@ -912,17 +922,6 @@
         ]
       ]
     },
-    "Upload Image to GitHub": {
-      "main": [
-        [
-          {
-            "node": "Merge Blog Post Data",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Merge Blog Post Data": {
       "main": [
         [
@@ -945,6 +944,22 @@
         ]
       ]
     },
+    "Create File in GitHub": {
+      "main": [
+        [
+          {
+            "node": "Trigger Site Rebuild (Optional)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send Success Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
     "Get File SHA": {
       "main": [
         [
@@ -961,22 +976,6 @@
         [
           {
             "node": "Create File in GitHub",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Create File in GitHub": {
-      "main": [
-        [
-          {
-            "node": "Trigger Site Rebuild (Optional)",
-            "type": "main",
-            "index": 0
-          },
-          {
-            "node": "Send Success Email",
             "type": "main",
             "index": 0
           }

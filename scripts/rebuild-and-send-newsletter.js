@@ -173,9 +173,9 @@ function sendNewsletter(slug) {
       'Content-Length': Buffer.byteLength(postData),
     };
 
-    // Add webhook secret if configured
-    if (webhookSecret) {
-      headers['x-webhook-secret'] = webhookSecret;
+    // Add webhook secret if configured (trim whitespace)
+    if (webhookSecret && webhookSecret.trim() !== '') {
+      headers['x-webhook-secret'] = webhookSecret.trim();
     }
 
     const options = {
@@ -282,6 +282,18 @@ async function main() {
   // Step 3: Detect new blog posts and send newsletters
   console.log('📧 Checking for new blog posts to send newsletters...');
   
+  // Debug: Check if webhook secret is loaded
+  if (!webhookSecret || webhookSecret.trim() === '') {
+    console.warn('⚠️  WARNING: NEWSLETTER_WEBHOOK_SECRET is not set or empty.');
+    console.warn('   The newsletter API will reject requests without authentication.');
+    console.warn('   Please set NEWSLETTER_WEBHOOK_SECRET in your .env.premwebsite file.');
+    console.warn('   Current value:', JSON.stringify(process.env.NEWSLETTER_WEBHOOK_SECRET || 'NOT SET'));
+    console.warn('');
+  } else {
+    const secretPreview = webhookSecret.substring(0, 10) + '...';
+    console.log('✅ Webhook secret is configured (length: ' + webhookSecret.length + ' chars, starts with: ' + secretPreview + ')\n');
+  }
+  
   const redis = getRedisClient();
   const sentNewsletters = await getSentNewsletters(redis);
   const allPosts = getAllBlogPosts();
@@ -313,6 +325,14 @@ async function main() {
       successCount++;
     } catch (error) {
       console.error(`   ❌ Failed to send newsletter: ${error.message}`);
+      
+      // If it's a 401 error, provide more helpful debugging
+      if (error.message.includes('401') || error.message.includes('Unauthorized')) {
+        console.error(`   💡 This is an authentication error. Check:`);
+        console.error(`      1. NEWSLETTER_WEBHOOK_SECRET is set in .env.premwebsite`);
+        console.error(`      2. The secret matches what's configured in your Next.js app`);
+        console.error(`      3. The secret doesn't have extra quotes or whitespace`);
+      }
       errorCount++;
     }
   }

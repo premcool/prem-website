@@ -44,6 +44,19 @@ elif [ -f /home/.env.premwebsite ]; then
     source /home/.env.premwebsite 2>/dev/null || true
     set +a
     log "Loaded environment variables from /home/.env.premwebsite"
+    
+    # Verify critical environment variables are loaded and exported
+    if [ -z "$NEWSLETTER_WEBHOOK_SECRET" ]; then
+        log "⚠️  WARNING: NEWSLETTER_WEBHOOK_SECRET is not set after loading .env file"
+    else
+        export NEWSLETTER_WEBHOOK_SECRET
+        log "✅ NEWSLETTER_WEBHOOK_SECRET is loaded and exported (length: ${#NEWSLETTER_WEBHOOK_SECRET} chars)"
+    fi
+    
+    # Export other critical variables
+    export NEXT_PUBLIC_SITE_URL
+    export UPSTASH_REDIS_REST_URL
+    export UPSTASH_REDIS_REST_TOKEN
 else
     log "⚠️  No .env.premwebsite file found. Environment variables may not be set."
     log "   Expected locations: $PROJECT_DIR/.env.premwebsite or /home/.env.premwebsite"
@@ -57,8 +70,13 @@ log "=========================================="
 # - Git pull
 # - Rebuild
 # - Newsletter sending
+# Pass environment variables explicitly to ensure they're available to Node.js
 log "Running rebuild and newsletter script..."
-if node scripts/rebuild-and-send-newsletter.js >> "$LOG_FILE" 2>&1; then
+if env NEWSLETTER_WEBHOOK_SECRET="$NEWSLETTER_WEBHOOK_SECRET" \
+       NEXT_PUBLIC_SITE_URL="$NEXT_PUBLIC_SITE_URL" \
+       UPSTASH_REDIS_REST_URL="$UPSTASH_REDIS_REST_URL" \
+       UPSTASH_REDIS_REST_TOKEN="$UPSTASH_REDIS_REST_TOKEN" \
+       node scripts/rebuild-and-send-newsletter.js >> "$LOG_FILE" 2>&1; then
     log "✅ Rebuild and newsletter process completed successfully"
 else
     log "❌ Process failed - check logs for details"
