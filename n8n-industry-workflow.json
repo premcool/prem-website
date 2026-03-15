@@ -259,7 +259,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Convert base64 image to binary data for Edit Image node\nconst items = $input.all();\nconst processedItems = [];\n\nfor (const item of items) {\n  try {\n    const base64Image = item.json.base64Image;\n    const imageFilename = item.json.imageFilename || 'image.jpg';\n    \n    if (!base64Image) {\n      throw new Error('No base64 image data found');\n    }\n    \n    // Convert base64 to buffer\n    const imageBuffer = Buffer.from(base64Image, 'base64');\n    const originalSizeKB = Math.round(imageBuffer.length / 1024);\n    \n    // Create binary data for Edit Image node\n    // n8n expects binary data in item.binary with a property name\n    processedItems.push({\n      json: {\n        ...item.json,\n        originalSizeKB: originalSizeKB,\n        imageFilename: imageFilename\n      },\n      binary: {\n        data: {\n          data: imageBuffer,\n          mimeType: 'image/jpeg',\n          fileName: imageFilename\n        }\n      }\n    });\n  } catch (error) {\n    processedItems.push({\n      json: {\n        ...item.json,\n        error: error.message\n      }\n    });\n  }\n}\n\nreturn processedItems;"
+        "jsCode": "// Convert base64 image to binary data for Edit Image node\nconst items = $input.all();\nconst processedItems = [];\n\nfor (const item of items) {\n  try {\n    const base64Image = item.json.base64Image;\n    const imageFilename = item.json.imageFilename || 'image.jpg';\n    \n    if (!base64Image) {\n      throw new Error('No base64 image data found');\n    }\n    \n    // Convert base64 to buffer\n    const imageBuffer = Buffer.from(base64Image, 'base64');\n    const originalSizeKB = Math.round(imageBuffer.length / 1024);\n    \n    // Create binary data for Edit Image node\n    // n8n expects binary data in item.binary with a property name\n    processedItems.push({\n      json: {\n        ...item.json,\n        originalSizeKB: originalSizeKB,\n        imageFilename: imageFilename\n      },\n      binary: {\n        data: {\n          data: base64Image,\n          mimeType: 'image/jpeg',\n          fileName: imageFilename\n        }\n      }\n    });\n  } catch (error) {\n    processedItems.push({\n      json: {\n        ...item.json,\n        error: error.message\n      }\n    });\n  }\n}\n\nreturn processedItems;"
       },
       "id": "700f972a-ea0c-403a-bb01-60062490e914",
       "name": "Convert Base64 to Binary",
@@ -292,7 +292,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Convert compressed image from Edit Image node back to base64 for GitHub upload\n// Note: n8n Edit Image node outputs binary data that needs special handling\nconst items = $input.all();\nconst processedItems = [];\n\nfor (const item of items) {\n  try {\n    // Get original data from 'Extract Image Base64' node\n    const originalItem = $('Extract Image Base64').first();\n    const imageFilename = originalItem ? originalItem.json.imageFilename : item.json.imageFilename;\n    \n    // Get compressed image data from Edit Image node\n    // n8n stores binary data in item.binary - need to access it correctly\n    let compressedBase64 = '';\n    \n    // Check for binary data in the item\n    if (item.binary) {\n      // n8n binary data structure: item.binary[propertyName]\n      // The property name is usually 'data' based on how we set it in 'Convert Base64 to Binary'\n      const binaryProperty = item.binary.data || item.binary.image || Object.values(item.binary)[0];\n      \n      if (binaryProperty) {\n        // n8n binary data can be:\n        // 1. A Buffer object\n        // 2. An object with .data property containing Buffer\n        // 3. A filesystem path (string starting with filesystem-)\n        \n        let binaryData = null;\n        \n        if (Buffer.isBuffer(binaryProperty)) {\n          binaryData = binaryProperty;\n        } else if (binaryProperty.data) {\n          if (Buffer.isBuffer(binaryProperty.data)) {\n            binaryData = binaryProperty.data;\n          } else if (typeof binaryProperty.data === 'string' && !binaryProperty.data.startsWith('filesystem-')) {\n            binaryData = Buffer.from(binaryProperty.data, 'base64');\n          }\n        } else if (typeof binaryProperty === 'string' && !binaryProperty.startsWith('filesystem-')) {\n          // Try to decode as base64\n          binaryData = Buffer.from(binaryProperty, 'base64');\n        }\n        \n        if (binaryData && Buffer.isBuffer(binaryData)) {\n          compressedBase64 = binaryData.toString('base64');\n          const compressedSizeKB = Math.round(binaryData.length / 1024);\n          const originalSizeKB = originalItem ? Math.round(Buffer.from(originalItem.json.base64Image, 'base64').length / 1024) : 0;\n          const reduction = originalSizeKB > 0 ? Math.round((1 - compressedSizeKB/originalSizeKB) * 100) : 0;\n          console.log(`Image compressed: ${originalSizeKB}KB → ${compressedSizeKB}KB (${reduction}% reduction)`);\n        } else {\n          console.log('Warning: Binary data is a filesystem reference, using original image');\n          throw new Error('Filesystem reference detected');\n        }\n      } else {\n        throw new Error('No binary property found');\n      }\n    } else {\n      throw new Error('No binary data in item');\n    }\n    \n    // Validate base64 string\n    if (!compressedBase64 || compressedBase64.length === 0) {\n      throw new Error('Empty base64 string');\n    }\n    \n    processedItems.push({\n      json: {\n        ...(originalItem ? originalItem.json : item.json),\n        base64Image: compressedBase64,\n        imageFilename: imageFilename\n      }\n    });\n  } catch (error) {\n    // Fallback to original image if compression fails\n    const originalItem = $('Extract Image Base64').first();\n    console.log('Error in Convert Compressed to Base64, using original:', error.message);\n    \n    if (originalItem && originalItem.json.base64Image) {\n      processedItems.push({\n        json: {\n          ...originalItem.json,\n          error: error.message,\n          base64Image: originalItem.json.base64Image\n        }\n      });\n    } else {\n      // Last resort - pass through with error\n      processedItems.push({\n        json: {\n          ...item.json,\n          error: error.message,\n          base64Image: ''\n        }\n      });\n    }\n  }\n}\n\nreturn processedItems;"
+        "jsCode": "const items = $input.all();\nconst processedItems = [];\n\nfor (let i = 0; i < items.length; i++) {\n  const item = items[i];\n  try {\n    const originalItem = $('Extract Image Base64').first();\n    const imageFilename = originalItem ? originalItem.json.imageFilename : item.json.imageFilename;\n\n    let compressedBase64 = '';\n\n    if (item.binary && item.binary.data) {\n      try {\n        const dataBuffer = await helpers.getBinaryDataBuffer(i, 'data');\n        compressedBase64 = dataBuffer.toString('base64');\n      } catch (helperError) {\n        const binaryProp = item.binary.data;\n        if (typeof binaryProp.data === 'string' && binaryProp.data.length > 0 && !binaryProp.data.startsWith('filesystem-')) {\n          compressedBase64 = binaryProp.data;\n        } else {\n          throw new Error('Cannot read compressed binary: ' + helperError.message);\n        }\n      }\n    } else {\n      throw new Error('No binary data in item');\n    }\n\n    processedItems.push({\n      json: {\n        ...(originalItem ? originalItem.json : item.json),\n        base64Image: compressedBase64,\n        imageFilename: imageFilename\n      }\n    });\n  } catch (error) {\n    const originalItem = $('Extract Image Base64').first();\n    console.log('Compression fallback, using original:', error.message);\n\n    if (originalItem && originalItem.json.base64Image) {\n      processedItems.push({\n        json: {\n          ...originalItem.json\n        }\n      });\n    } else {\n      processedItems.push({\n        json: {\n          ...item.json,\n          error: error.message,\n          base64Image: ''\n        }\n      });\n    }\n  }\n}\n\nreturn processedItems;"
       },
       "id": "192225db-2f52-4af9-8007-90954fe51d4a",
       "name": "Convert Compressed to Base64",
@@ -315,30 +315,16 @@
             {
               "name": "Accept",
               "value": "application/vnd.github.v3+json"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
             }
           ]
         },
         "sendBody": true,
-        "bodyParameters": {
-          "parameters": [
-            {
-              "name": "message",
-              "value": "={{ `Add crypto blog post image: ${$json.imageFilename}` }}"
-            },
-            {
-              "name": "content",
-              "value": "={{ $json.base64Image }}"
-            },
-            {
-              "name": "branch",
-              "value": "main"
-            },
-            {
-              "name": "sha",
-              "value": "={{ $json.imageSha || '' }}"
-            }
-          ]
-        },
+        "specifyBody": "json",
+        "jsonBody": "={{ (() => {\n  // Validate required fields\n  if (!$json.imageFilename) {\n    throw new Error('imageFilename is required');\n  }\n  if (!$json.base64Image) {\n    throw new Error('base64Image is required');\n  }\n  \n  const body = {\n    message: `Add industry blog post image: ${$json.imageFilename}`,\n    content: $json.base64Image,\n    branch: 'main'\n  };\n  \n  // Only include SHA if it exists and is not empty (for updating existing files)\n  if ($json.imageSha && typeof $json.imageSha === 'string' && $json.imageSha.trim() !== '') {\n    body.sha = $json.imageSha.trim();\n  }\n  \n  return JSON.stringify(body);\n})() }}",
         "options": {}
       },
       "id": "62b4244d-a4ae-4567-a37b-efecc8d5c44d",
@@ -392,7 +378,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Extract SHA from GitHub response and merge with compressed image data\n// Receives compressed image from 'Convert Compressed to Base64' as primary input\n// Receives SHA from 'Get Image SHA' as secondary input (or looks it up)\nconst items = $input.all();\nconst processedItems = [];\n\n// Find the compressed image data (from Convert Compressed to Base64)\n// It should have base64Image property\nconst compressedImageItem = items.find(item => item.json && item.json.base64Image) || items[0];\n\n// Get SHA from Get Image SHA node (if it ran)\nlet sha = '';\ntry {\n  const shaItem = $('Get Image SHA').first();\n  // Check if it's a valid item (not an Error object)\n  // Error objects have a 'name' property that's read-only, so check for json property instead\n  if (shaItem && shaItem.json && typeof shaItem.json === 'object' && shaItem.json.sha && typeof shaItem.json.sha === 'string') {\n    sha = shaItem.json.sha;\n  }\n} catch (error) {\n  // Node hasn't executed yet or failed - that's okay, sha will remain empty\n  // This is expected if Get Image SHA runs in parallel and hasn't completed yet\n}\n\n// Use the compressed image data directly from input\nif (compressedImageItem && compressedImageItem.json && compressedImageItem.json.base64Image) {\n  // This is the compressed image - use it!\n  processedItems.push({\n    json: {\n      ...compressedImageItem.json,\n      imageSha: sha\n    }\n  });\n} else {\n  // Fallback: try to get from Convert Compressed to Base64 node\n  let originalItem = null;\n  try {\n    const tempItem = $('Convert Compressed to Base64').first();\n    // Check if it's a valid item (has json property, not an Error)\n    if (tempItem && tempItem.json && typeof tempItem.json === 'object') {\n      originalItem = tempItem;\n    }\n  } catch (error) {\n    // Node not available - that's okay\n    originalItem = null;\n  }\n  if (originalItem && originalItem.json) {\n    processedItems.push({\n      json: {\n        ...originalItem.json,\n        imageSha: sha\n      }\n    });\n  } else {\n    // Last resort - pass through whatever we got\n    items.forEach(item => {\n      processedItems.push({\n        json: {\n          ...item.json,\n          imageSha: sha\n        }\n      });\n    });\n  }\n}\n\nreturn processedItems;"
+        "jsCode": "const shaResponse = $input.first();\n\nlet sha = '';\nif (shaResponse && shaResponse.json) {\n  if (shaResponse.json.sha && typeof shaResponse.json.sha === 'string') {\n    sha = shaResponse.json.sha.trim();\n  }\n}\n\nconst imageItem = $('Convert Compressed to Base64').first();\nif (!imageItem || !imageItem.json || !imageItem.json.base64Image) {\n  throw new Error('No compressed image data found from Convert Compressed to Base64 node.');\n}\n\nreturn [{\n  json: {\n    ...imageItem.json,\n    imageSha: sha\n  }\n}];"
       },
       "id": "561fc895-b1fb-4f69-827b-bfb77631d6ee",
       "name": "Extract Image SHA",
@@ -452,7 +438,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Update markdown frontmatter with image URL\nconst items = $input.all();\nconst processedItems = [];\n\nfor (const item of items) {\n  const title = item.json.title;\n  const slug = item.json.slug;\n  const date = item.json.date;\n  const content = item.json.content;\n  const imageFilename = item.json.imageFilename;\n  \n  // Create image URL (assuming your site is hosted and images are accessible)\n  // Update this URL to match your actual domain\n  const imageUrl = `/images/blog/${imageFilename}`;\n  \n  // Create frontmatter with image\n  const frontmatter = `---\\ntitle: \"${title}\"\\ndate: \"${date}\"\\nslug: \"${slug}\"\\nimage: \"${imageUrl}\"\\ncategory: \"Crypto Roundup\"\\n---\\n\\n`;\n  \n  // Combine frontmatter and content\n  const fullMarkdown = frontmatter + content;\n  \n  // Base64 encode for GitHub API\n  const base64Content = Buffer.from(fullMarkdown, 'utf8').toString('base64');\n  \n  processedItems.push({\n    json: {\n      title: title,\n      slug: slug,\n      date: date,\n      filename: `${slug}.md`,\n      content: content,\n      imageUrl: imageUrl,\n      imageFilename: imageFilename,\n      fullMarkdown: fullMarkdown,\n      base64Content: base64Content,\n      filePath: `content/blog/${slug}.md`\n    }\n  });\n}\n\nreturn processedItems;"
+        "jsCode": "// Update markdown frontmatter with image URL\nconst items = $input.all();\nconst processedItems = [];\n\nfor (const item of items) {\n  const title = item.json.title;\n  const slug = item.json.slug;\n  const date = item.json.date;\n  const content = item.json.content;\n  const imageFilename = item.json.imageFilename;\n  \n  // Create image URL (assuming your site is hosted and images are accessible)\n  // Update this URL to match your actual domain\n  const imageUrl = `/images/blog/${imageFilename}`;\n  \n  // Create frontmatter with image\n  const frontmatter = `---\\ntitle: \"${title}\"\\ndate: \"${date}\"\\nslug: \"${slug}\"\\nimage: \"${imageUrl}\"\\ncategory: \"Industry Updates\"\\n---\\n\\n`;\n  \n  // Combine frontmatter and content\n  const fullMarkdown = frontmatter + content;\n  \n  // Base64 encode for GitHub API\n  const base64Content = Buffer.from(fullMarkdown, 'utf8').toString('base64');\n  \n  processedItems.push({\n    json: {\n      title: title,\n      slug: slug,\n      date: date,\n      filename: `${slug}.md`,\n      content: content,\n      imageUrl: imageUrl,\n      imageFilename: imageFilename,\n      fullMarkdown: fullMarkdown,\n      base64Content: base64Content,\n      filePath: `content/blog/${slug}.md`\n    }\n  });\n}\n\nreturn processedItems;"
       },
       "id": "89330b51-b195-46a3-846e-9d84fc76f8a1",
       "name": "Add Image to Frontmatter",
@@ -475,30 +461,16 @@
             {
               "name": "Accept",
               "value": "application/vnd.github.v3+json"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
             }
           ]
         },
         "sendBody": true,
-        "bodyParameters": {
-          "parameters": [
-            {
-              "name": "message",
-              "value": "={{ `Add crypto roundup blog post: ${$json.title}` }}"
-            },
-            {
-              "name": "content",
-              "value": "={{ $json.base64Content }}"
-            },
-            {
-              "name": "branch",
-              "value": "main"
-            },
-            {
-              "name": "sha",
-              "value": "={{ $json.fileSha || '' }}"
-            }
-          ]
-        },
+        "specifyBody": "json",
+        "jsonBody": "={{ (() => {\n  const body = {\n    message: `Add industry blog post: ${$json.title}`,\n    content: $json.base64Content,\n    branch: 'main'\n  };\n  if ($json.fileSha && $json.fileSha.trim() !== '') {\n    body.sha = $json.fileSha.trim();\n  }\n  return JSON.stringify(body);\n})() }}",
         "options": {}
       },
       "id": "44ab22ea-5d3a-4d5e-b73f-70da70098dc9",
@@ -826,11 +798,6 @@
       "main": [
         [
           {
-            "node": "Extract Image SHA",
-            "type": "main",
-            "index": 0
-          },
-          {
             "node": "Get Image SHA",
             "type": "main",
             "index": 0
@@ -933,13 +900,7 @@
     },
     "Trigger Site Rebuild (Optional)": {
       "main": [
-        [
-          {
-            "node": "Send Success Email",
-            "type": "main",
-            "index": 0
-          }
-        ]
+        []
       ]
     }
   },
