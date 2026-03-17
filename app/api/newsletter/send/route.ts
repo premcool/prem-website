@@ -1,89 +1,47 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getPostBySlug } from '@/lib/posts';
-import { Redis } from '@upstash/redis';
+import { getSubscribers } from '@/lib/redis';
+import { getUnsubscribeUrl } from '@/lib/newsletter';
 import nodemailer from 'nodemailer';
 
-// Use NEXT_PUBLIC_SITE_URL but ensure it's prems.in (not dentalreminder.in or other domains)
 const envUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://prems.in';
-// Force prems.in for newsletter links to ensure correct domain
 const baseUrl = envUrl.includes('prems.in') ? envUrl : 'https://prems.in';
 
-// Warn if wrong domain was detected
 if (envUrl && !envUrl.includes('prems.in')) {
   console.warn(`⚠️  NEXT_PUBLIC_SITE_URL is set to "${envUrl}" but newsletter will use "https://prems.in" for links`);
 }
 
-const SUBSCRIBERS_KEY = 'newsletter:subscribers';
-
-// Initialize Redis client
-function getRedisClient() {
-  // Support both naming conventions for flexibility
-  const url = process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL;
-  const token = process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN;
-
-  if (!url || !token) {
-    throw new Error('UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN (or KV_REST_API_URL and KV_REST_API_TOKEN) must be set');
-  }
-
-  return new Redis({
-    url,
-    token,
-  });
-}
-
-// Get subscribers from Upstash Redis
-async function getSubscribers(): Promise<string[]> {
-  try {
-    const redis = getRedisClient();
-    const subscribers = await redis.smembers(SUBSCRIBERS_KEY);
-    return (subscribers || []).map((s: any) => String(s));
-  } catch (error) {
-    console.error('Error reading subscribers from Redis:', error);
-    return [];
-  }
-}
-
-// Send email using SMTP or Resend API
 async function sendEmail(to: string, subject: string, html: string) {
-  // Check if SMTP is configured (for mailinabox or other SMTP servers)
   const smtpHost = process.env.SMTP_HOST;
   const smtpPort = process.env.SMTP_PORT;
   const smtpUser = process.env.SMTP_USER;
   const smtpPassword = process.env.SMTP_PASSWORD;
   const smtpFrom = process.env.SMTP_FROM_EMAIL || process.env.RESEND_FROM_EMAIL || 'Prem Saktheesh <prem@prems.in>';
 
-  // Use SMTP if configured
   if (smtpHost && smtpPort && smtpUser && smtpPassword) {
-    try {
-      const transporter = nodemailer.createTransport({
-        host: smtpHost,
-        port: parseInt(smtpPort, 10),
-        secure: smtpPort === '465', // true for 465, false for other ports
-        auth: {
-          user: smtpUser,
-          pass: smtpPassword,
-        },
-        // For mailinabox and self-hosted servers, might need to allow self-signed certs
-        tls: {
-          rejectUnauthorized: process.env.SMTP_SECURE !== 'false',
-        },
-      });
+    const transporter = nodemailer.createTransport({
+      host: smtpHost,
+      port: parseInt(smtpPort, 10),
+      secure: smtpPort === '465',
+      auth: {
+        user: smtpUser,
+        pass: smtpPassword,
+      },
+      tls: {
+        rejectUnauthorized: process.env.SMTP_SECURE !== 'false',
+      },
+    });
 
-      const info = await transporter.sendMail({
-        from: smtpFrom,
-        to,
-        subject,
-        html,
-      });
+    const info = await transporter.sendMail({
+      from: smtpFrom,
+      to,
+      subject,
+      html,
+    });
 
-      return { id: info.messageId, success: true };
-    } catch (error: any) {
-      console.error('SMTP error:', error);
-      throw new Error(`SMTP error: ${error.message}`);
-    }
+    return { id: info.messageId, success: true };
   }
 
-  // Fallback to Resend API if SMTP not configured
   const resendApiKey = process.env.RESEND_API_KEY;
   if (!resendApiKey) {
     throw new Error('Email service not configured. Please set SMTP settings or RESEND_API_KEY');
@@ -113,11 +71,18 @@ async function sendEmail(to: string, subject: string, html: string) {
 
 export async function POST(request: NextRequest) {
   try {
-    // Verify webhook secret (optional but recommended)
     const webhookSecret = request.headers.get('x-webhook-secret');
     const expectedSecret = process.env.NEWSLETTER_WEBHOOK_SECRET;
 
-    if (expectedSecret && webhookSecret !== expectedSecret) {
+    if (!expectedSecret) {
+      console.error('NEWSLETTER_WEBHOOK_SECRET is not set. Newsletter send endpoint is disabled for security.');
+      return NextResponse.json(
+        { error: 'Newsletter webhook secret is not configured' },
+        { status: 500 }
+      );
+    }
+
+    if (webhookSecret !== expectedSecret) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
@@ -129,10 +94,7 @@ export async function POST(request: NextRequest) {
 
     let post;
 
-    // If full post data is provided (from n8n), use it directly
-    // Otherwise, fetch by slug from file system
     if (title && content && date && slug) {
-      // Use post data provided directly from n8n workflow
       post = {
         slug,
         title,
@@ -140,12 +102,11 @@ export async function POST(request: NextRequest) {
         category,
         image: image || undefined,
         content,
-        contentHtml: '', // Not needed for email
+        contentHtml: '',
       };
     } else if (slug) {
-      // Fallback: fetch from file system (for backward compatibility)
       post = await getPostBySlug(slug);
-      
+
       if (!post) {
         return NextResponse.json(
           { error: 'Blog post not found. Either provide full post data (title, content, date, slug) or ensure the post exists in the file system.' },
@@ -159,7 +120,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get subscribers
     const subscribers = await getSubscribers();
 
     if (subscribers.length === 0) {
@@ -169,11 +129,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create email content
     const postUrl = `${baseUrl}/blog/${post.slug}`;
     const excerpt = post.content.substring(0, 300).replace(/\n/g, ' ').trim() + '...';
 
-    const emailHtml = `
+    const results = [];
+    for (const email of subscribers) {
+      try {
+        const unsubscribeUrl = getUnsubscribeUrl(email, baseUrl);
+
+        const emailHtml = `
       <!DOCTYPE html>
       <html>
         <head>
@@ -193,20 +157,14 @@ export async function POST(request: NextRequest) {
             <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;" />
             <p style="color: #6b7280; font-size: 12px; margin: 0;">
               You're receiving this because you subscribed to Prem Saktheesh's newsletter.<br>
-              <a href="${baseUrl}/unsubscribe?email={{email}}" style="color: #3B82F6;">Unsubscribe</a>
+              <a href="${unsubscribeUrl}" style="color: #3B82F6;">Unsubscribe</a>
             </p>
           </div>
         </body>
       </html>
     `;
 
-    // Send emails to all subscribers
-    const results = [];
-    for (const email of subscribers) {
-      try {
-        // Replace {{email}} placeholder with actual email for unsubscribe link
-        const personalizedHtml = emailHtml.replace(/\{\{email\}\}/g, encodeURIComponent(email));
-        await sendEmail(email, `New Blog Post: ${post.title}`, personalizedHtml);
+        await sendEmail(email, `New Blog Post: ${post.title}`, emailHtml);
         results.push({ email, status: 'success' });
       } catch (error) {
         console.error(`Error sending email to ${email}:`, error);

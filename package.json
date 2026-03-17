@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "rebuild-and-newsletter": "node scripts/rebuild-and-send-newsletter.js"
+    "rebuild-and-newsletter": "node scripts/rebuild-and-send-newsletter.js",
+    "validate:posts": "node test-parse.js"
   },
   "dependencies": {
     "next": "^14.2.0",

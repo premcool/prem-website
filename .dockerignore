@@ -14,5 +14,8 @@ yarn-error.log*
 .idea
 *.tsbuildinfo
 next-env.d.ts
-n8n-workflow.json
+n8n-*.json
 n8n-workflow-setup.md
+newsletter-integration.md
+VPS-SETUP.md
+test-parse.js

@@ -1,13 +1,11 @@
 import { MetadataRoute } from 'next';
-import { getAllPostSlugs } from '@/lib/posts';
+import { getAllPosts } from '@/lib/posts';
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://prems.in';
-  
-  // Get all blog post slugs
-  const blogSlugs = getAllPostSlugs();
-  
-  // Static pages
+
+  const posts = getAllPosts();
+
   const staticPages: MetadataRoute.Sitemap = [
     {
       url: baseUrl,
@@ -29,19 +27,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
     {
       url: `${baseUrl}/blog`,
-      lastModified: new Date(),
+      lastModified: posts.length > 0 ? new Date(posts[0].date) : new Date(),
       changeFrequency: 'weekly',
       priority: 0.8,
     },
   ];
-  
-  // Blog post pages
-  const blogPages: MetadataRoute.Sitemap = blogSlugs.map((slug) => ({
-    url: `${baseUrl}/blog/${slug}`,
-    lastModified: new Date(),
+
+  const blogPages: MetadataRoute.Sitemap = posts.map((post) => ({
+    url: `${baseUrl}/blog/${post.slug}`,
+    lastModified: new Date(post.date),
     changeFrequency: 'monthly',
     priority: 0.7,
   }));
-  
+
   return [...staticPages, ...blogPages];
 }

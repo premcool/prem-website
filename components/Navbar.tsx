@@ -4,6 +4,8 @@ import { useState } from 'react';
 import Link from 'next/link';
 import Logo from './Logo';
 
+const MOBILE_MENU_ID = 'mobile-navigation-menu';
+
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -23,12 +25,11 @@ export default function Navbar() {
   ];
 
   return (
-    <nav className="border-b border-slate-800 sticky top-0 z-50 bg-slate-900/95 backdrop-blur-sm">
+    <nav className="border-b border-slate-800 sticky top-0 z-50 bg-slate-900/95 backdrop-blur-sm" aria-label="Main navigation">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <Logo />
           
-          {/* Desktop Menu */}
           <div className="hidden md:flex space-x-8">
             {navLinks.map((link) => (
               <Link
@@ -41,12 +42,12 @@ export default function Navbar() {
             ))}
           </div>
 
-          {/* Mobile Menu Button */}
           <button
             onClick={toggleMenu}
             className="md:hidden p-2 rounded-md text-slate-300 hover:text-white hover:bg-slate-800 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
-            aria-label="Toggle menu"
+            aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
             aria-expanded={isMenuOpen}
+            aria-controls={MOBILE_MENU_ID}
           >
             <svg
               className="w-6 h-6"
@@ -56,6 +57,7 @@ export default function Navbar() {
               strokeWidth="2"
               viewBox="0 0 24 24"
               stroke="currentColor"
+              aria-hidden="true"
             >
               {isMenuOpen ? (
                 <path d="M6 18L18 6M6 6l12 12" />
@@ -66,8 +68,10 @@ export default function Navbar() {
           </button>
         </div>
 
-        {/* Mobile Menu */}
         <div
+          id={MOBILE_MENU_ID}
+          role="navigation"
+          aria-label="Mobile navigation"
           className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out ${
             isMenuOpen ? 'max-h-64 opacity-100' : 'max-h-0 opacity-0'
           }`}

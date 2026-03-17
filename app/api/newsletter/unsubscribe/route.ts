@@ -1,58 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { Redis } from '@upstash/redis';
+import { removeSubscriber } from '@/lib/redis';
+import { verifyUnsubscribeToken } from '@/lib/newsletter';
 
-const SUBSCRIBERS_KEY = 'newsletter:subscribers';
-
-// Initialize Redis client
-function getRedisClient() {
-  // Support both naming conventions for flexibility
-  const url = process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL;
-  const token = process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN;
-
-  if (!url || !token) {
-    throw new Error('UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN (or KV_REST_API_URL and KV_REST_API_TOKEN) must be set');
-  }
-
-  return new Redis({
-    url,
-    token,
-  });
-}
-
-// Remove subscriber from Upstash Redis
-async function removeSubscriber(email: string): Promise<boolean> {
+export async function POST(request: NextRequest) {
   try {
-    const redis = getRedisClient();
-    
-    // Check if exists
-    const exists = await redis.sismember(SUBSCRIBERS_KEY, email);
-    if (exists !== 1) {
-      return false; // Not found
+    const { email, token } = await request.json();
+
+    if (!email || !token) {
+      return NextResponse.json(
+        { error: 'Email and token are required' },
+        { status: 400 }
+      );
     }
 
-    // Remove from set
-    await redis.srem(SUBSCRIBERS_KEY, email);
-    return true;
-  } catch (error) {
-    console.error('Error removing subscriber from Redis:', error);
-    throw error;
-  }
-}
+    const normalizedEmail = decodeURIComponent(email).toLowerCase().trim();
 
-export async function GET(request: NextRequest) {
-  const searchParams = request.nextUrl.searchParams;
-  const email = searchParams.get('email');
+    if (!verifyUnsubscribeToken(normalizedEmail, token)) {
+      return NextResponse.json(
+        { error: 'Invalid unsubscribe token' },
+        { status: 403 }
+      );
+    }
 
-  if (!email) {
-    return NextResponse.json(
-      { error: 'Email parameter is required' },
-      { status: 400 }
-    );
-  }
-
-  const normalizedEmail = decodeURIComponent(email).toLowerCase().trim();
-
-  try {
     const removed = await removeSubscriber(normalizedEmail);
 
     if (!removed) {
@@ -66,14 +35,15 @@ export async function GET(request: NextRequest) {
       { message: 'Successfully unsubscribed from newsletter' },
       { status: 200 }
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error unsubscribing from newsletter:', error);
 
-    const hasRedisConfig = (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) ||
-                           (process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN);
-    
-    if (error.message?.includes('must be set') || !hasRedisConfig) {
-      console.error('Upstash Redis is not configured. Please set UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN environment variables.');
+    const message = error instanceof Error ? error.message : '';
+    const hasRedisConfig =
+      (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) ||
+      (process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN);
+
+    if (message.includes('not configured') || !hasRedisConfig) {
       return NextResponse.json(
         { error: 'Newsletter service is not configured. Please contact the administrator.' },
         { status: 500 }

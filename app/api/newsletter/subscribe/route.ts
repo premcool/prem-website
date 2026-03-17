@@ -1,61 +1,32 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { Redis } from '@upstash/redis';
-
-const SUBSCRIBERS_KEY = 'newsletter:subscribers';
-
-// Initialize Redis client
-function getRedisClient() {
-  // Support both naming conventions for flexibility
-  const url = process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL;
-  const token = process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN;
-
-  if (!url || !token) {
-    throw new Error('UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN (or KV_REST_API_URL and KV_REST_API_TOKEN) must be set');
-  }
-
-  return new Redis({
-    url,
-    token,
-  });
-}
-
-// Get subscribers from Upstash Redis
-async function getSubscribers(): Promise<string[]> {
-  try {
-    const redis = getRedisClient();
-    const subscribers = await redis.smembers(SUBSCRIBERS_KEY);
-    return (subscribers || []).map((s: any) => String(s));
-  } catch (error) {
-    console.error('Error reading subscribers from Redis:', error);
-    return [];
-  }
-}
-
-// Add subscriber to Upstash Redis
-async function addSubscriber(email: string): Promise<boolean> {
-  try {
-    const redis = getRedisClient();
-    
-    // Check if already exists
-    const exists = await redis.sismember(SUBSCRIBERS_KEY, email);
-    if (exists === 1) {
-      return false; // Already exists
-    }
-
-    // Add to set
-    await redis.sadd(SUBSCRIBERS_KEY, email);
-    return true;
-  } catch (error) {
-    console.error('Error adding subscriber to Redis:', error);
-    throw error;
-  }
-}
+import { addSubscriber, checkRateLimit } from '@/lib/redis';
+import { EMAIL_REGEX, getClientIp } from '@/lib/newsletter';
 
 export async function POST(request: NextRequest) {
   try {
+    const clientIp = getClientIp(request);
+
+    try {
+      const { allowed, remaining } = await checkRateLimit(`subscribe:${clientIp}`, 5, 60);
+      if (!allowed) {
+        return NextResponse.json(
+          { error: 'Too many requests. Please try again later.' },
+          {
+            status: 429,
+            headers: {
+              'Retry-After': '60',
+              'X-RateLimit-Remaining': String(remaining),
+            },
+          }
+        );
+      }
+    } catch (error) {
+      console.warn('Rate limit check failed, allowing request:', error);
+    }
+
     const { email } = await request.json();
 
-    if (!email || !email.includes('@')) {
+    if (!email || !EMAIL_REGEX.test(email)) {
       return NextResponse.json(
         { error: 'Valid email address is required' },
         { status: 400 }
@@ -63,43 +34,34 @@ export async function POST(request: NextRequest) {
     }
 
     const normalizedEmail = email.toLowerCase().trim();
+    const added = await addSubscriber(normalizedEmail);
 
-    try {
-      const added = await addSubscriber(normalizedEmail);
-      
-      if (!added) {
-        return NextResponse.json(
-          { message: 'You are already subscribed!' },
-          { status: 200 }
-        );
-      }
-
+    if (!added) {
       return NextResponse.json(
-        { message: 'Successfully subscribed to newsletter!' },
+        { message: 'You are already subscribed!' },
         { status: 200 }
       );
-    } catch (error: any) {
-      console.error('Error subscribing to newsletter:', error);
-      
-      // Check if Redis is configured
-      const hasRedisConfig = (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) ||
-                             (process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN);
-      
-      if (error.message?.includes('must be set') || !hasRedisConfig) {
-        console.error('Upstash Redis is not configured. Please set UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN environment variables.');
-        return NextResponse.json(
-          { error: 'Newsletter service is not configured. Please contact the administrator.' },
-          { status: 500 }
-        );
-      }
-      
+    }
+
+    return NextResponse.json(
+      { message: 'Successfully subscribed to newsletter!' },
+      { status: 200 }
+    );
+  } catch (error: unknown) {
+    console.error('Error processing subscription request:', error);
+
+    const message = error instanceof Error ? error.message : '';
+    const hasRedisConfig =
+      (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) ||
+      (process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN);
+
+    if (message.includes('not configured') || !hasRedisConfig) {
       return NextResponse.json(
-        { error: 'Failed to subscribe. Please try again later.' },
+        { error: 'Newsletter service is not configured. Please contact the administrator.' },
         { status: 500 }
       );
     }
-  } catch (error) {
-    console.error('Error processing subscription request:', error);
+
     return NextResponse.json(
       { error: 'Failed to subscribe. Please try again later.' },
       { status: 500 }

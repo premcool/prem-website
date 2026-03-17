@@ -84,15 +84,18 @@ export function getAllPosts(): Post[] {
             return null;
           }
 
-          // Combine the data with the slug
+          const image = data.image && fs.existsSync(path.join(process.cwd(), 'public', data.image))
+            ? data.image
+            : undefined;
+
           const post: Post = {
             slug,
             title: data.title,
             date: data.date,
             category: data.category,
-            image: data.image,
+            image,
             content: matterResult.content,
-            contentHtml: '', // Will be populated when needed
+            contentHtml: '',
           };
           return post;
         } catch (error) {

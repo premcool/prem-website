@@ -19,7 +19,7 @@
 .DS_Store
 *.pem
 
-# newsletter subscribers data
+# newsletter subscribers data (legacy, now using Redis)
 /data/newsletter-subscribers.json
 
 # debug
@@ -36,6 +36,3 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-
-# newsletter subscribers data
-/data/newsletter-subscribers.json

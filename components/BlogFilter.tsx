@@ -21,11 +21,11 @@ export default function BlogFilter({ posts, categories }: BlogFilterProps) {
 
   return (
     <>
-      {/* Category Filter */}
       {categories.length > 0 && (
-        <div className="flex flex-wrap gap-2 mb-8">
+        <div className="flex flex-wrap gap-2 mb-8" role="group" aria-label="Filter posts by category">
           <button
             onClick={() => setSelectedCategory('All')}
+            aria-pressed={selectedCategory === 'All'}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
               selectedCategory === 'All'
                 ? 'bg-blue-600 text-white'
@@ -38,6 +38,7 @@ export default function BlogFilter({ posts, categories }: BlogFilterProps) {
             <button
               key={category}
               onClick={() => setSelectedCategory(category)}
+              aria-pressed={selectedCategory === category}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                 selectedCategory === category
                   ? 'bg-blue-600 text-white'

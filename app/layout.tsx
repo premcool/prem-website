@@ -51,20 +51,11 @@ export const metadata: Metadata = {
     siteName: 'Prem Saktheesh',
     title: 'Prem Saktheesh - AI & Cloud Transformation Leader',
     description: '26+ years leading $35M portfolios, 300+ global teams, and $100M+ modernization programs across Tier-1 financial institutions.',
-    images: [
-      {
-        url: `${baseUrl}/og-image.jpg`,
-        width: 1200,
-        height: 630,
-        alt: 'Prem Saktheesh - AI & Cloud Transformation Leader',
-      },
-    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Prem Saktheesh - AI & Cloud Transformation Leader',
     description: '26+ years leading $35M portfolios, 300+ global teams, and $100M+ modernization programs.',
-    images: [`${baseUrl}/og-image.jpg`],
     creator: '@prems',
   },
   robots: {
@@ -89,14 +80,10 @@ export const metadata: Metadata = {
       { url: '/favicon.svg', type: 'image/svg+xml' },
       { url: '/favicon.ico', sizes: 'any' },
     ],
-    apple: [
-      { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
-    ],
     other: [
       { rel: 'mask-icon', url: '/safari-pinned-tab.svg', color: '#3B82F6' },
     ],
   },
-  manifest: `${baseUrl}/site.webmanifest`,
 };
 
 export default function RootLayout({
