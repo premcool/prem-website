@@ -10,6 +10,13 @@
 # - NEWSLETTER_WEBHOOK_SECRET (optional)
 # - UPSTASH_REDIS_REST_URL
 # - UPSTASH_REDIS_REST_TOKEN
+#
+# Node: cron's PATH often lacks nvm. Optionally set NODE_BIN to a full path
+# (e.g. /home/you/.nvm/versions/node/v20.10.0/bin/node). Otherwise ~/.nvm/nvm.sh
+# is sourced when present. Node 18+ is required.
+#
+# Logging: this script appends to LOG_FILE. If cron also redirects stdout to the
+# same file, you get duplicate lines—prefer: 0 1 * * * /path/to/rebuild-prem-website.sh
 
 # Get the directory where this script is located
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -21,9 +28,14 @@ cd "$PROJECT_DIR" || exit 1
 # Log file location (optional, can be overridden)
 LOG_FILE="${LOG_FILE:-/var/log/prem-website-rebuild.log}"
 
-# Function to log messages
+# Log to file; echo to stdout only when interactive (avoids duplicate lines when
+# cron does >> "$LOG_FILE" while we also write the same file)
 log() {
-    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" | tee -a "$LOG_FILE"
+    local line="[$(date '+%Y-%m-%d %H:%M:%S')] $1"
+    echo "$line" >> "$LOG_FILE"
+    if [ -t 1 ]; then
+        echo "$line"
+    fi
 }
 
 # Load environment variables if .env file exists
@@ -36,11 +48,7 @@ if [ -f .env.premwebsite ]; then
     log "Loaded environment variables from .env.premwebsite (project directory)"
 elif [ -f /home/.env.premwebsite ]; then
     set -a
-    # Source with error suppression - syntax errors will be logged but won't stop execution
-    if source /home/.env.premwebsite 2>&1 | grep -q "error\|Error\|syntax"; then
-        log "⚠️  Warning: Some errors detected in /home/.env.premwebsite (check line 20)"
-        log "   Attempting to load anyway..."
-    fi
+    # Single source in this shell (do not pipe source — that runs in a subshell)
     source /home/.env.premwebsite 2>/dev/null || true
     set +a
     log "Loaded environment variables from /home/.env.premwebsite"
@@ -66,6 +74,37 @@ log "=========================================="
 log "Starting Prem Website Rebuild Process"
 log "=========================================="
 
+# Resolve Node.js 18+ (cron PATH is minimal; nvm is not loaded by default)
+NODE=""
+if [ -n "${NODE_BIN:-}" ] && [ -x "$NODE_BIN" ]; then
+    NODE="$NODE_BIN"
+elif [ -s "${NVM_DIR:-$HOME/.nvm}/nvm.sh" ]; then
+    export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
+    # shellcheck source=/dev/null
+    . "$NVM_DIR/nvm.sh"
+    # Sourcing nvm does not always activate a version in non-interactive shells
+    if type nvm >/dev/null 2>&1; then
+        nvm use default >/dev/null 2>&1 || nvm use node >/dev/null 2>&1 || true
+    fi
+    NODE="$(command -v node)"
+else
+    NODE="$(command -v node)"
+fi
+
+if [ -z "$NODE" ] || [ ! -x "$NODE" ]; then
+    log "ERROR: node not found. Install Node 18+ or set NODE_BIN to the full path."
+    exit 1
+fi
+
+NODE_RAW="$("$NODE" -v 2>/dev/null || true)"
+NODE_MAJOR="${NODE_RAW#v}"
+NODE_MAJOR="${NODE_MAJOR%%.*}"
+if ! [[ "$NODE_MAJOR" =~ ^[0-9]+$ ]] || [ "$NODE_MAJOR" -lt 18 ]; then
+    log "ERROR: Node.js 18+ required (found: ${NODE_RAW:-none}). Set NODE_BIN or use nvm install 20 && nvm alias default 20"
+    exit 1
+fi
+log "Using Node $NODE_RAW ($NODE)"
+
 # Call the Node.js script which handles everything:
 # - Git pull
 # - Rebuild
@@ -76,7 +115,7 @@ if env NEWSLETTER_WEBHOOK_SECRET="$NEWSLETTER_WEBHOOK_SECRET" \
        NEXT_PUBLIC_SITE_URL="$NEXT_PUBLIC_SITE_URL" \
        UPSTASH_REDIS_REST_URL="$UPSTASH_REDIS_REST_URL" \
        UPSTASH_REDIS_REST_TOKEN="$UPSTASH_REDIS_REST_TOKEN" \
-       node scripts/rebuild-and-send-newsletter.js >> "$LOG_FILE" 2>&1; then
+       "$NODE" scripts/rebuild-and-send-newsletter.js >> "$LOG_FILE" 2>&1; then
     log "✅ Rebuild and newsletter process completed successfully"
 else
     log "❌ Process failed - check logs for details"
