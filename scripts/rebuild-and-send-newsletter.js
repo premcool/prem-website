@@ -18,6 +18,10 @@
  * - PREM_WEBSITE_GIT_REMOTE (optional, default: origin)
  * - PREM_WEBSITE_GIT_RESET_HARD=1 (optional) — after fetch, git reset --hard to match
  *   remote exactly (use on deploy servers with no local commits to keep)
+ * - PREM_WEBSITE_RUN_MODE (optional):
+ *   - full (default) — git sync, npm build, then send newsletters (use when not using Docker in deploy)
+ *   - build — only git sync + npm build (no emails)
+ *   - newsletter — only detect new posts and send (run after the live site is updated, e.g. after Docker)
  *
  * Requires Node.js 18+ for native fetch support
  */
@@ -255,12 +259,7 @@ function sendNewsletter(postData) {
   });
 }
 
-// Main function
-async function main() {
-  console.log('🚀 Starting rebuild and newsletter process...\n');
-  console.log(`📁 Working directory: ${process.cwd()}\n`);
-
-
+function runSyncAndBuild() {
   // Step 1: Sync with remote (explicit merge strategy avoids Git 2.27+ "divergent branches" fatal)
   const gitBranch = process.env.PREM_WEBSITE_GIT_BRANCH || 'main';
   const gitRemote = process.env.PREM_WEBSITE_GIT_REMOTE || 'origin';
@@ -291,16 +290,16 @@ async function main() {
   // Step 2: Rebuild Next.js site
   let buildAttempts = 0;
   const maxBuildAttempts = 2;
-  
+
   while (buildAttempts < maxBuildAttempts) {
     try {
       console.log('🔨 Rebuilding Next.js site...');
       execSync('npm run build', { stdio: 'inherit', cwd: projectRoot });
       console.log('✅ Site rebuilt successfully\n');
-      break; // Success, exit loop
+      break;
     } catch (error) {
       buildAttempts++;
-      
+
       if (buildAttempts >= maxBuildAttempts) {
         console.error('❌ Build failed after', maxBuildAttempts, 'attempts');
         console.error('   Error:', error.message);
@@ -310,11 +309,9 @@ async function main() {
         console.error('   npm install');
         process.exit(1);
       }
-      
-      // If first attempt failed, try cleaning and reinstalling
+
       console.warn('⚠️  Build failed. Cleaning and reinstalling dependencies...');
       try {
-        // Remove node_modules and package-lock.json
         if (fs.existsSync(path.join(projectRoot, 'node_modules'))) {
           console.log('   Removing node_modules...');
           execSync('rm -rf node_modules', { stdio: 'inherit', cwd: projectRoot });
@@ -323,7 +320,7 @@ async function main() {
           console.log('   Removing package-lock.json...');
           execSync('rm -f package-lock.json', { stdio: 'inherit', cwd: projectRoot });
         }
-        
+
         console.log('   Installing fresh dependencies...');
         execSync('npm install', { stdio: 'inherit', cwd: projectRoot });
         console.log('✅ Dependencies reinstalled, retrying build...\n');
@@ -333,8 +330,10 @@ async function main() {
       }
     }
   }
+}
 
-  // Step 3: Detect new blog posts and send newsletters
+async function runNewsletterPhase() {
+  // Detect new blog posts and send newsletters
   console.log('📧 Checking for new blog posts to send newsletters...');
   
   // Debug: Check if webhook secret is loaded
@@ -422,6 +421,35 @@ async function main() {
     console.log(`   ❌ Failed: ${errorCount}`);
   }
   console.log('');
+}
+
+// Main function
+async function main() {
+  const mode = (process.env.PREM_WEBSITE_RUN_MODE || 'full').toLowerCase();
+  const doBuild = mode === 'full' || mode === 'build';
+  const doNewsletter = mode === 'full' || mode === 'newsletter';
+
+  if (mode !== 'full' && mode !== 'build' && mode !== 'newsletter') {
+    console.error(`❌ Invalid PREM_WEBSITE_RUN_MODE="${process.env.PREM_WEBSITE_RUN_MODE}". Use full, build, or newsletter.`);
+    process.exit(1);
+  }
+
+  if (doBuild && doNewsletter) {
+    console.log('🚀 Starting rebuild and newsletter process...\n');
+  } else if (doBuild) {
+    console.log('🚀 Starting rebuild (build-only, no newsletters yet)...\n');
+  } else {
+    console.log('🚀 Starting newsletter send (newsletter-only)...\n');
+  }
+  console.log(`📁 Working directory: ${process.cwd()}\n`);
+
+  if (doBuild) {
+    runSyncAndBuild();
+  }
+
+  if (doNewsletter) {
+    await runNewsletterPhase();
+  }
 }
 
 // Run the script

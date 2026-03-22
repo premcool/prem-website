@@ -13,6 +13,7 @@
 # Optional (see scripts/rebuild-and-send-newsletter.js):
 # - PREM_WEBSITE_GIT_RESET_HARD=1 — force clone to match origin/main (drops local server commits)
 # - PREM_WEBSITE_GIT_BRANCH / PREM_WEBSITE_GIT_REMOTE — non-default branch or remote name
+# - PREM_WEBSITE_NEWSLETTER_DELAY_SEC — seconds to wait after Docker starts before sending email (default: 8)
 #
 # Node: cron's PATH often lacks nvm. Optionally set NODE_BIN to a full path
 # (e.g. /home/you/.nvm/versions/node/v20.10.0/bin/node). Otherwise ~/.nvm/nvm.sh
@@ -108,26 +109,30 @@ if ! [[ "$NODE_MAJOR" =~ ^[0-9]+$ ]] || [ "$NODE_MAJOR" -lt 18 ]; then
 fi
 log "Using Node $NODE_RAW ($NODE)"
 
-# Call the Node.js script which handles everything:
-# - Git pull
-# - Rebuild
-# - Newsletter sending
-# Pass environment variables explicitly to ensure they're available to Node.js
-log "Running rebuild and newsletter script..."
-if env NEWSLETTER_WEBHOOK_SECRET="$NEWSLETTER_WEBHOOK_SECRET" \
-       NEXT_PUBLIC_SITE_URL="$NEXT_PUBLIC_SITE_URL" \
-       UPSTASH_REDIS_REST_URL="$UPSTASH_REDIS_REST_URL" \
-       UPSTASH_REDIS_REST_TOKEN="$UPSTASH_REDIS_REST_TOKEN" \
-       "$NODE" scripts/rebuild-and-send-newsletter.js >> "$LOG_FILE" 2>&1; then
-    log "✅ Rebuild and newsletter process completed successfully"
+# Node script env (explicit + inherited PREM_WEBSITE_* git vars from .env)
+invoke_rebuild_js() {
+    local run_mode="$1"
+    env PREM_WEBSITE_RUN_MODE="$run_mode" \
+        NEWSLETTER_WEBHOOK_SECRET="$NEWSLETTER_WEBHOOK_SECRET" \
+        NEXT_PUBLIC_SITE_URL="$NEXT_PUBLIC_SITE_URL" \
+        UPSTASH_REDIS_REST_URL="$UPSTASH_REDIS_REST_URL" \
+        UPSTASH_REDIS_REST_TOKEN="$UPSTASH_REDIS_REST_TOKEN" \
+        "$NODE" scripts/rebuild-and-send-newsletter.js >> "$LOG_FILE" 2>&1
+}
+
+# Phase 1: git sync + host npm build (emails run only after Docker is up — phase 2)
+log "Phase 1: Git sync and Next.js build (newsletters deferred until after deploy)..."
+if invoke_rebuild_js build; then
+    log "✅ Phase 1 completed"
 else
-    log "❌ Process failed - check logs for details"
+    log "❌ Phase 1 failed — check logs"
     exit 1
 fi
 
 # Docker container management
 # Check if docker-compose is available and if we're in a directory with docker-compose.yml
 SERVICE_NAME="prem-website"
+DOCKER_RAN=0
 if command -v docker-compose >/dev/null 2>&1 || command -v docker >/dev/null 2>&1; then
     # Determine which command to use
     if command -v docker-compose >/dev/null 2>&1; then
@@ -178,7 +183,8 @@ if command -v docker-compose >/dev/null 2>&1 || command -v docker >/dev/null 2>&
         }
         
         log "✅ Docker container rebuilt and started successfully"
-        
+        DOCKER_RAN=1
+
         # Return to project directory
         cd "$PROJECT_DIR" || exit 1
     else
@@ -187,6 +193,25 @@ if command -v docker-compose >/dev/null 2>&1 || command -v docker >/dev/null 2>&
     fi
 else
     log "⚠️  Docker/Docker Compose not available, skipping container rebuild"
+fi
+
+cd "$PROJECT_DIR" || exit 1
+
+# Phase 2: newsletters hit the live URL — run only after the new container is serving traffic
+if [ "$DOCKER_RAN" -eq 1 ]; then
+    DELAY="${PREM_WEBSITE_NEWSLETTER_DELAY_SEC:-8}"
+    log "Waiting ${DELAY}s for the app to listen before sending newsletters..."
+    sleep "$DELAY"
+else
+    log "⚠️  Docker was not rebuilt this run; newsletters still run (ensure the live site is already updated)."
+fi
+
+log "Phase 2: Newsletter send (subscribers get links to the deployed site)..."
+if invoke_rebuild_js newsletter; then
+    log "✅ Phase 2 completed"
+else
+    log "❌ Phase 2 failed — check logs"
+    exit 1
 fi
 
 log "=========================================="
