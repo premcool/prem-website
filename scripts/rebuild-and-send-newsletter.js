@@ -14,7 +14,11 @@
  * - NEWSLETTER_WEBHOOK_SECRET (optional but recommended)
  * - UPSTASH_REDIS_REST_URL (for tracking sent newsletters)
  * - UPSTASH_REDIS_REST_TOKEN (for tracking sent newsletters)
- * 
+ * - PREM_WEBSITE_GIT_BRANCH (optional, default: main)
+ * - PREM_WEBSITE_GIT_REMOTE (optional, default: origin)
+ * - PREM_WEBSITE_GIT_RESET_HARD=1 (optional) — after fetch, git reset --hard to match
+ *   remote exactly (use on deploy servers with no local commits to keep)
+ *
  * Requires Node.js 18+ for native fetch support
  */
 
@@ -135,9 +139,19 @@ async function markNewsletterSent(redis, slug) {
   }
 }
 
-// Extract slug from markdown file
-function getSlugFromFile(filePath) {
+// Canonical slug for Redis + API: frontmatter slug when set, else filename (matches readBlogPost)
+function getCanonicalSlugForPostFile(filePath) {
   const fileName = path.basename(filePath, '.md');
+  try {
+    const matter = require('gray-matter');
+    const result = matter(fs.readFileSync(filePath, 'utf8'));
+    const fromMatter = result.data.slug;
+    if (fromMatter != null && String(fromMatter).trim() !== '') {
+      return String(fromMatter).trim();
+    }
+  } catch {
+    // missing/invalid frontmatter — use filename
+  }
   return fileName;
 }
 
@@ -151,11 +165,14 @@ function getAllBlogPosts() {
     const files = fs.readdirSync(postsDirectory);
     return files
       .filter(file => file.endsWith('.md'))
-      .map(file => ({
-        slug: getSlugFromFile(file),
-        path: path.join(postsDirectory, file),
-        mtime: fs.statSync(path.join(postsDirectory, file)).mtime,
-      }));
+      .map(file => {
+        const fullPath = path.join(postsDirectory, file);
+        return {
+          slug: getCanonicalSlugForPostFile(fullPath),
+          path: fullPath,
+          mtime: fs.statSync(fullPath).mtime,
+        };
+      });
   } catch (error) {
     console.error('Error reading blog posts directory:', error);
     return [];
@@ -244,13 +261,31 @@ async function main() {
   console.log(`📁 Working directory: ${process.cwd()}\n`);
 
 
-  // Step 1: Pull latest changes (if in git repo)
+  // Step 1: Sync with remote (explicit merge strategy avoids Git 2.27+ "divergent branches" fatal)
+  const gitBranch = process.env.PREM_WEBSITE_GIT_BRANCH || 'main';
+  const gitRemote = process.env.PREM_WEBSITE_GIT_REMOTE || 'origin';
+  const gitResetHard = process.env.PREM_WEBSITE_GIT_RESET_HARD === '1';
+
   try {
-    console.log('📥 Pulling latest changes from GitHub...');
-    execSync('git pull origin main', { stdio: 'inherit', cwd: projectRoot });
-    console.log('✅ Latest changes pulled\n');
+    console.log('📥 Syncing repository with GitHub...');
+    if (gitResetHard) {
+      execSync(`git fetch ${gitRemote}`, { stdio: 'inherit', cwd: projectRoot });
+      execSync(`git reset --hard ${gitRemote}/${gitBranch}`, {
+        stdio: 'inherit',
+        cwd: projectRoot,
+      });
+    } else {
+      execSync(`git pull --no-rebase ${gitRemote} ${gitBranch}`, {
+        stdio: 'inherit',
+        cwd: projectRoot,
+      });
+    }
+    console.log('✅ Repository is up to date\n');
   } catch (error) {
-    console.warn('⚠️  Could not pull from git (not a git repo or no changes):', error.message);
+    console.warn('⚠️  Git sync failed — build and newsletters use whatever is already on disk.');
+    console.warn('   Error:', error.message);
+    console.warn('   If this server should always match GitHub: fix merge conflicts, or set');
+    console.warn('   PREM_WEBSITE_GIT_RESET_HARD=1 (discards local commits on this clone).');
   }
 
   // Step 2: Rebuild Next.js site

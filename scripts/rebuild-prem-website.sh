@@ -10,6 +10,9 @@
 # - NEWSLETTER_WEBHOOK_SECRET (optional)
 # - UPSTASH_REDIS_REST_URL
 # - UPSTASH_REDIS_REST_TOKEN
+# Optional (see scripts/rebuild-and-send-newsletter.js):
+# - PREM_WEBSITE_GIT_RESET_HARD=1 — force clone to match origin/main (drops local server commits)
+# - PREM_WEBSITE_GIT_BRANCH / PREM_WEBSITE_GIT_REMOTE — non-default branch or remote name
 #
 # Node: cron's PATH often lacks nvm. Optionally set NODE_BIN to a full path
 # (e.g. /home/you/.nvm/versions/node/v20.10.0/bin/node). Otherwise ~/.nvm/nvm.sh
