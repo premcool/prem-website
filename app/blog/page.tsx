@@ -3,8 +3,8 @@ import Section from '@/components/Section';
 import BlogFilter from '@/components/BlogFilter';
 import type { Metadata } from 'next';
 
-export const dynamic = process.env.NODE_ENV === 'development' ? 'force-dynamic' : 'auto';
-export const revalidate = process.env.NODE_ENV === 'development' ? 0 : 3600;
+// Always read posts from disk at request time so new markdown appears without waiting on ISR.
+export const dynamic = 'force-dynamic';
 
 const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://prems.in';
 

@@ -385,11 +385,14 @@ async function main() {
       }
       
       const result = await sendNewsletter(postData);
-      
-      // Mark as sent only if successful
-      await markNewsletterSent(redis, post.slug);
-      
-      console.log(`   ✅ Newsletter sent to ${result.success || 0} subscribers`);
+
+      const nSent = typeof result.success === 'number' ? result.success : 0;
+      // API also SADDs to Redis when emails succeed; keep script-side mark for older deploys or same-Redis backup
+      if (nSent > 0) {
+        await markNewsletterSent(redis, post.slug);
+      }
+
+      console.log(`   ✅ Newsletter sent to ${nSent} subscribers`);
       successCount++;
     } catch (error) {
       console.error(`   ❌ Failed to send newsletter: ${error.message}`);

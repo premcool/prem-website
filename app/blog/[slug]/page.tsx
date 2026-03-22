@@ -7,9 +7,8 @@ import type { Metadata } from 'next';
 
 const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://prems.in';
 
-// Force dynamic rendering in development, use ISR in production
-export const dynamic = process.env.NODE_ENV === 'development' ? 'force-dynamic' : 'auto';
-export const revalidate = process.env.NODE_ENV === 'development' ? 0 : 3600;
+// Match /blog listing: render from current content on disk (avoids stale post pages after deploy).
+export const dynamic = 'force-dynamic';
 
 interface BlogPostProps {
   params: Promise<{ slug: string }>;

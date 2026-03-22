@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getPostBySlug } from '@/lib/posts';
-import { getSubscribers } from '@/lib/redis';
+import { getSubscribers, markNewsletterPostSent } from '@/lib/redis';
 import { getUnsubscribeUrl } from '@/lib/newsletter';
 import nodemailer from 'nodemailer';
 
@@ -174,6 +174,10 @@ export async function POST(request: NextRequest) {
 
     const successCount = results.filter((r) => r.status === 'success').length;
     const errorCount = results.filter((r) => r.status === 'error').length;
+
+    if (successCount > 0) {
+      await markNewsletterPostSent(post.slug);
+    }
 
     return NextResponse.json({
       message: `Newsletter sent to ${successCount} subscribers`,

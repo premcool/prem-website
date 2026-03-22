@@ -1,6 +1,8 @@
 import { Redis } from '@upstash/redis';
 
 const SUBSCRIBERS_KEY = 'newsletter:subscribers';
+/** Set of post slugs that have been mailed to subscribers (Data Browser: `newsletter:sent_posts` or `DBNAME:newsletter:sent_posts`). */
+const SENT_POSTS_KEY = 'newsletter:sent_posts';
 
 let redisClient: Redis | null = null;
 
@@ -40,6 +42,16 @@ export async function removeSubscriber(email: string): Promise<boolean> {
   if (exists !== 1) return false;
   await redis.srem(SUBSCRIBERS_KEY, email);
   return true;
+}
+
+/** Record that a post’s newsletter was sent (creates the Redis key on first use). */
+export async function markNewsletterPostSent(slug: string): Promise<void> {
+  try {
+    const redis = getRedisClient();
+    await redis.sadd(SENT_POSTS_KEY, slug);
+  } catch (e) {
+    console.error('[redis] markNewsletterPostSent failed:', e);
+  }
 }
 
 export async function checkRateLimit(
